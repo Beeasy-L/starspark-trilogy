@@ -132,8 +132,11 @@ body{
 .features{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:26px}
 .feat{background:linear-gradient(170deg,rgba(20,38,76,.5),rgba(9,15,32,.65));
   border:1px solid var(--line);border-radius:16px;overflow:hidden;display:flex;flex-direction:column}
-.feat .ph{position:relative;border-bottom:1px solid var(--line)}
-.feat .ph img{display:block;width:100%;height:auto}
+.feat .ph{position:relative;border-bottom:1px solid var(--line);aspect-ratio:4/3;overflow:hidden;
+  background:rgba(7,13,28,.82)}
+.feat .ph::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(180deg,transparent 72%,rgba(9,15,32,.28))}
+.feat .ph img{display:block;width:100%;height:100%;object-fit:cover;object-position:top center}
 .feat .body{padding:15px 17px;flex:1}
 .feat .body h4{font-family:var(--serif);font-size:15.5px;color:var(--gold);letter-spacing:.08em;margin-bottom:6px}
 .feat .body p{font-size:12.5px;color:var(--muted);line-height:1.9}
@@ -408,7 +411,7 @@ footer .poem{font-family:var(--serif);color:var(--gold2);letter-spacing:.25em;fo
   </div>
 
   <div class="big-shot">
-    <img src="assets/focus-protocol.png" alt="专注 Pro 点火协议">
+    <img src="assets/focus-protocol-v040.png" alt="专注 Pro 点火协议">
     <div class="cap">v0.4.0 点火页 · 立即点火 / 5 分钟侦查 / 预约入座</div>
   </div>
 
@@ -416,11 +419,11 @@ footer .poem{font-family:var(--serif);color:var(--gold2);letter-spacing:.25em;fo
     <h2>特色亮点</h2>
     <div class="features">
       <div class="feat">
-        <div class="ph"><img src="assets/focus-chain.png" alt="星河链路"></div>
+        <div class="ph"><img src="assets/focus-chain-v040.png" alt="星河链路"></div>
         <div class="body"><h4>星河链路</h4><p>当前星链如一条燃烧的星河逐颗亮起，历史最长链留在远处发光；点一颗星，可回看当次任务、时长与完成方式。</p></div>
       </div>
       <div class="feat">
-        <div class="ph"><img src="assets/focus-stats.png" alt="专注统计与启动协议"></div>
+        <div class="ph"><img src="assets/focus-stats-v040.png" alt="专注统计与启动协议"></div>
         <div class="body"><h4>星图 · 统计 · 判例</h4><p>近 90 天星图回看投入轨迹；启动协议统计区分直接点火、侦查转化和预约守时；合理中断立为判例，规则长期一致。</p></div>
       </div>
     </div>
