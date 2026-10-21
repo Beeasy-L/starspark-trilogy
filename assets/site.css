@@ -51,15 +51,6 @@ button:focus-visible,a:focus-visible{outline:2px solid var(--gold);outline-offse
     radial-gradient(circle at 77% 26%,rgba(230,173,69,.045),transparent 32%),
     linear-gradient(180deg,transparent 55%,rgba(7,11,24,.2) 82%,rgba(7,11,24,.78));
 }
-.starfield::after{
-  content:"";position:absolute;top:13%;right:9%;
-  width:150px;height:1px;border-radius:99px;
-  background:linear-gradient(90deg,transparent,rgba(246,220,155,.15),rgba(255,255,255,.95));
-  filter:drop-shadow(0 0 5px rgba(246,220,155,.8));
-  opacity:0;
-  transform:rotate(-25deg) translate3d(80px,-45px,0);
-  animation:meteor 1.6s 1.1s ease-out both;
-}
 .starfield__layer{position:absolute;inset:0;will-change:transform}
 .star{
   position:absolute;left:var(--x);top:var(--y);
@@ -86,16 +77,49 @@ button:focus-visible,a:focus-visible{outline:2px solid var(--gold);outline-offse
 }
 .star--glint::before{width:calc(var(--size) * 7);height:1px}
 .star--glint::after{width:1px;height:calc(var(--size) * 7)}
+.meteor{
+  position:absolute;left:var(--meteor-x);top:var(--meteor-y);
+  width:var(--meteor-length);height:1.5px;border-radius:99px;
+  opacity:0;transform-origin:100% 50%;
+  background:linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(159,178,216,.12) 28%,
+    rgba(246,220,155,.72) 72%,
+    #fffdf2 100%
+  );
+  filter:drop-shadow(0 0 5px rgba(246,220,155,.7));
+  animation:
+    meteor-fall var(--meteor-duration) var(--meteor-delay)
+    linear infinite;
+}
+.meteor::after{
+  content:"";position:absolute;right:-1px;top:50%;
+  width:3px;height:3px;border-radius:50%;background:#fffdf2;
+  box-shadow:0 0 8px rgba(255,244,204,.95);
+  transform:translateY(-50%);
+}
+.meteor--soft{height:1px;opacity:0;filter:drop-shadow(0 0 3px rgba(193,211,244,.55))}
 
 @keyframes twinkle{
   0%,100%{opacity:calc(var(--star-opacity) * .48);transform:scale(.82)}
   48%{opacity:var(--star-opacity);transform:scale(1)}
 }
-@keyframes meteor{
-  0%{opacity:0;transform:rotate(-25deg) translate3d(80px,-45px,0)}
-  18%{opacity:1}
-  74%{opacity:.8}
-  100%{opacity:0;transform:rotate(-25deg) translate3d(-420px,180px,0)}
+@keyframes meteor-fall{
+  0%,12%{opacity:0;transform:translate3d(120px,-55px,0) rotate(var(--meteor-angle)) scaleX(.35)}
+  18%{opacity:.32}
+  23%{opacity:1}
+  58%{opacity:.7}
+  66%,100%{opacity:0;transform:translate3d(var(--meteor-move-x),var(--meteor-move-y),0) rotate(var(--meteor-angle)) scaleX(1)}
+}
+@media (hover:none) and (pointer:coarse){
+  .starfield__layer{animation:star-drift 18s ease-in-out infinite alternate}
+  .starfield__layer:nth-child(2){animation-duration:23s;animation-direction:alternate-reverse}
+  .starfield__layer:nth-child(3){animation-duration:29s}
+}
+@keyframes star-drift{
+  from{transform:translate3d(-7px,3px,0)}
+  to{transform:translate3d(9px,-6px,0)}
 }
 body[data-page="detail"] .starfield{opacity:.62}
 

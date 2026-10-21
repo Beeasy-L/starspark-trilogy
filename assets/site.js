@@ -124,6 +124,55 @@
     );
   }
 
+  function makeMeteors() {
+    if (!starfield || reduceMotion.matches) return;
+
+    var mobile = window.matchMedia('(max-width: 768px)').matches;
+    var count = mobile ? 10 : 11;
+
+    starfield.querySelectorAll('.meteor').forEach(function (meteor) {
+      meteor.remove();
+    });
+
+    for (var i = 0; i < count; i += 1) {
+      var meteor = document.createElement('span');
+      var length = mobile
+        ? 82 + Math.random() * 74
+        : 105 + Math.random() * 88;
+      var duration = 6.2 + Math.random() * 4.8;
+
+      meteor.className = i % 4 === 3 ? 'meteor meteor--soft' : 'meteor';
+      meteor.style.setProperty(
+        '--meteor-x',
+        (mobile ? 48 : 58) + Math.random() * 57 + '%'
+      );
+      meteor.style.setProperty(
+        '--meteor-y',
+        (3 + Math.random() * 48).toFixed(2) + '%'
+      );
+      meteor.style.setProperty('--meteor-length', length.toFixed(1) + 'px');
+      meteor.style.setProperty('--meteor-duration', duration.toFixed(2) + 's');
+      meteor.style.setProperty(
+        '--meteor-delay',
+        (-Math.random() * duration).toFixed(2) + 's'
+      );
+      meteor.style.setProperty(
+        '--meteor-angle',
+        (-31 + Math.random() * 10).toFixed(1) + 'deg'
+      );
+      meteor.style.setProperty(
+        '--meteor-move-x',
+        (-(length * 3.8 + 170)).toFixed(1) + 'px'
+      );
+      meteor.style.setProperty(
+        '--meteor-move-y',
+        (length * 2.1).toFixed(1) + 'px'
+      );
+      starfield.appendChild(meteor);
+    }
+  }
+
   makeStars();
+  makeMeteors();
   initParallax();
 })();
