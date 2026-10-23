@@ -587,15 +587,11 @@
     if (!epilogue) return;
 
     var wasVisible = false;
-    var timer;
     var observer = new IntersectionObserver(function (entries) {
-      clearTimeout(timer);
-      timer = setTimeout(function () {
-        var visible = entries[entries.length - 1].isIntersecting;
-        if (visible === wasVisible) return;
-        wasVisible = visible;
-        music.switchToTrack(visible ? 1 : 0);
-      }, 250);
+      var visible = entries[entries.length - 1].isIntersecting;
+      if (visible === wasVisible) return;
+      wasVisible = visible;
+      music.switchToTrack(visible ? 1 : 0);
     }, { threshold: [0, 0.25] });
 
     observer.observe(epilogue);
