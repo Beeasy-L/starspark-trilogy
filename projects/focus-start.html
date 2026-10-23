@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>星火专注 Pro · 给同学的上手页</title>
+  <meta name="description" content="星火专注 Pro 上手页：扫码打开、三步开始专注；纯网页、无账号、不联网，数据只在你自己的设备上。">
+  <meta name="author" content="Esty">
+  <meta name="theme-color" content="#070b18">
+  <link rel="canonical" href="https://beeasy-l.github.io/starspark-trilogy/projects/focus-start.html">
+
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="星火三部曲">
+  <meta property="og:title" content="星火专注 Pro · 给同学的上手页">
+  <meta property="og:description" content="扫码打开，三步开始专注：点火 → 计时 → 铸星。纯网页、无账号、不联网。">
+  <meta property="og:url" content="https://beeasy-l.github.io/starspark-trilogy/projects/focus-start.html">
+  <meta property="og:image" content="https://beeasy-l.github.io/starspark-trilogy/assets/social-card.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="星火专注 Pro · 给同学的上手页">
+  <meta name="twitter:description" content="扫码打开，三步开始专注：点火 → 计时 → 铸星。">
+  <meta name="twitter:image" content="https://beeasy-l.github.io/starspark-trilogy/assets/social-card.jpg">
+
+  <link rel="stylesheet" href="../assets/site.css?v=20261022b">
+  <script src="../assets/site.js?v=20261022b" defer></script>
+  <style>
+    .start-card{display:grid;grid-template-columns:1fr auto;gap:26px;align-items:center;margin-top:30px;
+      padding:26px 28px;border:1px solid rgba(246,220,155,.3);border-radius:18px;
+      background:linear-gradient(135deg,rgba(22,31,58,.8),rgba(10,15,30,.6))}
+    .start-card h3{margin:0 0 8px;font-family:var(--serif);font-size:22px;color:var(--gold-hi,#ffe6ad);letter-spacing:.08em}
+    .start-card p{margin:0 0 16px;color:var(--muted);font-size:13.5px;line-height:1.9}
+    .qrbox{text-align:center}
+    .qrbox img{width:190px;height:190px;border-radius:12px;border:1px solid rgba(246,220,155,.35);display:block}
+    .qrbox small{display:block;margin-top:8px;color:var(--muted);font-size:11.5px;letter-spacing:.08em}
+    .start-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:26px}
+    .start-step{padding:20px;border:1px solid rgba(255,255,255,.1);border-radius:16px;background:rgba(255,255,255,.035)}
+    .start-step .no{width:34px;height:34px;border-radius:50%;border:1px solid rgba(246,220,155,.45);
+      display:grid;place-items:center;color:var(--gold-hi,#ffe6ad);font-family:var(--serif);font-size:16px}
+    .start-step h4{margin:14px 0 6px;font-family:var(--serif);font-size:17px;color:#fff;letter-spacing:.06em}
+    .start-step p{margin:0;color:var(--muted);font-size:12.8px;line-height:1.9}
+    .safety{list-style:none;margin:22px 0 0;padding:0;display:grid;gap:10px}
+    .safety li{padding-left:22px;position:relative;color:var(--ink2,#c9d3e8);font-size:13.2px;line-height:1.9}
+    .safety li::before{content:"✦";position:absolute;left:0;color:var(--gold,#f6dc9b)}
+    details.faq{margin-top:10px;border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:14px 18px;
+      background:rgba(255,255,255,.03)}
+    details.faq summary{cursor:pointer;color:#fff;font-size:14px;letter-spacing:.03em}
+    details.faq p{margin:10px 0 0;color:var(--muted);font-size:13px;line-height:1.9}
+    @media (max-width:720px){
+      .start-card{grid-template-columns:1fr;text-align:center}
+      .qrbox img{margin:0 auto}
+      .start-steps{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body data-page="detail" data-bgm-src="../assets/xiaoxingxing.mp3">
+  <div class="starfield" id="starfield" aria-hidden="true">
+    <div class="starfield__layer"></div>
+    <div class="starfield__layer"></div>
+    <div class="starfield__layer"></div>
+  </div>
+
+  <main class="wrap detail">
+    <a class="back-btn" href="../index.html">‹ 返回三部曲</a>
+
+    <header class="detail-hero">
+      <h1 class="t">先坐下，再开始</h1>
+      <div class="en">STARFIRE · FOCUS PRO — 第二部 · 正式版 v1.0</div>
+      <p class="poem">愿我如星君如月，夜夜流光相皎洁。</p>
+      <p class="intro">这是一页给同学的上手说明。星火专注 Pro 是一个用手机浏览器就能打开的专注工具：不注册、不安装、不联网，数据只留在你自己的设备上。</p>
+    </header>
+
+    <div class="start-card">
+      <div>
+        <h3>扫码打开</h3>
+        <p>手机扫码即可使用，建议在浏览器菜单里选「添加到主屏幕」，以后像 App 一样打开。第一次打开会有三屏引导，30 秒看完。</p>
+        <a class="back-btn primary" href="https://beeasy-l.github.io/starspark-focus/" target="_blank" rel="noopener">在浏览器打开 →</a>
+      </div>
+      <div class="qrbox">
+        <img src="../assets/focus-qr.png" alt="扫码打开星火专注 Pro" width="190" height="190" loading="lazy">
+        <small>扫码直接打开</small>
+      </div>
+    </div>
+
+    <section class="section" aria-labelledby="steps-title">
+      <h2 id="steps-title">三步开始</h2>
+      <div class="start-steps">
+        <article class="start-step">
+          <div class="no">壹</div>
+          <h4>点火</h4>
+          <p>在「今天」写下一件事，点「点火 · 25 分钟」。不想开始就选「5 分钟热身」——它不要求你有状态，只要求先坐下。</p>
+        </article>
+        <article class="start-step">
+          <div class="no">贰</div>
+          <h4>专注</h4>
+          <p>计时基于真实时间，锁屏、切后台回来都按实际经过时间继续。需要背景声时打开「静场」：白噪、雨声、海浪、篝火都在本地合成。</p>
+        </article>
+        <article class="start-step">
+          <div class="no">叁</div>
+          <h4>铸星</h4>
+          <p>完成就铸成一颗星，接进你的星链，还可以补一句「这次推进了什么」。历史最长链永远保留。</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="break-title">
+      <h2 id="break-title">中途被打断怎么办</h2>
+      <p class="lead">点「结束」时由你当裁判，规则二选一，不偷偷放水，也不一律判死。</p>
+      <ul class="safety">
+        <li><b>立为判例</b>：这是合理中断（喝水、接水、取快递、同学找），本次照样铸星，以后同类情况默认放行。</li>
+        <li><b>断链</b>：本次不铸星，从 #1 重新开始；但历史最长链永远留着，不会羞辱你。</li>
+      </ul>
+    </section>
+
+    <section class="section" aria-labelledby="safe-title">
+      <h2 id="safe-title">数据安全承诺</h2>
+      <ul class="safety">
+        <li><b>纯网页</b>：没有服务器、没有账号，不读取任何手机系统权限。</li>
+        <li><b>不联网也能用</b>：计时、静场、引导、年度星图全部在本地运行。</li>
+        <li><b>数据只在你自己的设备</b>：存在浏览器本地存储里，任何人（包括作者）都看不到。</li>
+        <li><b>唯一风险是清缓存</b>：请在「我的 → 数据与备份」定期导出 JSON，换手机或清缓存前先导出。</li>
+        <li><b>年度星图</b>：图片在本机用 Canvas 绘制，不上传、不调用第三方服务。</li>
+      </ul>
+    </section>
+
+    <section class="section" aria-labelledby="faq-title">
+      <h2 id="faq-title">常见问题</h2>
+      <details class="faq"><summary>要注册、要付费吗？</summary><p>不用注册，也不收费。它不是一个需要服务器的产品，打开网页就能用。</p></details>
+      <details class="faq"><summary>换手机会丢数据吗？</summary><p>会。数据只存在当前浏览器里，请在旧手机「我的 → 数据与备份」导出 JSON，再到新设备导入合并。</p></details>
+      <details class="faq"><summary>能装成 App 吗？</summary><p>可以。手机浏览器菜单里选「添加到主屏幕」，之后像 App 一样打开，离线也能用。</p></details>
+      <details class="faq"><summary>断了是不是就白费了？</summary><p>不是。断链只是从 #1 重新开始，历史最长链和已经内化的国策都会保留；它不负责羞辱你。</p></details>
+    </section>
+
+    <footer>
+      <div class="poem">星星之火，可以燎原。</div>
+      <div class="footer-actions">
+        <a class="back-btn primary" href="https://beeasy-l.github.io/starspark-focus/" target="_blank" rel="noopener">打开星火专注 Pro →</a>
+        <a class="back-btn" href="focus.html">看产品介绍</a>
+        <a class="back-btn" href="../index.html">返回三部曲</a>
+      </div>
+    </footer>
+  </main>
+</body>
+</html>
