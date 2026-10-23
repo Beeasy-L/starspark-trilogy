@@ -1,0 +1,137 @@
+{
+  "src": "C:\\Users\\saucc\\Desktop\\星火三部曲\\星火三部曲介绍.html",
+  "url": "file:///C:/Users/saucc/Desktop/%E6%98%9F%E7%81%AB%E4%B8%89%E9%83%A8%E6%9B%B2/%E6%98%9F%E7%81%AB%E4%B8%89%E9%83%A8%E6%9B%B2%E4%BB%8B%E7%BB%8D.html",
+  "outdir": "C:\\Users\\saucc\\Desktop\\星火三部曲\\_shots",
+  "include": [
+    "lint",
+    "screenshots",
+    "structure"
+  ],
+  "shots": {
+    "desktop": {
+      "screenshot": "C:\\Users\\saucc\\Desktop\\星火三部曲\\_shots\\星火三部曲介绍_desktop.jpg",
+      "screenshotBytes": 114786,
+      "truncated": false,
+      "structure": {
+        "title": "星火三部曲 · 星星之火，可以燎原",
+        "firstH1": "星火三部曲",
+        "viewport": {
+          "w": 1440,
+          "h": 900
+        },
+        "fullpage": {
+          "w": 1440,
+          "h": 2144
+        },
+        "counts": {
+          "section": 10,
+          "h1": 1,
+          "h2": 9,
+          "img": 7,
+          "canvas": 0,
+          "svg": 4,
+          "links": 4,
+          "buttons": 2
+        }
+      },
+      "consoleErrors": [],
+      "consoleWarnings": [],
+      "horizontalOverflow": [],
+      "resourceErrors": [],
+      "misalignedBlocks": [
+        {
+          "tag": "h2",
+          "text": "星火年表",
+          "rect": [
+            212,
+            1298,
+            1016,
+            46
+          ],
+          "widthDeltaVsGrid": 296,
+          "gridWidth": 720,
+          "containerWidth": 1016,
+          "containerTag": "section"
+        }
+      ],
+      "misalignedBlocksHint": "含义：section/main/article 直接子级里，个别元素撑到父容器全宽、其他兄弟明显更窄。widthDeltaVsGrid=比栅格宽多少 px、gridWidth=正常栅格宽度、containerWidth=父容器宽度。最常见根因：HTML 标签闭合错位（<p> 忘了 </p> 等）导致元素跳出 .wrap/.container 层级，浏览器容错解析、不报 console 错但布局层级已被打乱。 | 修法：从 containerTag 定位到出问题的 section，逐行检查该 section 内前面的 HTML 标签闭合。 | 豁免：(1) **full-bleed / breakout 布局**——故意做全宽 hero、全宽 gradient divider、文章里跳出正文栏的大图/引用块（杂志排版）。看截图确认是设计意图后忽略；(2) sticky/absolute 顶栏错放在 section 直接子级下（罕见）。",
+      "reportSource": "cdp"
+    }
+  },
+  "engine": "chrome_cli",
+  "chromiumExec": "C:\\Users\\saucc/AppData/Local/ms-playwright\\chromium_headless_shell-1243\\chrome-headless-shell-win64\\chrome-headless-shell.exe",
+  "engineDegraded": true,
+  "engineDegradedReason": "playwright 未装",
+  "elapsedSec": 3.93,
+  "schemaVersion": 2,
+  "status": "warning",
+  "engineInfo": {
+    "name": "chrome_cli",
+    "degraded": true,
+    "degradedReasons": [
+      "playwright 未装"
+    ]
+  },
+  "input": {
+    "original": "C:\\Users\\saucc\\Desktop\\星火三部曲\\星火三部曲介绍.html",
+    "resolvedPath": "C:\\Users\\saucc\\Desktop\\星火三部曲\\星火三部曲介绍.html",
+    "baseUrl": "file:///C:/Users/saucc/Desktop/%E6%98%9F%E7%81%AB%E4%B8%89%E9%83%A8%E6%9B%B2/%E6%98%9F%E7%81%AB%E4%B8%89%E9%83%A8%E6%9B%B2%E4%BB%8B%E7%BB%8D.html",
+    "protocol": "file",
+    "cwd": "C:\\Users\\saucc\\Doubao\\chats\\2026-10-08\\new-chat",
+    "mediaMode": {
+      "reducedMotion": true
+    }
+  },
+  "artifacts": {
+    "screenshots": [
+      {
+        "viewport": "desktop",
+        "path": "C:\\Users\\saucc\\Desktop\\星火三部曲\\_shots\\星火三部曲介绍_desktop.jpg",
+        "size": 114786,
+        "visualCoverage": {
+          "complete": true,
+          "reason": null
+        }
+      }
+    ]
+  },
+  "summary": {
+    "blocker": 0,
+    "error": 0,
+    "warning": 1,
+    "info": 0
+  },
+  "findings": [
+    {
+      "ruleId": "misalignedBlocks",
+      "severity": "warning",
+      "kind": "layout",
+      "viewport": "desktop",
+      "selector": "h2",
+      "evidence": {
+        "tag": "h2",
+        "text": "星火年表",
+        "rect": [
+          212,
+          1298,
+          1016,
+          46
+        ],
+        "widthDeltaVsGrid": 296,
+        "gridWidth": 720,
+        "containerWidth": 1016,
+        "containerTag": "section"
+      },
+      "dedupeKey": "misalignedBlocks|desktop|h2|0"
+    }
+  ],
+  "prioritizedActions": [
+    {
+      "ruleId": "misalignedBlocks",
+      "severity": "warning",
+      "viewport": "desktop",
+      "selector": "h2"
+    }
+  ],
+  "reportPath": "C:\\Users\\saucc\\Desktop\\星火三部曲\\_shots\\report.json"
+}
