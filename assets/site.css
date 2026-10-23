@@ -326,7 +326,7 @@ body[data-page="detail"] .starfield{opacity:.62}
 .epilogue .k{color:var(--gold2);font-family:var(--serif);font-size:13px;letter-spacing:.35em}
 .epilogue .poem{
   margin:14px 0 10px;color:var(--gold);font-family:var(--serif);
-  font-size:15px;letter-spacing:.2em;
+  font-size:15px;letter-spacing:.2em;line-height:2;text-align:center;
 }
 .epilogue p{
   max-width:720px;margin:0 auto;color:#d5def2;
