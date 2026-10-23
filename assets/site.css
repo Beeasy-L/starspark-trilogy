@@ -324,13 +324,13 @@ body[data-page="detail"] .starfield{opacity:.62}
   text-align:center;
 }
 .epilogue .k{color:var(--gold2);font-family:var(--serif);font-size:13px;letter-spacing:.35em}
-.epilogue .poem{
-  margin:14px 0 10px;color:var(--gold);font-family:var(--serif);
-  font-size:15px;letter-spacing:.2em;line-height:2;text-align:center;
-}
 .epilogue p{
   max-width:720px;margin:0 auto;color:#d5def2;
   font-size:13.5px;line-height:2.1;letter-spacing:.02em;
+}
+.epilogue .poem{
+  margin:14px auto 10px;max-width:720px;color:var(--gold);font-family:var(--serif);
+  font-size:15px;letter-spacing:.2em;line-height:2;text-align:center;
 }
 .epilogue p b{color:var(--fire2);font-weight:600}
 .epilogue-thought{max-width:720px;margin:18px auto 0;text-align:left}
