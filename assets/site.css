@@ -332,6 +332,7 @@ body[data-page="detail"] .starfield{opacity:.62}
   margin:14px auto 10px;max-width:720px;color:var(--gold);font-family:var(--serif);
   font-size:15px;letter-spacing:.2em;line-height:2;text-align:center;
 }
+.epilogue .poem br{display:none}
 .epilogue p b{color:var(--fire2);font-weight:600}
 .epilogue-thought{max-width:720px;margin:18px auto 0;text-align:left}
 .epilogue-thought p{text-align:left}
@@ -363,8 +364,9 @@ body[data-page="detail"] .starfield{opacity:.62}
 }
 .detail-hero .poem{
   margin-top:14px;color:var(--gold);font-family:var(--serif);
-  font-size:14px;letter-spacing:.16em;opacity:.86;
+  font-size:14px;letter-spacing:.16em;opacity:.86;text-align:center;
 }
+.detail-hero .poem br{display:none}
 .detail-hero .intro{
   max-width:720px;margin:16px auto 0;color:var(--muted);
   font-size:13.5px;line-height:2;letter-spacing:.03em;
@@ -438,6 +440,7 @@ footer .poem{
   .hero{padding:50px 20px 30px}
   .hero h1{font-size:29px}
   .hero .poem{font-size:13px;letter-spacing:.14em}
+  .epilogue .poem br{display:inline}
   .pillars,.cards,.features,.ai-grid{grid-template-columns:1fr}
   .card{padding:24px 18px}
   .section h2{font-size:19px}

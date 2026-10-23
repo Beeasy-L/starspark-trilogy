@@ -586,23 +586,16 @@
     var epilogue = document.querySelector('.epilogue');
     if (!epilogue) return;
 
-    var switching = false;
+    var wasVisible = false;
+    var timer;
     var observer = new IntersectionObserver(function (entries) {
-      entries.forEach(function (entry) {
-        // 防止连续触发导致频繁切歌
-        if (switching) return;
-        if (entry.isIntersecting && entry.intersectionRatio >= 0.25) {
-          // 滚进信的区域 → 月亮代表我的心
-          switching = true;
-          music.switchToTrack(1);
-          setTimeout(function () { switching = false; }, 4000);
-        } else if (!entry.isIntersecting && entry.intersectionRatio === 0) {
-          // 滚出 → 切回小星星
-          switching = true;
-          music.switchToTrack(0);
-          setTimeout(function () { switching = false; }, 4000);
-        }
-      });
+      clearTimeout(timer);
+      timer = setTimeout(function () {
+        var visible = entries[entries.length - 1].isIntersecting;
+        if (visible === wasVisible) return;
+        wasVisible = visible;
+        music.switchToTrack(visible ? 1 : 0);
+      }, 250);
     }, { threshold: [0, 0.25] });
 
     observer.observe(epilogue);
