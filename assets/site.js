@@ -433,6 +433,12 @@
       },
       keepPlaying: function () {
         if (!userPaused) nudgeResume(2600);
+      },
+      switchToTrack: function (index) {
+        if (index >= 0 && index < playlist.length && index !== trackIndex) {
+          loadTrack(index, 0);
+          if (!userPaused) playMusic();
+        }
       }
     };
   }
@@ -573,4 +579,32 @@
   initEmbeddedPage();
   var music = initBackgroundMusic();
   initDetailOverlay(music);
+
+  // 滚到「给未来的自己」时切到月亮代表我的心，滚走切回小星星
+  (function () {
+    if (!music || !music.switchToTrack) return;
+    var epilogue = document.querySelector('.epilogue');
+    if (!epilogue) return;
+
+    var switching = false;
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        // 防止连续触发导致频繁切歌
+        if (switching) return;
+        if (entry.isIntersecting && entry.intersectionRatio >= 0.25) {
+          // 滚进信的区域 → 月亮代表我的心
+          switching = true;
+          music.switchToTrack(1);
+          setTimeout(function () { switching = false; }, 4000);
+        } else if (!entry.isIntersecting && entry.intersectionRatio === 0) {
+          // 滚出 → 切回小星星
+          switching = true;
+          music.switchToTrack(0);
+          setTimeout(function () { switching = false; }, 4000);
+        }
+      });
+    }, { threshold: [0, 0.25] });
+
+    observer.observe(epilogue);
+  })();
 })();

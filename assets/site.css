@@ -200,7 +200,7 @@ body[data-page="detail"] .starfield{opacity:.62}
 }
 .hero .sub{
   margin-top:12px;color:var(--muted);font-size:14px;
-  line-height:2;letter-spacing:.04em;
+  line-height:2;letter-spacing:.04em;text-align:center;
 }
 .trilogy-line{
   margin-top:19px;color:var(--fire2);font-family:var(--serif);
