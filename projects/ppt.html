@@ -27,6 +27,15 @@
 
   <link rel="stylesheet" href="../assets/site.css?v=20261024">
   <script src="../assets/site.js?v=20261024" defer></script>
+<style>
+.vs{width:100%;border-collapse:collapse;margin-top:24px;font-size:12.8px}
+.vs th,.vs td{padding:11px 12px;border-bottom:1px solid rgba(255,255,255,.09);vertical-align:top;text-align:left;line-height:1.8}
+.vs th{color:var(--gold2);font-weight:600;font-size:12px;letter-spacing:.08em;border-bottom:1px solid rgba(242,198,109,.35)}
+.vs td:first-child{white-space:nowrap;font-weight:500}
+.vs .bad{color:var(--muted)}
+.vs .good{color:#dbe7d4}
+@media(max-width:720px){.vs th,.vs td{padding:9px 6px;font-size:12px}.vs td:first-child{white-space:normal}}
+</style>
 </head>
 <body data-page="detail" data-bgm-src='[{"src":"../assets/xiaoxingxing.mp3","label":"小星星","volume":0.85},{"src":"../assets/moon.mp3","label":"月亮代表我的心","volume":1.0}]'>
   <div class="starfield" id="starfield" aria-hidden="true">
@@ -82,6 +91,71 @@
         </article>
       </div>
       <div class="ai-note"><b>Key 安全：</b>API Key 由你在前端自行填写，<b>只在当前标签页内有效，关闭页面即清除</b>——不写磁盘、不进服务器、不进日志。公用电脑上不会把上一个人的 Key 留给下一个人。写出的每一份 PPT 也都可以安心发给任何人看。</div>
+    </section>
+
+
+    <section class="section" aria-labelledby="why-title">
+      <h2 id="why-title">和直接让 AI 做 PPT 差在哪</h2>
+      <p class="lead">别人是「让 AI 顺便排个版」，星火PPT 是「<b>AI 负责想，排版交给规则</b>」。</p>
+
+      <div class="pillars">
+        <article class="pillar">
+          <div class="no">壹</div>
+          <h3>省掉学提示词</h3>
+          <p>12 种版式与一套设计纪律都写进了代码：标题必须给结论、每页必须补一句收束、相邻两页不许同版式。你只要贴内容。</p>
+        </article>
+        <article class="pillar">
+          <div class="no">贰</div>
+          <h3>省掉找模板</h3>
+          <p>6 套成体系配色内置，一键换整份，每套都调过对比度；不用去模板站挑、不用为了一个版式买会员。</p>
+        </article>
+        <article class="pillar">
+          <div class="no">叁</div>
+          <h3>省掉手动调格式</h3>
+          <p>字号层级、左右边距、中文避头尾由排版内核负责；内容真的超了，还会自动降一档字号，不会把字裁掉。</p>
+        </article>
+      </div>
+
+      <table class="vs">
+        <thead>
+          <tr><th>维度</th><th>直接在对话里让 AI 做个 PPT</th><th>星火PPT</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>排版由谁负责</td>
+            <td class="bad">模型临时写代码或套通用模板，每次结果都不一样</td>
+            <td class="good">模型只选版式、填内容，样式由确定性渲染器写死——它碰不到 CSS</td>
+          </tr>
+          <tr>
+            <td>版式多样</td>
+            <td class="bad">多数页都是「标题 + 几条要点」，翻到第五页就开始重样</td>
+            <td class="good">12 种版式现场编排：大数字、时间轴、流程、左右对照、金句、表格、交错……相邻两页不许重复</td>
+          </tr>
+          <tr>
+            <td>页标题</td>
+            <td class="bad">「背景」「概述」「核心功能」这类栏目名</td>
+            <td class="good">必须是结论句，只读一遍标题就能把整个故事讲完</td>
+          </tr>
+          <tr>
+            <td>每页有没有结论</td>
+            <td class="bad">没有，只是把要点罗列出来</td>
+            <td class="good">每页强制一句「收束句」，落在页脚细线下方</td>
+          </tr>
+          <tr>
+            <td>排版会不会翻车</td>
+            <td class="bad">对不齐、文字溢出、字号忽大忽小，得自己返工</td>
+            <td class="good">启动时自检 12 种版式是否真能渲染；内容溢出自动降档；中文避头尾</td>
+          </tr>
+          <tr>
+            <td>换一种风格</td>
+            <td class="bad">回模型重新生成一遍，内容可能也变了</td>
+            <td class="good">一键换整份配色，内容一个字都不用重写</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="ai-note"><b>我们不承诺什么：</b>不自动配图、不生成图表、不做动画；扫描件（图片型）PDF 读不出文字，会明确提示；纯网页版只能用允许浏览器跨域的接口；内容的事实与数据仍需你自己核。
+        <br><br><b>我们保证的是排版下限</b>——对齐、有层级、不溢出、版式不重复；<b>好不好看</b>取决于你选的配色和内容本身。</div>
     </section>
 
     <section class="section" aria-labelledby="loop-title">
