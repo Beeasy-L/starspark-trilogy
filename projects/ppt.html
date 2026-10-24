@@ -81,7 +81,7 @@
           </div>
         </article>
       </div>
-      <div class="ai-note"><b>Key 安全：</b>API Key 由你在前端自行填写，只存浏览器本地，不进服务器、不落盘、不备份。写出的每一份 PPT 都可以安心发给任何人看而不会泄露 Key。</div>
+      <div class="ai-note"><b>Key 安全：</b>API Key 由你在前端自行填写，<b>只在当前标签页内有效，关闭页面即清除</b>——不写磁盘、不进服务器、不进日志。公用电脑上不会把上一个人的 Key 留给下一个人。写出的每一份 PPT 也都可以安心发给任何人看。</div>
     </section>
 
     <section class="section" aria-labelledby="loop-title">
@@ -119,10 +119,18 @@
         </article>
         <article class="tl">
           <div class="dot" aria-hidden="true"></div>
+          <div class="when">V1.1</div>
+          <div class="what">
+            <b>排版内核重做 &#183; 版式 5 &#8594; 12 种</b>
+            <p>新增大数字、时间轴、流程步骤、左右对照、金句页、无竖线表格、交错排布；「卡片」改成细线网格，去掉千篇一律的圆角盒子。每页底部补一句「收束句」，标题从栏目名改成一句结论。排版随舞台等比缩放、溢出自动降档，启动时还会逐个校验 12 种版式画不画得出来。导出 .pptx 同步补全全部版式。</p>
+          </div>
+        </article>
+        <article class="tl">
+          <div class="dot" aria-hidden="true"></div>
           <div class="when">V1.2 &#183; 当前</div>
           <div class="what">
             <b>纯网页版 &#183; PDF 解析 &#183; Key 获取指南</b>
-            <p>做成单文件 94KB 的纯网页版，可丢到任何静态托管——同一份页面自动判断有没有后端，没有就直接浏览器直连，不用安装、不用服务器。自研零依赖 PDF 解析器，四份真实中文 PDF（495～15463 字）实测通过，14～211ms 抽完。API Key 输入框下方内置四步获取指南。</p>
+            <p>做成单文件 94KB 的纯网页版，可丢到任何静态托管——同一份页面自动判断有没有后端，没有就直接浏览器直连，不用安装、不用服务器。自研零依赖 PDF 解析器，四份真实中文 PDF（495～15463 字）实测通过，14～211ms 抽完。Key 保留方式改正：只在当前标签页有效、关闭即清除，公用电脑上不留痕。API Key 四步获取指南内置在输入框下方。</p>
           </div>
         </article>
       </div>
@@ -131,7 +139,7 @@
     <footer>
       <div class="poem">星星之火，可以燎原。</div>
       <div class="footer-actions">
-        <a class="back-btn primary" href="#" onclick="return false">本地部署启动后可体验 &#8594;</a>
+        <a class="back-btn primary" href="https://beeasy-l.github.io/starspark-ppt/" target="_blank" rel="noopener">在线体验星火PPT &#8594;</a>
         <a class="back-btn" href="../index.html">返回三部曲</a>
       </div>
     </footer>
