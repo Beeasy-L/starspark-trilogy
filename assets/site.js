@@ -257,6 +257,8 @@
     function loadTrack(index, seekTo) {
       trackIndex = (index + playlist.length) % playlist.length;
       var t = playlist[trackIndex];
+      // 音量统一：每首可配 volume 系数，默认 1
+      audio.volume = (typeof t.volume === 'number' && isFinite(t.volume)) ? t.volume : 1;
       if (audio.src && audio.src.endsWith && audio.src.indexOf(t.src) >= 0) {
         // 已经在同一首，只 seek
         try { if (isFinite(seekTo)) audio.currentTime = seekTo; } catch (e) {}
@@ -368,6 +370,8 @@
     function removeUnlockListeners() {
       document.removeEventListener('pointerdown', unlockMusic);
       document.removeEventListener('keydown', unlockMusic);
+      document.removeEventListener('touchstart', unlockMusic);
+      document.removeEventListener('scroll', unlockMusic);
     }
 
     function unlockMusic(event) {
@@ -381,6 +385,7 @@
       }
       playMusic().then(function (started) {
         if (started) removeUnlockListeners();
+        // 如果没成功，不 remove，下次交互继续重试
       });
     }
 
@@ -418,9 +423,16 @@
     registerToggle(toggle);
     document.addEventListener('pointerdown', unlockMusic, { passive: true });
     document.addEventListener('keydown', unlockMusic);
+    document.addEventListener('touchstart', unlockMusic, { passive: true });
+    document.addEventListener('scroll', unlockMusic, { passive: true });
 
     if (!userPaused) {
-      playMusic();
+      playMusic().then(function (started) {
+        if (!started) {
+          // 浏览器拦截了自动播放，等待用户第一次交互后重试
+          return;
+        }
+      });
       if (stored && stored.playing) nudgeResume(2200);
     } else {
       setPlaying(false);
