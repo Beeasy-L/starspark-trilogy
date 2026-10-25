@@ -35,6 +35,9 @@
 .vs .bad{color:var(--muted)}
 .vs .good{color:#dbe7d4}
 @media(max-width:720px){.vs th,.vs td{padding:9px 6px;font-size:12px}.vs td:first-child{white-space:normal}}
+/* 本页专属：让非 4:3 的截图按自身比例显示，不被 cover 裁掉主体 */
+.feature .ph.tall{aspect-ratio:9/16}
+.feature .ph.wide{aspect-ratio:16/9}
 </style>
 </head>
 <body data-page="detail" data-bgm-src='[{"src":"../assets/xiaoxingxing.mp3","label":"小星星","volume":0.85},{"src":"../assets/moon.mp3","label":"月亮代表我的心","volume":1.0}]'>
@@ -55,7 +58,7 @@
     </header>
 
     <div class="big-shot">
-      <img src="../assets/ppt-interface.jpg" alt="星火PPT 生成配置界面：左侧选模型、填 Key、贴内容，右侧幻灯片预览" fetchpriority="high">
+      <img src="../assets/ppt-interface.jpg" width="1100" height="890" alt="星火PPT 生成配置界面：左侧选模型、填 Key、贴内容，右侧幻灯片预览" fetchpriority="high">
       <div class="cap">V1.2 &#183; 左边配置、右边成稿 &#183; 没 Key 也能就地看申请指南</div>
     </div>
 
@@ -72,8 +75,8 @@
           </div>
         </article>
         <article class="feature">
-          <div class="ph">
-            <img src="../assets/ppt-themes.jpg" alt="星火PPT 六套配色主题：长夜星火、月白清光、青峰林海、鎏金案牍、紫雾星海、沧海深蓝" loading="lazy">
+          <div class="ph wide">
+            <img src="../assets/ppt-themes.jpg" width="1100" height="613" alt="星火PPT 六套配色主题：长夜星火、月白清光、青峰林海、鎏金案牍、紫雾星海、沧海深蓝" loading="lazy">
           </div>
           <div class="body">
             <h4>6 套模板 &#183; 6 大方向</h4>
@@ -81,8 +84,8 @@
           </div>
         </article>
         <article class="feature">
-          <div class="ph">
-            <img src="../assets/ppt-pages.jpg" alt="星火PPT 生成的连续多页：封面、要点页与表格页，版式各不相同" loading="lazy">
+          <div class="ph tall">
+            <img src="../assets/ppt-pages.jpg" width="900" height="1638" alt="星火PPT 生成的连续多页：封面、要点页与表格页，版式各不相同" loading="lazy">
           </div>
           <div class="body">
             <h4>纯网页版 &#183; 双格式导出</h4>
@@ -155,7 +158,7 @@
       </table>
 
       <div class="big-shot" style="margin-top:26px">
-        <img src="../assets/ppt-points.jpg" alt="星火PPT 生成的要点页：标题即结论，底部细线下压一句收束句" loading="lazy">
+        <img src="../assets/ppt-points.jpg" width="1100" height="878" alt="星火PPT 生成的要点页：标题即结论，底部细线下压一句收束句" loading="lazy">
         <div class="cap">生成实景 &#183; 标题给结论、底部细线下压一句「所以呢」——不是罗列要点就完事</div>
       </div>
 
