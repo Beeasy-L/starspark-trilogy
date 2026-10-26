@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>星火专注 Pro · 星火三部曲第二部</title>
-  <meta name="description" content="星火专注 Pro：面向大学生的本地专注力训练系统。点火仪式、星链与判例簿、六种本地静场、星火来信、国策树内化生长，无需服务器，可安装为 PWA。">
+  <meta name="description" content="星火专注 Pro：面向大学生的本地专注力训练系统。点火仪式、星链与判例簿、六种本地静场、星火来信、月历星图、国策树内化生长，无需服务器，可安装为 PWA。">
   <meta name="author" content="Esty">
   <meta name="theme-color" content="#070b18">
   <link rel="canonical" href="https://beeasy-l.github.io/starspark-trilogy/projects/focus.html">
@@ -40,9 +40,9 @@
 
     <header class="detail-hero">
       <h1 class="t">星火专注 Pro</h1>
-      <div class="en">STARFIRE &#183; FOCUS PRO — 第二部 &#183; v1.2.2</div>
+      <div class="en">STARFIRE &#183; FOCUS PRO — 第二部 &#183; v1.3.1</div>
       <p class="poem">愿我如星君如月，<br>夜夜流光相皎洁。</p>
-      <p class="intro">面向大学生的专注力定制系统。点火即计时，铸星接星链；六种静场——白噪、粉噪、棕噪与海浪由浏览器现场合成，雨声、篝火采用真实录音，全部只在本地生成、不联网。点火仪式用火种、星链和烟花把「开始」变成一个动作。每日复盘自动封存为「星火来信」，在全屏信纸中伴着钢琴声重读。专注链断了不清零——历史最长链永远保留，合理中断可以立为判例。国策树每守住一天向内生长（E1 生根 / E2 成树），年度星图把一整年的专注收成一张海报。所有数据留在本机，不需要服务器。</p>
+      <p class="intro">面向大学生的专注力定制系统。点火即计时，铸星接星链；六种静场——白噪、粉噪、棕噪与海浪由浏览器现场合成，雨声、篝火采用真实录音，全部只在本地生成、不联网。点火仪式用火种、星链和烟花把「开始」变成一个动作。每日复盘自动封存为「星火来信」，在全屏信纸中伴着钢琴声重读，信尾还记着那一天的专注成绩。想回望时打开<b>月历星图</b>——一天一格，点亮的日子就是铸过星的日子，可以一直往前翻到第一颗星。专注链断了不清零——历史最长链永远保留，合理中断可以立为判例。国策树每守住一天向内生长（E1 生根 / E2 成树）。所有数据留在本机，不需要服务器。</p>
     </header>
 
     <div class="big-shot">
@@ -223,10 +223,34 @@
         </article>
         <article class="tl">
           <div class="dot" aria-hidden="true"></div>
-          <div class="when">v1.2.2 &#183; 当前</div>
+          <div class="when">v1.2.2</div>
           <div class="what">
             <b>清掉一条死引用</b>
             <p>海浪本就是浏览器现场合成，却一直登记着一个不存在的音频文件——每次选海浪都白挨一次 404。删掉登记，声音没有变化。同时新增部署自检：预缓存清单里每一项是否真的存在，让静默失败无处躲。</p>
+          </div>
+        </article>
+        <article class="tl">
+          <div class="dot" aria-hidden="true"></div>
+          <div class="when">v1.2.3</div>
+          <div class="what">
+            <b>止血 &#183; 数据不再悄悄丢</b>
+            <p>存储写满时，从「只提示一次」改为每页常驻提醒并催你立刻导出；本机自动快照从 7 份收缩为 2 份，占用降到原来的四分之一。另修五处：「5 分钟热身」入口点了没反应、复盘赢级被静默记成「小赢」、背景乐加载失败却仍说在播放、静音串台、以及界面上一处泄露的内部变量名。</p>
+          </div>
+        </article>
+        <article class="tl">
+          <div class="dot" aria-hidden="true"></div>
+          <div class="when">v1.3.0</div>
+          <div class="what">
+            <b>回望 &#183; 把存下来的东西还给你</b>
+            <p>星图改成<b>月历</b>——一天一格、星期对齐，可以一直往前翻到第一颗星，每个月都记着「点火几天、铸星几颗」；信笺匣从只显示最近 30 封改成<b>全部来信</b>、按年折叠；信尾带上那一天的专注成绩；点亮「准时入座 / 完成度 / 自然走完与主动收束 / 国策累计守住失守」五项一直存着却没露面的记录。顺手清掉 95 行早已废弃的代码。</p>
+          </div>
+        </article>
+        <article class="tl">
+          <div class="dot" aria-hidden="true"></div>
+          <div class="when">v1.3.1 &#183; 当前</div>
+          <div class="what">
+            <b>自查修正 &#183; 信不再替你下结论</b>
+            <p>把自己当一个普通用户，用手机视口从头走了一遍，跑了 11 段路、量了 35 条数据，揪出三个真问题。最要紧的一处：那封信原本会把「点了火、也坐了半小时、只是中途断了」写成「这一天你没有点火」——<b>你明明做了，却被判没做</b>。现在改成只陈述记录里有什么，不再替你断定。另把信的关闭按钮从 22px 热区扩到 44px，回收箱与快照的恢复按钮扩到 40px。</p>
           </div>
         </article>
       </div>
