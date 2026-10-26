@@ -141,9 +141,11 @@ def collect_targets(argv):
         return argv
     here = os.path.dirname(os.path.abspath(__file__))
     root = os.path.abspath(os.path.join(here, ".."))
+    # 只检查介绍页发布物：排除产品源码、公共资产、归档区
+    skip_dirs = (".", "_", "产品", "共用", "_归档", "_产物", "_测试", "_工具", "node_modules", "venv")
     found = []
     for base, dirs, files in os.walk(root):
-        dirs[:] = [d for d in dirs if not d.startswith((".", "_"))]
+        dirs[:] = [d for d in dirs if not d.startswith(skip_dirs)]
         for name in files:
             if name.endswith(".html"):
                 found.append(os.path.join(base, name))
