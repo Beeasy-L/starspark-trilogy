@@ -118,11 +118,51 @@ def check_git():
         else:
             add("P0", "%s 同步检查" % label, False, "输出异常: %s" % out)
 
-        # 未提交改动
-        code, out, _ = run_git(repo, ["status", "--short"])
-        n = len([l for l in out.splitlines() if l.strip()])
-        add("P1", "%s 工作区干净" % label, n == 0,
-            "无未提交改动" if n == 0 else "%d 项未提交" % n)
+        # 未提交改动 —— 两路都查（2026-10-27 18:20 采纳 @星火专注Pro 的发现 + @群管理 补的缺口）
+        #
+        # 旧判据（已废弃）：git status --porcelain 非空 → 有未提交改动
+        #   废弃原因：迁移/复制改 mtime + core.autocrlf=true 会让索引 stat 缓存与磁盘对不上，
+        #            status 报 M 但 git diff 说无差异（git 的 "racy clean"）→ 假阳性
+        #
+        # 新判据（两路都查，各查各的）：
+        #   git diff --quiet          → 只看「已跟踪文件」的内容有没有真变化
+        #   git ls-files --others     → 只看「未跟踪新文件」（git diff 看不见这类！）
+        #   两条缺一：只用 diff 会漏掉忘记 add 的新文件；只用 status 会误报幻影 M
+        code_tracked, _, _ = run_git(repo, ["diff", "--quiet"])
+        dirty_tracked = (code_tracked != 0)   # 0 = 无差异
+
+        code_cached, _, _ = run_git(repo, ["diff", "--cached", "--quiet"])
+        dirty_staged = (code_cached != 0)
+
+        _, untracked_raw, _ = run_git(repo, ["ls-files", "--others", "--exclude-standard"])
+        untracked = [x for x in untracked_raw.splitlines() if x.strip()]
+
+        # 再看 status，仅用于诊断「stat 过期」这种幻影
+        _, status_raw, _ = run_git(repo, ["status", "--porcelain"])
+        status_lines = [x for x in status_raw.splitlines() if x.strip()]
+        # status 里有 M/A/D 但 diff 无差异的，就是幻影
+        phantom = (not dirty_tracked) and (not dirty_staged) and bool(status_lines) and not untracked
+
+        if dirty_tracked or dirty_staged:
+            parts = []
+            if dirty_tracked:
+                parts.append("工作区有真实改动")
+            if dirty_staged:
+                parts.append("暂存区有未提交")
+            if untracked:
+                parts.append("另有 %d 个未跟踪新文件" % len(untracked))
+            add("P1", "%s 工作区干净" % label, False, "；".join(parts))
+        elif untracked:
+            names = ", ".join(untracked[:5]) + (" …" if len(untracked) > 5 else "")
+            add("P1", "%s 工作区干净" % label, False,
+                "%d 个未跟踪新文件（git diff 看不见这类）：%s" % (len(untracked), names))
+        elif phantom:
+            # 内容没变，只是索引 stat 过期 —— 报出来但不当作「未提交」
+            add("P1", "%s 索引 stat" % label, False,
+                "索引 stat 过期（迁移/复制 + autocrlf 导致），实际零改动；"
+                "建议 git add 刷新，非真改动")
+        else:
+            add("P1", "%s 工作区干净" % label, True, "无未提交改动，无未跟踪文件")
 
 
 # ---------------- P0-2 回退包一致 ----------------
