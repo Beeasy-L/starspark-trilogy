@@ -23,6 +23,10 @@ _备份/
 _deck/
 _shots/
 
+# --- 工具脚本的中间产物（不参与发布，可再生成） ---
+tools/_out/
+tools/_tmp_*
+
 # --- 通用排除 ---
 **/qa-profile-*/
 **/_dogfood_shots/
