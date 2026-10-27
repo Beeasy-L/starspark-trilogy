@@ -59,10 +59,37 @@ LOCAL_FILES = [
 ]
 
 results = []  # (level, name, ok, detail)
+skipped = []  # 因网络不可达而未验证的项（≠ 失败）
 
 
 def add(level, name, ok, detail=""):
     results.append((level, name, ok, detail))
+
+
+def add_skip(name, reason):
+    """网络不可达：不能判定，也不该算失败"""
+    skipped.append((name, reason))
+
+
+# 网络不可达的错误特征（我的机器连不上 ≠ 站点坏了）
+NETWORK_ERROR_MARKERS = (
+    "getaddrinfo failed",
+    "Name or service not known",
+    "Temporary failure in name resolution",
+    "Connection was reset",
+    "Connection refused",
+    "WinError 10051",
+    "WinError 10060",
+    "WinError 11001",
+    "timed out",
+    "No route to host",
+    "Network is unreachable",
+)
+
+
+def is_network_error(exc) -> bool:
+    s = str(exc)
+    return any(m.lower() in s.lower() for m in NETWORK_ERROR_MARKERS)
 
 
 def run_git(repo, args, timeout=20):
@@ -344,8 +371,11 @@ def check_online():
                 add("P0", name, True, "HTTP 200, %s, HTML+title ✅" % human(size))
 
         except Exception as e:
-            add("P0", name, False, "不可访问: %s" % str(e)[:80])
-            print("       → 若刚 push，等 2 分钟再试")
+            if is_network_error(e):
+                add_skip(name, "网络不可达：%s" % str(e)[:70])
+            else:
+                add("P0", name, False, "不可访问: %s" % str(e)[:80])
+                print("       → 若刚 push，等 2 分钟再试")
 
 
 # ---------------- P0-5 分享卡：URL + 图片内容双重检查 ----------------
@@ -439,7 +469,10 @@ def check_share_card():
                 add("P0", "og:image 内容", True,
                     "%s, %s, %s ✅（magic bytes 正确）" % (kind, size_note, ctype))
         except Exception as e:
-            add("P0", "og:image 内容", False, "取不到: %s" % str(e)[:70])
+            if is_network_error(e):
+                add_skip("og:image 内容", "网络不可达：%s" % str(e)[:70])
+            else:
+                add("P0", "og:image 内容", False, "取不到: %s" % str(e)[:70])
 
         # ③ twitter:image 一致性
         mt = re.search(r'name="twitter:image"\s+content="([^"]+)"', content)
@@ -484,9 +517,23 @@ def main():
         mark = "PASS" if ok else "FAIL"
         print("  [%s][%s] %-38s %s" % (mark, level, name, detail))
 
+    # 网络不可达的项单独列出 —— 它们既不是通过，也不是失败
+    if skipped:
+        print()
+        print("  ── 未验证（网络不可达，不判定通过/失败）──")
+        for name, reason in skipped:
+            print("  [SKIP]    %-38s %s" % (name, reason))
+
     print("-" * 72)
-    print("合计 %d 项：P0 阻塞 %d 项未过 / P1 应有 %d 项未过"
-          % (total, len(p0_fail), len(p1_fail)))
+    print("合计 %d 项：P0 阻塞 %d 项未过 / P1 应有 %d 项未过 / 未验证 %d 项"
+          % (total, len(p0_fail), len(p1_fail), len(skipped)))
+
+    if skipped:
+        print()
+        print("⚠️  有 %d 项因网络不可达未验证。" % len(skipped))
+        print("   这些项**不能算通过**，也**不是失败** —— 是「没量到」。")
+        print("   发布前请在网络正常时重跑一次，确认它们真的通过。")
+        print("   判据依据：我连不上 ≠ 站点坏了。把前者当后者报，会制造假阻塞。")
 
     if p0_fail:
         print("\n❌ 有 P0 阻塞项，**不能发布**：")
@@ -498,6 +545,11 @@ def main():
         print("\n⚠️  P0 全部通过，可发布；下列 P1 项需记录：")
         for _, name, _, detail in p1_fail:
             print("   - %s：%s" % (name, detail))
+        return 2
+    if skipped:
+        # 全绿但有未验证项 → 不能宣称「全部通过」
+        print("\n✅ 已检查项全部通过，但有 %d 项未验证（网络）。" % len(skipped))
+        print("   网络恢复后请重跑，再宣布「门禁全绿」。")
         return 2
 
     print("\n✅ 全部通过，可发布。")
