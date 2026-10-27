@@ -34,12 +34,12 @@ REPOS = [
 ]
 
 ONLINE = [
-    ("介绍页首页", "https://beeasy-l.github.io/starspark-trilogy/", 9000, 20000),
-    ("第二部入口", "https://beeasy-l.github.io/starspark-trilogy/projects/focus.html", 5000, 40000),
-    ("第三部入口", "https://beeasy-l.github.io/starspark-trilogy/projects/ppt.html", 5000, 40000),
-    ("第一部入口", "https://beeasy-l.github.io/starspark-trilogy/projects/streak.html", 3000, 40000),
-    ("星火PPT 站点", "https://beeasy-l.github.io/starspark-ppt/", 100000, 900000),
-    ("星火专注Pro 站点", "https://beeasy-l.github.io/starspark-focus/", 50000, 600000),
+    ("介绍页首页", "https://beeasy-l.github.io/starspark-trilogy/", 9000, 20000, "星火三部曲"),
+    ("第二部入口", "https://beeasy-l.github.io/starspark-trilogy/projects/focus.html", 5000, 40000, "星火专注"),
+    ("第三部入口", "https://beeasy-l.github.io/starspark-trilogy/projects/ppt.html", 5000, 40000, "星火PPT"),
+    ("第一部入口", "https://beeasy-l.github.io/starspark-trilogy/projects/streak.html", 3000, 40000, "续火花"),
+    ("星火PPT 站点", "https://beeasy-l.github.io/starspark-ppt/", 100000, 900000, None),
+    ("星火专注Pro 站点", "https://beeasy-l.github.io/starspark-focus/", 50000, 600000, None),
 ]
 
 # 本地发布物：路径 -> 允许的体积区间（字节）
@@ -201,11 +201,27 @@ def check_anim():
     try:
         with open(ppt, encoding="utf-8", errors="replace") as f:
             content = f.read()
-        connected = "createAnim" in content
-        if connected:
-            add("P1", "anim.js 接入", True, "已接入主页面")
+
+        # ★ 不只 grep 符号：符号存在 ≠ 真的调用了
+        #   按「定义 / 实例化 / 调用」三级判定
+        has_def = "function createAnim" in content
+        has_call = bool(re.search(r"createAnim\s*\(", content))
+        has_mount = bool(re.search(r"\.mount\s*\(", content))
+        has_duck_hook = "onPageEnter" in content
+
+        if has_def and has_call and has_mount:
+            level = "已接入（定义+实例化+mount 三级齐全）"
+            if has_duck_hook:
+                level += "，且含 onPageEnter 回调"
+            add("P1", "anim.js 接入", True, level)
+        elif has_def:
+            # 只找到定义：可能是内联了模块但没接线
+            print("       ⚠ 找到 createAnim 定义，但缺实例化或 mount 调用")
+            print("         → 模块可能已内联但未接线；发布说明不能写「动画已完成」")
+            add("P1", "anim.js 接入", True,
+                "仅内联未接线（定义有，调用/mount 缺）")
         else:
-            print("       ⚠ createAnim 0 命中 —— 模块已交付但未启用")
+            print("       ⚠ 未找到 createAnim —— 模块已交付但未启用")
             print("         → 发布说明必须写明「已就绪未启用」，不能写「动画已完成」")
             add("P1", "anim.js 接入", True, "未接入（已知状态，非故障）")
     except Exception as e:
@@ -235,19 +251,58 @@ def check_external_deps():
     add("P1", "无 CDN 外链", len(hits) == 0, "无" if not hits else "命中: " + ", ".join(hits))
 
 
-# ---------------- P0-4 线上可访问 ----------------
+# ---------------- P0-4 线上可访问（验内容，不只验状态码） ----------------
 def check_online():
-    print("\n【P0-4】线上站点可访问")
-    for name, url, lo, hi in ONLINE:
+    print("\n【P0-4】线上站点：状态码 + 体积 + **内容特征**")
+    for name, url, lo, hi, must_contain in ONLINE:
         try:
             req = urllib.request.Request(url, headers={"User-Agent": "xh-release-check/1.0"})
             with urllib.request.urlopen(req, timeout=20) as resp:
                 code = resp.status
                 body = resp.read()
             size = len(body)
-            ok = (code == 200) and (lo <= size <= hi)
-            add("P0" if ok else "P1", name, ok,
-                "HTTP %d, %s（期望 %s–%s）" % (code, human(size), human(lo), human(hi)))
+
+            if code != 200:
+                add("P0", name, False, "HTTP %d" % code)
+                continue
+
+            if not (lo <= size <= hi):
+                add("P1", name, False,
+                    "HTTP 200 但体积 %s 超出期望 %s–%s"
+                    % (human(size), human(lo), human(hi)))
+                continue
+
+            # ★ 关键：验内容，不只看状态码 + 体积
+            try:
+                text = body.decode("utf-8", errors="replace")
+            except Exception:
+                text = ""
+
+            has_html = ("<html" in text.lower()) or ("<!doctype" in text.lower())
+            has_title = "<title" in text.lower()
+
+            if not has_html:
+                add("P0", name, False,
+                    "HTTP 200 + %s 但**不是 HTML**（可能是错误页）" % human(size))
+                print("       → 状态码和体积都能骗人，这一条是本轮新增的内容检查")
+                continue
+            if not has_title:
+                add("P1", name, False, "是 HTML 但无 <title>，页面可能不完整")
+                continue
+
+            # 特征串校验（可选）
+            if must_contain:
+                if must_contain in text:
+                    add("P0", name, True,
+                        "HTTP 200, %s, HTML+title ✅（含「%s」）"
+                        % (human(size), must_contain))
+                else:
+                    add("P1", name, False,
+                        "HTTP 200 且是 HTML，但**未含特征串「%s」**——可能是旧版或错误页"
+                        % must_contain)
+            else:
+                add("P0", name, True, "HTTP 200, %s, HTML+title ✅" % human(size))
+
         except Exception as e:
             add("P0", name, False, "不可访问: %s" % str(e)[:80])
             print("       → 若刚 push，等 2 分钟再试")
