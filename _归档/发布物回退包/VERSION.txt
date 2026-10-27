@@ -1,0 +1,13 @@
+# 发布物回退包 · 版本戳
+#
+# 下面三个 git hash 只是【溯源参考】，会因历史重写/合并/ff 而失效。
+# 判断本包是否仍与发布物一致，请跑：python tools/check_rollback.py
+# 那个脚本用 SHA256 逐文件比对内容，【不依赖 git hash】—— 这才是硬判据。
+
+打包时间: 2026-10-27 18:49:14
+
+主仓          f638c6d   (C:\Users\saucc\Desktop\星火三部曲)
+PPT deploy 仓 c32407b   (产品\星火PPT\deploy\网页版)
+专注Pro 仓    36c630b   (产品\星火专注Pro\_gitrepo)
+
+一致性自检: python tools/check_rollback.py   （期望 exit=0）
