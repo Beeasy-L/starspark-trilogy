@@ -253,9 +253,48 @@ def check_online():
             print("       → 若刚 push，等 2 分钟再试")
 
 
-# ---------------- P0-5 分享卡 ----------------
+# ---------------- P0-5 分享卡：URL + 图片内容双重检查 ----------------
+# magic bytes：只看 HTTP 200 不够，必须验内容是图片
+MAGIC = {
+    b"\xff\xd8\xff": "JPEG",
+    b"\x89PNG\r\n\x1a\n": "PNG",
+    b"GIF87a": "GIF",
+    b"GIF89a": "GIF",
+    b"RIFF": "WebP(RIFF)",
+}
+
+
+def sniff_image(head_bytes):
+    """返回 (是否图片, 类型名或误判说明)"""
+    for magic, name in MAGIC.items():
+        if head_bytes.startswith(magic):
+            return True, name
+    head = head_bytes[:12]
+    # base64 文本的典型开头：/9j/4AAQ（JPEG 的 base64）
+    if head.startswith(b"/9j/") or head.startswith(b"iVBOR") or head.startswith(b"R0lGOD"):
+        return False, "是 base64 文本，不是图片二进制"
+    try:
+        text = head.decode("ascii", errors="replace")
+        if all(32 <= ord(c) < 127 for c in text):
+            return False, "是文本内容，不是图片二进制"
+    except Exception:
+        pass
+    return False, "未知格式（前 %d 字节: %r）" % (len(head), head[:8])
+
+
+def fetch_head(url, nbytes=16, timeout=20):
+    """只读前 nbytes 字节 + 状态码 + content-type + 总长"""
+    req = urllib.request.Request(url, headers={"User-Agent": "xh-release-check/1.0"})
+    with urllib.request.urlopen(req, timeout=timeout) as resp:
+        status = resp.status
+        ctype = resp.headers.get("Content-Type", "")
+        clen = resp.headers.get("Content-Length")
+        head = resp.read(nbytes)
+    return status, ctype, (int(clen) if clen and clen.isdigit() else None), head
+
+
 def check_share_card():
-    print("\n【P0-5】分享卡 og:image（待确认项）")
+    print("\n【P0-5】分享卡：og:image 指向 + 图片内容双重检查")
     p = os.path.join(ROOT, "index.html")
     if not os.path.exists(p):
         add("P0", "og:image", False, "index.html 不存在")
@@ -268,15 +307,46 @@ def check_share_card():
             add("P0", "og:image 存在", False, "未找到 og:image")
             return
         url = m.group(1)
-        is_ip_http = bool(re.match(r"http://\d+\.\d+\.\d+\.\d+", url))
         print("       og:image = %s" % url)
+
+        # ① 协议与主机检查
+        is_ip_http = bool(re.match(r"http://\d+\.\d+\.\d+\.\d+", url))
+        is_http_nonip = url.startswith("http://")
         if is_ip_http:
-            print("       ⚠ 裸 IP + HTTP 协议 —— 需 @介绍页开发 确认：")
-            print("         ① 微信分享能否正常出图（微信通常要求 HTTPS）")
-            print("         ② 该服务器下线后分享卡即失效，需要兜底")
-            add("P1", "og:image 协议", False, "裸 IP + HTTP，待确认微信兼容性与长期可用性")
+            add("P0", "og:image 主机", False, "裸 IP + HTTP —— 无 HTTPS、服务器下线即失效")
+        elif is_http_nonip:
+            add("P1", "og:image 主机", False, "HTTPS 之外（HTTP）—— 微信可能拒绝抓取")
         else:
-            add("P1", "og:image 协议", True, "非裸 IP")
+            add("P0", "og:image 主机", True, "HTTPS 域名")
+
+        # ② ★ 图片内容检查（本轮新增，正是先前判错的原因）
+        #    只看 HTTP 200 不够：坏文件也能返回 200
+        try:
+            status, ctype, clen, head = fetch_head(url, 16, 25)
+            ok_img, kind = sniff_image(head)
+            size_note = human(clen) if clen else "未知"
+            if status != 200:
+                add("P0", "og:image 内容", False, "HTTP %d" % status)
+            elif not ok_img:
+                add("P0", "og:image 内容", False,
+                    "**坏文件**：HTTP 200 但 %s（%s）" % (kind, size_note))
+                print("       → 状态码 200 不代表内容是图片。这正是 2026-10-27 判错两次的根因")
+                print("       → 修复：换真图后重新推送，再验前 2 字节 == FF D8")
+            elif "image" not in ctype.lower():
+                add("P1", "og:image 内容", False,
+                    "是 %s 但 content-type=%s" % (kind, ctype))
+            else:
+                add("P0", "og:image 内容", True,
+                    "%s, %s, %s ✅（magic bytes 正确）" % (kind, size_note, ctype))
+        except Exception as e:
+            add("P0", "og:image 内容", False, "取不到: %s" % str(e)[:70])
+
+        # ③ twitter:image 一致性
+        mt = re.search(r'name="twitter:image"\s+content="([^"]+)"', content)
+        if mt:
+            same = mt.group(1) == url
+            add("P1", "twitter:image 一致", same,
+                "与 og:image 相同" if same else "与 og:image 不同: %s" % mt.group(1))
     except Exception as e:
         add("P0", "og:image", False, str(e))
 
