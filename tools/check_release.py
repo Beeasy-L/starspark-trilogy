@@ -365,12 +365,17 @@ def check_share_card():
         print("       og:image = %s" % url)
 
         # ① 协议与主机检查
+        #    2026-10-27 18:12 群管理经测速改判：接受服务端托管（方案 B）
+        #    实测：服务器 58–86 ms vs Pages 1099–1385 ms，Pages 慢 15 倍
+        #    → 裸 IP + HTTP 不再是 P0 阻塞，改为 P1 信息项（有 README 登记 + 兜底即可）
         is_ip_http = bool(re.match(r"http://\d+\.\d+\.\d+\.\d+", url))
         is_http_nonip = url.startswith("http://")
         if is_ip_http:
-            add("P0", "og:image 主机", False, "裸 IP + HTTP —— 无 HTTPS、服务器下线即失效")
+            add("P1", "og:image 主机", False,
+                "裸 IP + HTTP（已裁定接受：服务器 58-86ms vs Pages 1099-1385ms）"
+                "—— 需确认 README 已登记外部依赖 + 兜底路径")
         elif is_http_nonip:
-            add("P1", "og:image 主机", False, "HTTPS 之外（HTTP）—— 微信可能拒绝抓取")
+            add("P1", "og:image 主机", False, "HTTP 非 HTTPS —— 微信可能拒绝抓取")
         else:
             add("P0", "og:image 主机", True, "HTTPS 域名")
 
@@ -423,8 +428,10 @@ def main():
         check_html()
         check_anim()
         check_external_deps()
-        check_share_card()
     if not offline_only:
+        # og:image 检查要联网拉图验 magic bytes，因此归 online 分支
+        # （offline-only 时跳过，避免误报"取不到"）
+        check_share_card()
         check_online()
 
     # ---- 汇总 ----
