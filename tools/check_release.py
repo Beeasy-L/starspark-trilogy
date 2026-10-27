@@ -60,6 +60,7 @@ LOCAL_FILES = [
 
 results = []  # (level, name, ok, detail)
 skipped = []  # 因网络不可达而未验证的项（≠ 失败）
+infos = []    # 已知取舍：看起来是问题，但已裁定接受（≠ 失败，也 ≠ 通过）
 
 
 def add(level, name, ok, detail=""):
@@ -69,6 +70,18 @@ def add(level, name, ok, detail=""):
 def add_skip(name, reason):
     """网络不可达：不能判定，也不该算失败"""
     skipped.append((name, reason))
+
+
+def add_info(name, detail):
+    """已知取舍：已由主公/验收官裁定接受，不列为缺陷
+
+    规矩十第④条（2026-10-27 群管立）：
+        对于「看起来是问题但已决定接受」的情况，
+        不用删检查、也不用强判 PASS，而用 [INFO] 单独登记：
+        位置 + 现状 + 裁定 + 理由 + 日期
+        目的是阻止后来人重复发现、重复修、重复争论
+    """
+    infos.append((name, detail))
 
 
 # 网络不可达的错误特征（我的机器连不上 ≠ 站点坏了）
@@ -437,13 +450,14 @@ def check_share_card():
         # ① 协议与主机检查
         #    2026-10-27 18:12 群管理经测速改判：接受服务端托管（方案 B）
         #    实测：服务器 58–86 ms vs Pages 1099–1385 ms，Pages 慢 15 倍
-        #    → 裸 IP + HTTP 不再是 P0 阻塞，改为 P1 信息项（有 README 登记 + 兜底即可）
+        #    2026-10-27 18:41 群管进一步裁定：这是「已知取舍」，用 [INFO] 登记，
+        #    不列为缺陷（否则每次门禁都红，会逼人删掉检查）
         is_ip_http = bool(re.match(r"http://\d+\.\d+\.\d+\.\d+", url))
         is_http_nonip = url.startswith("http://")
         if is_ip_http:
-            add("P1", "og:image 主机", False,
-                "裸 IP + HTTP（已裁定接受：服务器 58-86ms vs Pages 1099-1385ms）"
-                "—— 需确认 README 已登记外部依赖 + 兜底路径")
+            add_info("og:image 主机",
+                     "裸 IP + HTTP（自建服务器）｜接受（验收官测速改判 2026-10-27）"
+                     "｜服务器 58-86ms vs Pages 1099-1385ms；已登记外部依赖 + 有 Pages 兜底")
         elif is_http_nonip:
             add("P1", "og:image 主机", False, "HTTP 非 HTTPS —— 微信可能拒绝抓取")
         else:
@@ -484,7 +498,29 @@ def check_share_card():
         add("P0", "og:image", False, str(e))
 
 
-# ---------------- 主流程 ----------------
+# ---------------- INFO 已知取舍登记 ----------------
+def check_known_tradeoffs():
+    """看起来是问题、但已裁定接受的情况 —— 用 [INFO] 登记，不判 PASS/FAIL
+
+    目的（规矩十第④条）：阻止后来人重复发现、重复修、重复争论。
+    """
+    print("\n【INFO】已知取舍登记（不列缺陷，修改前须经主公/验收官同意）")
+
+    # ① streak.html 后台按钮 → HTTP 裸 IP
+    p = os.path.join(ROOT, "projects", "streak.html")
+    if os.path.exists(p):
+        try:
+            with open(p, encoding="utf-8", errors="replace") as f:
+                content = f.read()
+            m = re.search(r"http://(\d+\.\d+\.\d+\.\d+)(:\d+)?", content)
+            if m:
+                add_info("streak.html 后台按钮",
+                         "指向 HTTP 裸 IP（%s:%s）｜保持现状（主公 2026-10-27）"
+                         "｜性质：部署者自用入口，非访客功能；"
+                         "访客误入遇「不安全+令牌错误」为已知代价，不列为缺陷"
+                         % (m.group(1), (m.group(2) or "").lstrip(":") or "80"))
+        except Exception:
+            pass
 def main():
     online_only = "--online-only" in sys.argv
     offline_only = "--offline-only" in sys.argv
@@ -501,6 +537,7 @@ def main():
         check_html()
         check_anim()
         check_external_deps()
+        check_known_tradeoffs()
     if not offline_only:
         # og:image 检查要联网拉图验 magic bytes，因此归 online 分支
         # （offline-only 时跳过，避免误报"取不到"）
@@ -524,9 +561,16 @@ def main():
         for name, reason in skipped:
             print("  [SKIP]    %-38s %s" % (name, reason))
 
+    # 已知取舍单独列出 —— 看起来是问题，但已裁定接受
+    if infos:
+        print()
+        print("  ── 已知取舍（非缺陷，修改前须经主公/验收官同意）──")
+        for name, detail in infos:
+            print("  [INFO]    %-38s %s" % (name, detail))
+
     print("-" * 72)
-    print("合计 %d 项：P0 阻塞 %d 项未过 / P1 应有 %d 项未过 / 未验证 %d 项"
-          % (total, len(p0_fail), len(p1_fail), len(skipped)))
+    print("合计 %d 项：P0 阻塞 %d 项未过 / P1 应有 %d 项未过 / 未验证 %d 项 / 已知取舍 %d 项"
+          % (total, len(p0_fail), len(p1_fail), len(skipped), len(infos)))
 
     if skipped:
         print()
