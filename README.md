@@ -54,6 +54,21 @@
 - GitHub Pages 发布根即仓库根：`index.html` / `assets\` / `projects\`
 - `产品\`、`共用\字体\`、`共用\音频\`、`_归档\` 由 `.gitignore` 排除，**不入仓**——避免仓膨胀导致 Pages 部署超时
 
+### ⚠️ 外部依赖登记（2026-10-27，主公定「服务端托管」方案）
+
+**介绍页首页的分享卡图片，依赖一台外部服务器：**
+
+| 项 | 值 |
+|---|---|
+| 地址 | `http://8.137.60.56:8000/static/social-card.jpg?v=3` |
+| 服务 | 星火续火花 ②程序文件（自带令牌门禁，`/static` 为公开路径） |
+| 失效影响 | 微信 / Twitter / QQ 分享首页时，分享卡退化为纯文字，**页面本身不受影响** |
+| 兜底 | `index.html` 的 `<body>` 内有一个 `display:none` 的 `<img>`，同样指向该地址，用于促使微信抓图 |
+| 回复方案 | 若该服务器长期下线，改回 `https://beeasy-l.github.io/starspark-trilogy/assets/social-card.jpg`（产品页目前用的就是这个 Pages 地址） |
+
+**注意**：`assets/social-card.jpg` 曾是**被写坏的 base64 文本**（7036 字节，解出来是截断的 5276 字节残图，PIL 无法读取）。2026-10-27 已用有效 1200×630 JPEG 覆盖（82 KB）。若再有人「用 PowerShell 改图」，请确认写入的是二进制而不是 base64 字符串。
+
+
 ## 常用命令
 
 ```bash
