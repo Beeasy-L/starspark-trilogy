@@ -326,11 +326,11 @@ body[data-page="detail"] .starfield{opacity:.62}
     linear-gradient(175deg,rgba(18,36,73,.46),rgba(9,15,32,.62));
   text-align:center;
 }
-.epilogue .k{color:var(--gold2);font-family:var(--serif);font-size:13px;letter-spacing:.35em}
+.epilogue .k{color:var(--gold2);font-family:"Songti SC","STSong","SimSun","宋体",var(--serif);font-size:16px;letter-spacing:.42em;text-indent:.42em}
 .seal-btn{
   position:relative;isolation:isolate;
   display:inline-flex;align-items:center;justify-content:center;gap:13px;
-  padding:16px 44px;border:none;border-radius:999px;
+  padding:16px 44px;margin-top:18px;border:none;border-radius:999px;
   font-family:"Songti SC","STSong","SimSun","宋体",var(--serif);
   font-size:17px;font-weight:400;letter-spacing:.52em;text-indent:.52em;
   color:#f7dc95;cursor:pointer;
@@ -344,7 +344,7 @@ body[data-page="detail"] .starfield{opacity:.62}
     inset 0 -1px 0 rgba(0,0,0,.28),
     0 12px 32px rgba(0,0,0,.44),
     0 0 30px rgba(242,198,109,.16);
-  transition:transform .32s cubic-bezier(.22,.61,.36,1),box-shadow .32s,background .32s;
+  transition:transform .32s cubic-bezier(.22,.61,.36,1),box-shadow .32s,background .32s,padding .35s,font-size .35s,margin .35s;
 }
 /* 内圈发丝线：双层金环 */
 .seal-btn::after{
@@ -365,6 +365,19 @@ body[data-page="detail"] .starfield{opacity:.62}
     0 0 44px rgba(242,198,109,.34);
 }
 .seal-btn:active{transform:translateY(0) scale(.997)}
+/* 展开后按钮收小，不挡正文 */
+.epilogue.is-open .seal-btn{
+  margin-top:16px;
+  padding:8px 22px;gap:7px;
+  font-size:12.5px;letter-spacing:.30em;text-indent:.30em;
+  box-shadow:
+    inset 0 0 0 1px rgba(250,228,170,.34),
+    inset 0 1px 0 rgba(255,250,232,.18),
+    0 5px 16px rgba(0,0,0,.36);
+}
+.epilogue.is-open .seal-btn::after{inset:3px;border-color:rgba(246,220,155,.16)}
+.epilogue.is-open .seal-btn .seal-btn__ico{font-size:11px}
+.epilogue.is-open .seal-btn:hover{transform:translateY(-1px)}
 .seal-btn:active{transform:translateY(0)}
 .seal-btn:focus-visible{outline:2px solid var(--gold2);outline-offset:4px}
 .seal-btn .seal-btn__ico{
@@ -393,7 +406,7 @@ body[data-page="detail"] .starfield{opacity:.62}
   transition:grid-template-rows .85s cubic-bezier(.22,.61,.36,1),opacity .6s ease;
 }
 .epilogue-body > .epilogue-inner{overflow:hidden;min-height:0}
-.epilogue.is-open .epilogue-body{grid-template-rows:1fr;opacity:1}
+.epilogue.is-open .epilogue-body{grid-template-rows:1fr;opacity:1;margin-top:14px}
 .epilogue-thought{max-width:720px;margin:0 auto;text-align:left}
 .epilogue-thought p{text-align:left}
 .epilogue-thought p+p{margin-top:15px}
