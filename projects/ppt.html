@@ -193,151 +193,215 @@
       <div class="timeline">
         <article class="tl">
           <div class="dot" aria-hidden="true"></div>
-          <div class="when">v1.0.0 &#183; 2026-10-24 首发</div>
+          <div class="when">V1.0 &#183; 2026-10-24 首发</div>
           <div class="what">
-            <b>星火三部曲 &#183; 第三部立项</b>
-            <p>星火PPT 第一次能用了：贴上自己的话，选一套喜欢的样式，它把内容拆成一页一页；每页可以改，能全屏放，能导出带走，做过的都留着。</p>
+            <b>首发</b>
+            <p>星火PPT 上线：把长文案化为一份逐页可编辑、可放映、可导出的演示文稿。API Key 由你自填，只留在当前标签页、关闭即清除，不写磁盘不进日志。流式逐页生成，6 套模板 × 6 大方向；两种导出——独立 HTML（自带放映器）或一键成真 .pptx。</p>
           </div>
         </article>
         <article class="tl">
           <div class="dot" aria-hidden="true"></div>
-          <div class="when">V1.1</div>
+          <div class="when">V1.1 &#183; 2026-10-24</div>
           <div class="what">
-            <b>排版内核重做 &#183; 版式 5 &#8594; 12 种</b>
-            <p>新增大数字、时间轴、流程步骤、左右对照、金句页、无竖线表格、交错排布；「卡片」改成细线网格，去掉千篇一律的圆角盒子。每页底部补一句「收束句」，标题从栏目名改成一句结论。排版随舞台等比缩放、溢出自动降档，启动时还会逐个校验 12 种版式画不画得出来。导出 .pptx 同步补全全部版式。</p>
+            <b>排版内核重做</b>
+            <p>版式 5 → 12 种：新增大数字、时间轴、流程步骤、左右对照、金句页、无竖线表格、交错排布。每页底部补一句「收束句」；页标题从栏目名改成一句结论。排版跟随舞台等比缩放，内容超出自动按 5% 一档收字号。启动时逐个校验 12 种版式是否真画得出来。</p>
           </div>
         </article>
         <article class="tl">
           <div class="dot" aria-hidden="true"></div>
-          <div class="when">V1.2</div>
+          <div class="when">V1.2 &#183; 2026-10-24</div>
           <div class="what">
-            <b>不用服务器也能用了 &#183; PDF 能读 &#183; 手把手教申请 Key</b>
-            <p>以前要开一台服务器，现在一个网页就够——手机、电脑，打开就能做。参考资料是 PDF 也能直接丢进去，它自己把字读出来。Key 改成关掉页面就清掉，公用电脑上不留痕；输入框下面还放了四步申请指南，不会申请照着点就行。</p>
+            <b>可以不用服务器了</b>
+            <p>纯前端网页版：同一份页面自动判断环境——有后端走后端，没有就在浏览器里直接请求接口，可以丢到 GitHub Pages。自带 PDF 解析器，不引第三方库，中文能正常还原；扫描件读不出字会明确告知。Key 改为只在当前标签页有效，关闭即清除。</p>
           </div>
         </article>
         <article class="tl">
           <div class="dot" aria-hidden="true"></div>
-          <div class="when">V1.3</div>
+          <div class="when">V1.3 &#183; 2026-10-25</div>
           <div class="what">
-            <b>先帮你把话说清楚</b>
-            <p>贴进去的话太糙也不要紧——点一下「帮我优化提示词」，它先把你的素材整理成一份更完整的：读者是谁、该讲几页、主线是什么、语气怎么拿。整理完你可以直接改，满意了再开始生成。</p>
+            <b>先说清楚再动手</b>
+            <p>新增「先帮我优化提示词」：AI 把你的原始素材整理成更完善的提示词（补上读者、页数、主线、语气），你改完确认才开始生成。新增背景音乐，生成期间自动压低一档、出稿后恢复。修掉主按钮没绑点击事件、填了内容没填 Key 会永久卡在「生成中」两个缺陷。</p>
           </div>
         </article>
         <article class="tl">
           <div class="dot" aria-hidden="true"></div>
-          <div class="when">V1.4 &#8594; V1.6</div>
+          <div class="when">V1.4 &#183; 2026-10-25</div>
           <div class="what">
-            <b>模板从 6 套到 12 套，而且真有样子</b>
-            <p>不是换个颜色就算一套——每套在底色气质、标题字体、字重字距、列表标记、装饰形态五个维度上都不一样。12 套各配一个视觉母题：星轨、月相、山峦、印章、雾带、波浪……</p>
+            <b>生成质量抬一档</b>
+            <p>模板 6 → 12 套，这次是真模板不是换色——每套在底色气质、标题字体、字重字距、列表标记、装饰形态五个维度上都不同，另加 3 套浅色。星月诗笺接入 30 句诗，封面给整句带出处、内容页页脚给半句。每页渲染前先校验版式契约，排不下就自动换一种，宁可变样子也不塌页。</p>
           </div>
         </article>
         <article class="tl">
           <div class="dot" aria-hidden="true"></div>
-          <div class="when">V1.7 &#8594; V1.9</div>
+          <div class="when">V1.5 &#183; 2026-10-25</div>
           <div class="what">
-            <b>数据图、装饰，导出后还是真的</b>
-            <p>新增横向条形、进度条、占比环三种数据图。更要紧的是导出：以前点导出会给你一段 Python 代码让你自己跑，现在直接给 .pptx；里面的图表是 PowerPoint 里的真形状，不是拿文字拼的，装饰也按同一套母题画出来。</p>
+            <b>导出真的是 .pptx</b>
+            <p>导出不再给一段 Python 脚本，而是点一下就拿到 PowerPoint 能直接打开的文件。ZIP 打包与 OOXML 全部手写、不引任何库，纯浏览器内完成，所以纯网页版也能用。12 种版式在 pptx 里各自独立排版，配色跟着你选的模板走。</p>
           </div>
         </article>
         <article class="tl">
           <div class="dot" aria-hidden="true"></div>
-          <div class="when">V2.0</div>
+          <div class="when">V1.6 &#183; 2026-10-25</div>
           <div class="what">
-            <b>六个方向，各有各的讲法</b>
-            <p>不再所有方向套同一个结构——路演、汇报、答辩、提案各有自己的页序骨架，而且每一页都写明「这一页必须写什么」，不是只给一个页名让你自己猜。</p>
+            <b>补上图形、按规范重排</b>
+            <p>12 套模板各配一个视觉母题——星轨、月相、山峦、印章、雾带、波浪、图纸网格等，装饰只落空白处、不压字。字号层级按专业规范重建（页标题 = 正文 2.11 倍）。修掉衬线字体栈全是 macOS 字体、在 Windows 上一直落到默认字体的毛病。另支持 AI 配图。</p>
           </div>
         </article>
         <article class="tl">
           <div class="dot" aria-hidden="true"></div>
-          <div class="when">V2.1 &#8594; V2.4</div>
+          <div class="when">V1.7 &#183; 2026-10-25</div>
+          <div class="what">
+            <b>开始画图了</b>
+            <p>新增三种数据图：横向条形、进度条组、占比环，全部内联 SVG 现场绘制，跟随模板配色。比例是准的——输入 80/40/20 得到 100%/50%/25%。只有内容里真的出现可比较的数字时才自动选图表版式，没有数字就不画、不硬凑。</p>
+          </div>
+        </article>
+        <article class="tl">
+          <div class="dot" aria-hidden="true"></div>
+          <div class="when">V1.8 &#183; 2026-10-25</div>
+          <div class="what">
+            <b>导出里也有装饰了</b>
+            <p>导出的 .pptx 现在带装饰：按每套模板的视觉母题画图纸网格、角标、数据条、圆环、星点，和网页里看到的一致。装饰画在内容之下、只用低透明度，除网格纹理外一律只落页面四周空白带。</p>
+          </div>
+        </article>
+        <article class="tl">
+          <div class="dot" aria-hidden="true"></div>
+          <div class="when">V1.9 &#183; 2026-10-26</div>
+          <div class="what">
+            <b>图表也能导出</b>
+            <p>导出的 .pptx 能画数据图：横向条形、纵向进度条、占比环，全部是 PowerPoint 里的真形状而不是文字拼的，比例按数值算——68% 的环点亮 36 段里的 24 段。另修掉一条「每次都叫」的假警报：自检原来拿 2 条样本喂所有版式，时间轴这类最少要 3 条，于是被自动降级、误判成没实现。</p>
+          </div>
+        </article>
+        <article class="tl">
+          <div class="dot" aria-hidden="true"></div>
+          <div class="when">V2.0 &#183; 2026-10-26</div>
+          <div class="what">
+            <b>每个方向都有自己的骨架</b>
+            <p>不再所有方向套同一个结构：六个方向各有自己的页序骨架，每一页都写明「这一页必须写什么」，不是只给一个页名。骨架来自专业设计规范，每条都注明出处。另加几条硬规矩：不许以「谢谢」页收尾；只有数字没有「所以呢」算缺陷；同一份里不许连续两页用均分版式。</p>
+          </div>
+        </article>
+        <article class="tl">
+          <div class="dot" aria-hidden="true"></div>
+          <div class="when">V2.1 &#183; 2026-10-26</div>
           <div class="what">
             <b>导出的样子 = 你看到的样子</b>
-            <p>这是最难的一关。以前网页和导出是两套各自排版的程序，必然越走越偏。后来换了办法：先量网页，再照抄成形状。渐变、圆弧、圆角卡片一个个抄过来，连长标题溢出这种老毛病也一并修了。</p>
+            <p>换了导出方式：先量网页，再照抄成形状。以前网页和导出是两套各自排版的程序，必然越走越偏——实测同一页标题网页 39.2pt、导出 24pt，字号差 15 个点。现在位置和字号直接取自网页渲染结果，实测三页比对位置差 0.00pt、字号差 0.00pt。文字依然是真文本框，可直接编辑。</p>
           </div>
         </article>
         <article class="tl">
           <div class="dot" aria-hidden="true"></div>
-          <div class="when">V2.5</div>
+          <div class="when">V2.2 &#183; 2026-10-26</div>
           <div class="what">
-            <b>生成中能停下，单页也能重做</b>
-            <p>生成时进度条下方多了一个「停止生成」——点一下就停，已经出来的页面留着，能直接改。哪一页不满意，单独重做那一页就行，不用整份推倒。</p>
+            <b>圆弧、圆角也抄过来了</b>
+            <p>打通两个硬骨头：环形图的圆弧（按弧长比例还原成一圈分段刻度）和圆角卡片（导出成真正的圆角矩形）。修了一个会让 PowerPoint 判定「文件损坏」的真 bug——圆角矩形的调整值字段名写错（adj 写成 adj1），PowerPoint 直接拒绝打开。验证方式也从「python 能解析」升级为用真 PowerPoint 打开、确认不弹修复框。</p>
           </div>
         </article>
         <article class="tl">
           <div class="dot" aria-hidden="true"></div>
-          <div class="when">V2.6 &#8594; V2.8</div>
+          <div class="when">V2.3 &#183; 2026-10-26</div>
           <div class="what">
-            <b>先挑风格，再开工</b>
-            <p>生成前多了一个「讲给谁听」的开关：演讲要少而大，一页一个想法；阅读要多而全，一页能装下整段。还能先出三张封面给你挑，挑中了再按那个气质整套生成——不用等整份做完才发现风格不对。</p>
+            <b>渐变也抄过来了</b>
+            <p>页面背景的渐变现在会导出了——以前只有纯色底，而网页里每页都是渐变，这是「网页和导出看着不一样」的最后一块大头。渐变卡片、圆角、阴影也一并纳入照抄；没有阴影的版面不会凭空加阴影。最终回归 13 页 298 个形状，真 PowerPoint 打开无修复提示。</p>
           </div>
         </article>
         <article class="tl">
           <div class="dot" aria-hidden="true"></div>
-          <div class="when">V2.9</div>
+          <div class="when">V2.4 &#183; 2026-10-26</div>
           <div class="what">
-            <b>翻页时，音乐自己让路</b>
-            <p>翻页转场那一下，背景音乐自动压低、转完恢复，标题和画面不再被音乐抢戏。另外加了「关闭动画」开关——弱设备、录屏、或不喜欢动效的人，勾上就立即完整显示；系统设了「减少动态效果」也会自动跟随。</p>
+            <b>长标题再也不会溢出</b>
+            <p>修了一个一直没被发现的硬伤：封面写长标题会溢出，而且「自动缩字」救不回来——原因是字号没跟着缩放系数走，更隐蔽的是装饰库内联时带了一段「字号兜底」，把按规范定的字号又覆盖回旧值。现在所有字号都乘缩放系数，四种封面实测全部不溢出；自动缩字下限也放宽到 0.50。</p>
           </div>
         </article>
-
-
         <article class="tl">
           <div class="dot" aria-hidden="true"></div>
-          <div class="when">V3.0</div>
+          <div class="when">V2.5 &#183; 2026-10-26</div>
+          <div class="what">
+            <b>生成中能停下，单页能重做</b>
+            <p>生成时进度条下方出现「停止生成」，点一下就停，已生成的页面留着可直接编辑。编辑面板新增「重生成这一页」，只重做这一页、其他页面逐字不变。失败不再只弹一句「生成失败」，而是区分 Key / 网络 / 服务 / 解析四类原因；流式过程也改成吐出一页就渲染一页。</p>
+          </div>
+        </article>
+        <article class="tl">
+          <div class="dot" aria-hidden="true"></div>
+          <div class="when">V2.6 &#183; 2026-10-26</div>
+          <div class="what">
+            <b>先告诉它你讲给谁听</b>
+            <p>新增「用途」开关：演讲 / 阅读 / 通用。演讲是一页一个想法、大标题多留白、每页只放 1~3 条；阅读是每页自包含、可排 4~8 条或上网格表格；通用维持每页 3~5 条。选择同时作用于整份生成与单页重生成。</p>
+          </div>
+        </article>
+        <article class="tl">
+          <div class="dot" aria-hidden="true"></div>
+          <div class="when">V2.7 &#183; 2026-10-26</div>
+          <div class="what">
+            <b>先看封面，再动手</b>
+            <p>新增「先看 3 种封面风格」：点一下，先让模型只提炼一句结论式主标题和副标题，再用三套气质差异最大的模板各渲染一张真实封面给你挑。点选其中一张就自动锁定模板，再点「生成」就按这个风格整套生成——不用等整份做完才发现风格不对。提炼封面只花约 300 token。</p>
+          </div>
+        </article>
+        <article class="tl">
+          <div class="dot" aria-hidden="true"></div>
+          <div class="when">V2.8 &#183; 2026-10-26</div>
+          <div class="what">
+            <b>自检升级：面板不再互相压住</b>
+            <p>版式自检加了一层「面板重叠检查」：只查滚动高度不够，网格或卡片面板可能视觉上互相盖住却不增加高度。现在每个版式离屏渲染一遍，量所有有填充或有边框元素的边框盒，非嵌套元素重叠超过小者 5% 就报出来。实测 13 种版式零误报。</p>
+          </div>
+        </article>
+        <article class="tl">
+          <div class="dot" aria-hidden="true"></div>
+          <div class="when">V2.9 &#183; 2026-10-28</div>
+          <div class="what">
+            <b>翻页时，音乐会自己让路</b>
+            <p>翻页转场那一下，背景音乐自动压低、转完恢复，标题和画面不再被音乐抢戏。设置区新增「关闭动画」开关——勾上之后所有内容立即完整显示，适合弱设备、录屏、或不喜欢动效的人；系统设了「减少动态效果」也会自动跟随。</p>
+          </div>
+        </article>
+        <article class="tl">
+          <div class="dot" aria-hidden="true"></div>
+          <div class="when">V3.0 &#183; 2026-10-28</div>
           <div class="what">
             <b>背景成了一条星河</b>
             <p>背景不再是空的黑底，而是一条斜着流的星河——靠河心的地方密而亮，越往外越稀；近处的星大而快，远处小而慢，看起来才有纵深。流星拖着渐隐的尾，顺着星河走。系统开了「减少动态效果」就停成一张静态星图。导出的 PPT 也带动画了：放映时标题、要点按顺序浮现；环形图导出后珠子之间留出缝隙，不再糊成实心圆环。</p>
           </div>
         </article>
-
         <article class="tl">
           <div class="dot" aria-hidden="true"></div>
-          <div class="when">V3.1</div>
+          <div class="when">V3.1 &#183; 2026-10-28</div>
           <div class="what">
             <b>星河第一次落地</b>
             <p>一条斜向的星带：带心密、带外稀，远近大小各不相同。</p>
           </div>
         </article>
-
         <article class="tl">
           <div class="dot" aria-hidden="true"></div>
-          <div class="when">V3.2</div>
+          <div class="when">V3.2 &#183; 2026-10-28</div>
           <div class="what">
             <b>流星有角度和快慢</b>
             <p>流星有了角度与快慢之分——斜下 20~40 度，快慢两档、亮暗两档轮流出现。</p>
           </div>
         </article>
-
         <article class="tl">
           <div class="dot" aria-hidden="true"></div>
-          <div class="when">V3.3</div>
+          <div class="when">V3.3 &#183; 2026-10-28</div>
           <div class="what">
             <b>流星头改成小亮核</b>
             <p>流星头不再是一颗毛球，改成小而亮的核，后面拖着细长尾巴。</p>
           </div>
         </article>
-
         <article class="tl">
           <div class="dot" aria-hidden="true"></div>
-          <div class="when">V3.4</div>
+          <div class="when">V3.4 &#183; 2026-10-28</div>
           <div class="what">
             <b>底色沉黑，星点变锐</b>
             <p>底色沉成近黑，94% 的画面接近纯黑，整片星空不再发灰。星点从「大光斑」改成针尖小点，看得清，而不是糊成一团。</p>
           </div>
         </article>
-
         <article class="tl">
           <div class="dot" aria-hidden="true"></div>
-          <div class="when">V3.5</div>
+          <div class="when">V3.5 &#183; 2026-10-28</div>
           <div class="what">
             <b>河心有了颜色</b>
             <p>河心有了颜色：蓝紫为主、少量暖金点缀，不再是灰蒙蒙一片。</p>
           </div>
         </article>
-
         <article class="tl">
           <div class="dot" aria-hidden="true"></div>
-          <div class="when">V3.6 &#183; 当前</div>
+          <div class="when">V3.6 &#183; 2026-10-28 &#183; 当前</div>
           <div class="what">
             <b>高清屏不再发糊</b>
             <p>高清屏不再发糊：画布按屏幕像素比渲染（原来被锁在 1.5 倍，2 倍屏会糊）。河心的光晕过渡更柔和，边缘不再出现一条硬边。</p>
