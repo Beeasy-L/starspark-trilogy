@@ -545,6 +545,29 @@ def check_version_consistency():
          r'第三部[^<]*?V([0-9][0-9.]*)'),
     ]
 
+    # ★ 2026-10-28 18:35 补全（群管 R15 指出「只覆盖介绍页」）：
+    #   上面 3 项只查了「首页第一部徽章 + 两个子页头部」，
+    #   漏了 index.html 的第二/三部徽章、以及 focus-start.html 的版本声明。
+    #   全部「只读不改」。
+    rows.append((
+        "首页徽章·第二部",
+        os.path.join(svc, "星火专注Pro", "_gitrepo", "index.html"),
+        r'<div class="logver">\s*(v[0-9][0-9.]*)',
+        os.path.join(ROOT, "index.html"),
+        r'第二部[^<]*?v([0-9][0-9.]*)'))
+    rows.append((
+        "首页徽章·第三部",
+        os.path.join(svc, "星火PPT", "deploy", "网页版", "index.html"),
+        r'<div class="logver">\s*(V[0-9][0-9.]*)',
+        os.path.join(ROOT, "index.html"),
+        r'第三部[^<]*?V([0-9][0-9.]*)'))
+    rows.append((
+        "专注Pro启动页",
+        os.path.join(svc, "星火专注Pro", "_gitrepo", "index.html"),
+        r'<div class="logver">\s*(v[0-9][0-9.]*)',
+        os.path.join(ROOT, "projects", "focus-start.html"),
+        r'第二部[^<]*?v([0-9][0-9.]*)'))
+
     for name, real_path, real_re, site_path, site_re in rows:
         real = read_first(real_re, real_path)
         site = read_first(site_re, site_path)
