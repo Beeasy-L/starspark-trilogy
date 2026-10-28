@@ -498,6 +498,72 @@ def check_share_card():
         add("P0", "og:image", False, str(e))
 
 
+# ---------------- P1-5 版本口径一致性 ----------------
+def read_first(pattern, path, group=1, flags=0):
+    """从文件里读第一个匹配，返回捕获组或 None（只读）"""
+    if not os.path.exists(path):
+        return None
+    try:
+        with open(path, encoding="utf-8", errors="replace") as f:
+            content = f.read()
+        m = re.search(pattern, content, flags)
+        return m.group(group).strip() if m else None
+    except Exception:
+        return None
+
+
+def check_version_consistency():
+    """版本口径：产品源码 logver == 介绍页声明值
+
+    设计原则（《发布操作方案》3-④）：
+        真值取自【产品源码】，不取自【介绍页文案】。
+        文案是人工登记的，会忘会错；源码是构建产物，是唯一真相。
+        群管 2026-10-28 11:59 定同一口径（方案甲：以源码 logver 为准）。
+
+    重要：本检查【只读不写】。发现不一致只报 P1，不代改文案 ——
+          文案归属各产品作者（群管 12:09 明确 L87 归介绍页开发）。
+    """
+    print("\n【P1-5】版本口径三处一致（真值取自产品源码，只读不改）")
+
+    svc = os.path.join(ROOT, "产品")
+    rows = [
+        # (名称, 真值来源路径, 真值正则, 文案来源路径, 文案正则)
+        ("第一部 续火花",
+         os.path.join(svc, "星火续火花", "②程序文件", "core", "backup.py"),
+         r'APP_VERSION\s*=\s*"([^"]+)"',
+         os.path.join(ROOT, "index.html"),
+         r'第一部[^<]*?V([0-9][0-9.]*)'),
+        ("第二部 专注Pro",
+         os.path.join(svc, "星火专注Pro", "_gitrepo", "index.html"),
+         r'<div class="logver">\s*(v[0-9][0-9.]*)',
+         os.path.join(ROOT, "projects", "focus.html"),
+         r'第二部[^<]*?v([0-9][0-9.]*)'),
+        ("第三部 星火PPT",
+         os.path.join(svc, "星火PPT", "deploy", "网页版", "index.html"),
+         r'<div class="logver">\s*(V[0-9][0-9.]*)',
+         os.path.join(ROOT, "projects", "ppt.html"),
+         r'第三部[^<]*?V([0-9][0-9.]*)'),
+    ]
+
+    for name, real_path, real_re, site_path, site_re in rows:
+        real = read_first(real_re, real_path)
+        site = read_first(site_re, site_path)
+        if not real:
+            add("P1", "%s 版本真值" % name, False,
+                "读不到源码版本（%s）" % os.path.basename(real_path))
+            continue
+        if not site:
+            add("P1", "%s 介绍页版本" % name, False,
+                "读不到介绍页声明（%s）" % os.path.basename(site_path))
+            continue
+        if real.lstrip("vV") == site.lstrip("vV"):
+            add("P1", "%s 版本口径" % name, True, "源码 %s = 文案 %s ✅" % (real, site))
+        else:
+            add("P1", "%s 版本口径" % name, False,
+                "源码 %s ≠ 文案 %s —— 文案没跟上产品（归属产品作者改）" % (real, site))
+            print("       → 「人工登记会忘会错」的典型。只报不改，改由文案作者做")
+
+
 # ---------------- INFO 已知取舍登记 ----------------
 def check_known_tradeoffs():
     """看起来是问题、但已裁定接受的情况 —— 用 [INFO] 登记，不判 PASS/FAIL
@@ -537,6 +603,7 @@ def main():
         check_html()
         check_anim()
         check_external_deps()
+        check_version_consistency()
         check_known_tradeoffs()
     if not offline_only:
         # og:image 检查要联网拉图验 magic bytes，因此归 online 分支
