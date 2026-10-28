@@ -328,17 +328,30 @@ body[data-page="detail"] .starfield{opacity:.62}
 }
 .epilogue .k{color:var(--gold2);font-family:var(--serif);font-size:13px;letter-spacing:.35em}
 .seal-btn{
-  display:inline-flex;align-items:center;gap:8px;margin-top:16px;
-  padding:9px 22px;border:1px solid rgba(246,220,155,.30);border-radius:999px;
-  background:rgba(230,173,69,.06);color:var(--gold2);
+  display:inline-flex;align-items:center;gap:9px;margin-top:18px;
+  padding:10px 24px;border-radius:999px;
+  border:1px solid rgba(246,220,155,.46);
+  background:linear-gradient(180deg,rgba(230,173,69,.16),rgba(230,173,69,.04));
+  color:#f3d489;
   font-family:var(--serif);font-size:13px;letter-spacing:.28em;
   cursor:pointer;
-  transition:background .25s,border-color .25s,transform .25s,opacity .55s;
+  box-shadow:0 0 20px rgba(242,198,109,.14),inset 0 1px 0 rgba(255,240,200,.18);
+  transition:background .28s,border-color .28s,transform .28s,box-shadow .28s;
 }
-.seal-btn:hover{background:rgba(230,173,69,.15);border-color:rgba(246,220,155,.52);transform:translateY(-1px)}
+.seal-btn:hover{
+  background:linear-gradient(180deg,rgba(230,173,69,.26),rgba(230,173,69,.08));
+  border-color:rgba(255,235,175,.72);
+  transform:translateY(-1px);
+  box-shadow:0 0 28px rgba(242,198,109,.26),inset 0 1px 0 rgba(255,245,215,.26);
+}
 .seal-btn:focus-visible{outline:2px solid var(--gold2);outline-offset:3px}
-.seal-btn .seal-btn__ico{font-size:14px;letter-spacing:0}
-.seal-btn.is-sealed{opacity:0;transform:translateY(-6px);pointer-events:none}
+.seal-btn .seal-btn__ico{font-size:14px;letter-spacing:0;color:#f6d98d}
+.seal-btn .seal-btn__text{
+  background:linear-gradient(180deg,#fff8e3 0%,#f7d489 36%,#c8973a 58%,#ffeec2 82%,#f2c66d 100%);
+  -webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;color:transparent;
+  filter:drop-shadow(0 0 5px rgba(242,198,109,.6));
+}
 .epilogue p{
   max-width:720px;margin:0 auto;color:#d5def2;
   font-size:13.5px;line-height:2.1;letter-spacing:.02em;
@@ -349,7 +362,13 @@ body[data-page="detail"] .starfield{opacity:.62}
 }
 .epilogue .poem br{display:none}
 .epilogue p b{color:var(--fire2);font-weight:600}
-.epilogue-thought{max-width:720px;margin:18px auto 0;text-align:left}
+.epilogue-thought{
+  max-width:720px;margin:0 auto;text-align:left;
+  display:grid;grid-template-rows:0fr;opacity:0;
+  transition:grid-template-rows .8s cubic-bezier(.22,.61,.36,1),opacity .55s ease,margin-top .6s ease;
+}
+.epilogue-thought > .epilogue-letter{overflow:hidden;min-height:0}
+.epilogue.is-open .epilogue-thought{grid-template-rows:1fr;opacity:1;margin-top:18px}
 .epilogue-thought p{text-align:left}
 .epilogue-thought p+p{margin-top:15px}
 .epilogue .closing-line{

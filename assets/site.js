@@ -627,23 +627,35 @@
   var music = initBackgroundMusic();
   initDetailOverlay(music);
 
-  // 「启封」：点击才切到《月亮代表我的心》，此后永不切回（不再靠滚动触发）
+  // 「启封」：展开这封信；首次展开时切到《月亮代表我的心》，此后永不切回
   (function () {
-    if (!music || !music.sealTo) return;
     var btn = document.getElementById('seal-btn');
-    if (!btn) return;
-    if (music.isSealed && music.isSealed()) {
-      btn.hidden = true;
-      return;
+    var epi = document.querySelector('.epilogue');
+    if (!btn || !epi) return;
+
+    var letter = document.getElementById('epilogue-letter');
+    var labelEl = btn.querySelector('.seal-btn__text');
+
+    function setOpen(open) {
+      epi.classList.toggle('is-open', open);
+      btn.setAttribute('aria-expanded', String(open));
+      if (letter) letter.setAttribute('aria-hidden', open ? 'false' : 'true');
+      if (labelEl) labelEl.textContent = open ? '收起' : '启封';
+      btn.setAttribute(
+        'aria-label',
+        open ? '收起这封信' : '启封这封信，背景音乐换成《月亮代表我的心》'
+      );
     }
-    var used = false;
+
+    setOpen(false);   // 默认收起
+
     btn.addEventListener('click', function () {
-      if (used) return;
-      used = true;
-      music.sealTo(1);                        // 借这次点击的用户手势，绕开自动播放限制
-      btn.classList.add('is-sealed');
-      btn.setAttribute('aria-hidden', 'true');
-      window.setTimeout(function () { btn.hidden = true; }, 700);
+      var open = btn.getAttribute('aria-expanded') === 'true';
+      // 只在第一次启封时切歌：借用户手势绕开自动播放限制，之后永不切回
+      if (!open && music && music.sealTo && !(music.isSealed && music.isSealed())) {
+        music.sealTo(1);
+      }
+      setOpen(!open);
     });
   })();
 })();
