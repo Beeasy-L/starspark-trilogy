@@ -314,6 +314,9 @@ body[data-page="detail"] .starfield{opacity:.62}
 }
 .tl .what b{color:#fff;font-size:13.5px;letter-spacing:.05em}
 .tl .what p{margin-top:3px;color:var(--muted);font-size:12px;line-height:1.8}
+.tl .what ul{margin:4px 0 0;padding-left:15px;color:var(--muted);font-size:12px;line-height:1.75}
+.tl .what li{margin:2px 0;padding-left:1px}
+.tl .what li::marker{color:rgba(242,198,109,.6)}
 
 /* Epilogue */
 .epilogue{
