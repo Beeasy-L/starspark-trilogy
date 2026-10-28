@@ -327,6 +327,18 @@ body[data-page="detail"] .starfield{opacity:.62}
   text-align:center;
 }
 .epilogue .k{color:var(--gold2);font-family:var(--serif);font-size:13px;letter-spacing:.35em}
+.seal-btn{
+  display:inline-flex;align-items:center;gap:8px;margin-top:16px;
+  padding:9px 22px;border:1px solid rgba(246,220,155,.30);border-radius:999px;
+  background:rgba(230,173,69,.06);color:var(--gold2);
+  font-family:var(--serif);font-size:13px;letter-spacing:.28em;
+  cursor:pointer;
+  transition:background .25s,border-color .25s,transform .25s,opacity .55s;
+}
+.seal-btn:hover{background:rgba(230,173,69,.15);border-color:rgba(246,220,155,.52);transform:translateY(-1px)}
+.seal-btn:focus-visible{outline:2px solid var(--gold2);outline-offset:3px}
+.seal-btn .seal-btn__ico{font-size:14px;letter-spacing:0}
+.seal-btn.is-sealed{opacity:0;transform:translateY(-6px);pointer-events:none}
 .epilogue p{
   max-width:720px;margin:0 auto;color:#d5def2;
   font-size:13.5px;line-height:2.1;letter-spacing:.02em;

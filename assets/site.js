@@ -250,6 +250,7 @@
     var lastSavedAt = -1;
     var nudgeTimer = 0;
     var nudgeUntil = 0;
+    var sealedTo = -1;   // 启封后锁定的曲目；-1 = 尚未启封。非 -1 时永不切回。
 
     function currentTrack() { return playlist[trackIndex]; }
 
@@ -319,6 +320,23 @@
         );
         if (labelEl) labelEl.textContent = label;
       });
+    }
+
+    // 淡入：从当前音量平滑升到目标，避免「啪」地突然响
+    function fadeTo(targetVol, ms) {
+      var now = function () {
+        return (window.performance && typeof performance.now === 'function') ? performance.now() : Date.now();
+      };
+      var from = audio.volume;
+      var to = Math.max(0, Math.min(1, targetVol));
+      var t0 = now();
+      var dur = ms || 1200;
+      (function step() {
+        var p = Math.min(1, (now() - t0) / dur);
+        var eased = 1 - Math.pow(1 - p, 3);
+        audio.volume = Math.max(0, Math.min(1, from + (to - from) * eased));
+        if (p < 1) window.requestAnimationFrame(step);
+      })();
     }
 
     function playNextTrack() {
@@ -451,7 +469,24 @@
           loadTrack(index, 0);
           if (!userPaused) playMusic();
         }
-      }
+      },
+      // 启封：只切一次，切过去永不切回；带淡入
+      sealTo: function (index) {
+        if (sealedTo !== -1) return false;                       // 已启封，永不切回
+        if (!(index >= 0 && index < playlist.length)) return false;
+        sealedTo = index;
+        userPaused = false;
+        var target = playlist[index].volume;
+        var finalVol = (typeof target === 'number' && isFinite(target)) ? target : 1;
+        loadTrack(index, 0);
+        audio.volume = 0;                                        // 先静音，避免起播瞬间炸响
+        playMusic().then(function (ok) {
+          if (ok) fadeTo(finalVol, 1400);
+          else audio.volume = finalVol;                          // 起播失败就直接还原音量
+        });
+        return true;
+      },
+      isSealed: function () { return sealedTo !== -1; }
     };
   }
 
@@ -592,20 +627,23 @@
   var music = initBackgroundMusic();
   initDetailOverlay(music);
 
-  // 滚到「给未来的自己」时切到月亮代表我的心，滚走切回小星星
+  // 「启封」：点击才切到《月亮代表我的心》，此后永不切回（不再靠滚动触发）
   (function () {
-    if (!music || !music.switchToTrack) return;
-    var epilogue = document.querySelector('.epilogue');
-    if (!epilogue) return;
-
-    var wasVisible = false;
-    var observer = new IntersectionObserver(function (entries) {
-      var visible = entries[entries.length - 1].isIntersecting;
-      if (visible === wasVisible) return;
-      wasVisible = visible;
-      music.switchToTrack(visible ? 1 : 0);
-    }, { threshold: [0, 0.25] });
-
-    observer.observe(epilogue);
+    if (!music || !music.sealTo) return;
+    var btn = document.getElementById('seal-btn');
+    if (!btn) return;
+    if (music.isSealed && music.isSealed()) {
+      btn.hidden = true;
+      return;
+    }
+    var used = false;
+    btn.addEventListener('click', function () {
+      if (used) return;
+      used = true;
+      music.sealTo(1);                        // 借这次点击的用户手势，绕开自动播放限制
+      btn.classList.add('is-sealed');
+      btn.setAttribute('aria-hidden', 'true');
+      window.setTimeout(function () { btn.hidden = true; }, 700);
+    });
   })();
 })();
