@@ -23,6 +23,7 @@ import os
 import re
 import subprocess
 import sys
+import time
 import urllib.request
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
@@ -131,11 +132,29 @@ def check_git():
             add("P0", "%s 仓存在" % label, False, "找不到 .git")
             continue
 
-        # fsck
-        code, out, err = run_git(repo, ["fsck", "--no-progress"], timeout=60)
-        bad = bool(re.search(r"missing|broken link", (out or "") + (err or "")))
-        add("P0", "%s fsck" % label, not bad,
-            "对象库完好" if not bad else "出现 missing/broken — 需用远端 clone 替换 .git")
+        # fsck —— ★ 单次失败不直接判 P0（2026-10-28 19:10 实测修正）
+        #   实测：PPT deploy 仓在 @星火PPT 施工写入期间，fsck 报了 1 次
+        #   「missing/broken」，1 秒后连测 3 次全部干净、门禁 P0 自动消失。
+        #   → 那是读到了「他人写入中的瞬时状态」，不是真的对象库损坏。
+        #   判据应能区分「瞬时」与「稳定」：失败必须复测 2 次仍失败才算 P0。
+        bad = False
+        attempts = 0
+        for attempt in range(3):
+            attempts = attempt + 1
+            code, out, err = run_git(repo, ["fsck", "--no-progress"], timeout=60)
+            bad = bool(re.search(r"missing|broken link", (out or "") + (err or "")))
+            if not bad:
+                break
+            if attempt < 2:
+                time.sleep(1.0)
+        if bad:
+            add("P0", "%s fsck" % label, False,
+                "连续 %d 次报 missing/broken — 对象库真损坏，需用远端 clone 替换 .git" % attempts)
+        elif attempts > 1:
+            add("P0", "%s fsck" % label, True,
+                "第 1 次报错、第 %d 次干净 —— 疑似他人写入的瞬时状态，非真损坏" % attempts)
+        else:
+            add("P0", "%s fsck" % label, True, "对象库完好")
 
         # 同步状态
         run_git(repo, ["fetch", "origin"], timeout=60)
@@ -567,6 +586,15 @@ def check_version_consistency():
         r'<div class="logver">\s*(v[0-9][0-9.]*)',
         os.path.join(ROOT, "projects", "focus-start.html"),
         r'第二部[^<]*?v([0-9][0-9.]*)'))
+    # ★ 第 3 个覆盖漏洞（2026-10-28 19:00 补，由 @介绍页开发 18:23 的补充暴露）
+    #   focus-app/index.html:955 也是版本声明位置，此前完全没被扫到。
+    #   它是「零入口但线上 200 可达」的陈旧副本（v1.2.2 vs 真值 v1.3.2）。
+    rows.append((
+        "专注Pro内嵌版",
+        os.path.join(svc, "星火专注Pro", "_gitrepo", "index.html"),
+        r'<div class="logver">\s*(v[0-9][0-9.]*)',
+        os.path.join(ROOT, "projects", "focus-app", "index.html"),
+        r'<div class="logver">\s*(v[0-9][0-9.]*)'))
 
     for name, real_path, real_re, site_path, site_re in rows:
         real = read_first(real_re, real_path)
