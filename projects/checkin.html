@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>今日星火打卡 · 星火三部曲</title>
-  <meta name="description" content="对着镜头，用食指和中指张合，让指尖开出一朵 3D 粒子莲花。星火三部曲隐藏打卡彩蛋——打卡图可下载、可分享。">
+  <meta name="description" content="对着镜头，用食指和中指张合，让指尖开出一朵 3D 粒子花。星火三部曲隐藏打卡彩蛋——打卡图可下载、可分享。">
   <meta name="author" content="Esty">
   <meta name="theme-color" content="#070b18">
   <link rel="canonical" href="https://beeasy-l.github.io/starspark-trilogy/projects/checkin.html">
@@ -89,7 +89,7 @@
 (function(){
   "use strict";
   var $ = function(id){ return document.getElementById(id); };
-  var stage = $("stage"), cam = $("cam"), fx = $("fx"), fctx = fx.getContext("2d");
+  var stage = $("stage"), cam = $("cam"), fx = $("fx");
   var loading = $("loading"), loadText = $("load-text");
   var hint = $("hint"), startBtn = $("start-btn"), snapBtn = $("snap-btn");
   var cardWrap = $("card-wrap"), cardImg = $("card-img"), countLine = $("count-line"), dlBtn = $("dl-btn"), againBtn = $("again-btn");
@@ -100,10 +100,9 @@
   var stream = null, landmarker = null, running = false;
   var bloomFrames = 0, fired = false;
 
-  // 3D 粒子花状态
+  // Three.js 粒子花状态
   var FLOWER = { x: 0, y: 0, spread: 0, spin: 0, burst: 0 };
-  var flowerParts = [];
-  var glowSprites = [];
+  var flower3D = null;
 
   function setHint(txt, hit){
     hint.hidden = false;
@@ -127,183 +126,242 @@
     return Math.max(0, Math.min(1, (d - 0.025) / 0.10));
   }
 
-  // ---------- 3D 粒子花 ----------
-  function makeGlow(rgb){
-    var s = document.createElement("canvas");
-    s.width = s.height = 64;
-    var g = s.getContext("2d");
-    var grd = g.createRadialGradient(32, 32, 0, 32, 32, 32);
-    grd.addColorStop(0, "rgba(" + rgb + ",1)");
-    grd.addColorStop(0.35, "rgba(" + rgb + ",.55)");
-    grd.addColorStop(1, "rgba(" + rgb + ",0)");
-    g.fillStyle = grd;
-    g.fillRect(0, 0, 64, 64);
-    return s;
+  // ---------- Three.js 3D 粒子莲花 ----------
+  var THREE_URLS = [
+    "https://cdn.npmmirror.com/packages/three/0.163.0/files/build/three.module.min.js",
+    "https://cdn.npmmirror.com/packages/three/0.163.0/files/build/three.module.js"
+  ];
+  var THREE_READY = null;
+  function loadThree(){
+    if(THREE_READY) return THREE_READY;
+    THREE_READY = import(THREE_URLS[0]).catch(function(){ return import(THREE_URLS[1]); });
+    return THREE_READY;
   }
 
-  // 花瓣宽度包络（根窄→中宽→尖收），模拟花瓣叶形
+  function makeSpriteTexture(THREE){
+    var cv = document.createElement("canvas");
+    cv.width = cv.height = 64;
+    var g = cv.getContext("2d");
+    var grd = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+    grd.addColorStop(0, "rgba(255,255,255,1)");
+    grd.addColorStop(0.35, "rgba(255,255,255,.55)");
+    grd.addColorStop(1, "rgba(255,255,255,0)");
+    g.fillStyle = grd;
+    g.fillRect(0, 0, 64, 64);
+    return new THREE.CanvasTexture(cv);
+  }
+
+  // 花瓣叶形包络（根窄→中宽→尖收）
   function petalW(u){
     return Math.pow(Math.sin(Math.PI * u), 0.55) * (0.22 + 0.78 * u);
   }
 
-  function initFlower(){
-    glowSprites = [
-      makeGlow("255,214,140"),  // 0 金
-      makeGlow("255,168,96"),   // 1 橙
-      makeGlow("255,140,200"),  // 2 粉
-      makeGlow("255,255,255")   // 3 白
-    ];
-    flowerParts.length = 0;
-    burstParts.length = 0;
-    var i, j, p;
-    // 外层花瓣：8 片 × 22 粒，粒子铺在花瓣曲面上（3D 点云）
+  // 建一层粒子 Points，items: {phi,u,v,ph,r,g,b}
+  function makeLayer(THREE, items, size, renderOrder){
+    var count = items.length;
+    var pos = new Float32Array(count * 3);
+    var col = new Float32Array(count * 3);
+    var geo = new THREE.BufferGeometry();
+    geo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+    geo.setAttribute("color", new THREE.BufferAttribute(col, 3));
+    var mat = new THREE.PointsMaterial({
+      size: size,
+      map: makeSpriteTexture(THREE),
+      vertexColors: true,
+      transparent: true,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+      sizeAttenuation: true
+    });
+    var pts = new THREE.Points(geo, mat);
+    pts.frustumCulled = false;
+    pts.renderOrder = renderOrder;
+    return { pts: pts, items: items, pos: pos, col: col, count: count, order: new Array(count) };
+  }
+
+  // 创建 3D 粒子莲花（闭合花苞 ⇄ 绽放莲花，绕轴自旋，跟随手势微倾）
+  function createFlower3D(THREE, canvas){
+    var renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: false, powerPreference: "high-performance" });
+    renderer.setClearColor(0x000000, 0);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    var scene = new THREE.Scene();
+    var camera = new THREE.PerspectiveCamera(50, canvas.clientWidth / canvas.clientHeight, 0.1, 20);
+    camera.position.set(0, 1.15, 3.1);
+    camera.lookAt(0, 0, 0);
+    var group = new THREE.Group();
+    scene.add(group);
+
+    var layers = [];
+    var outer = [], mid = [], cores = [], dust = [], burstItems = [];
+    var i, j, k;
+    // 外层花瓣：8 片 × 6×6 粒子（点云铺满花瓣曲面，金橙粉渐变）
     for(i = 0; i < 8; i++){
-      for(j = 0; j < 22; j++){
-        var u = 0.16 + Math.random() * 0.84;
-        flowerParts.push({
-          k: "p",
-          phi: (i / 8) * Math.PI * 2 + (Math.random() - 0.5) * 0.22,
-          u: u,
-          v: (Math.random() * 2 - 1) * 0.78,
-          sz: 2.2 + Math.random() * 2.6,
-          a: 0.42 + Math.random() * 0.28,
-          hue: Math.random() < 0.18 ? 2 : (Math.random() < 0.4 ? 1 : 0)
-        });
+      for(j = 0; j < 6; j++){
+        for(k = 0; k < 6; k++){
+          outer.push({
+            phi: (i / 8) * Math.PI * 2 + (Math.random() - 0.5) * 0.20,
+            u: 0.13 + (j + Math.random() * 0.7) / 6 * 0.85,
+            v: ((k + Math.random() * 0.6) / 6 * 2 - 1) * 0.80,
+            ph: 0,
+            r: 0.62 + Math.random() * 0.30,
+            g: 0.42 + Math.random() * 0.26,
+            b: 0.38 + Math.random() * 0.24
+          });
+        }
       }
     }
-    // 中层花瓣：8 片 × 14 粒，与错开 22.5°，更亮
+    // 中层花瓣：8 片 × 5×5，错开 22.5°，更亮
     for(i = 0; i < 8; i++){
-      for(j = 0; j < 14; j++){
-        var u2 = 0.20 + Math.random() * 0.78;
-        flowerParts.push({
-          k: "p",
-          phi: (i / 8) * Math.PI * 2 + Math.PI / 8 + (Math.random() - 0.5) * 0.2,
-          u: u2,
-          v: (Math.random() * 2 - 1) * 0.6,
-          sz: 2.6 + Math.random() * 2.4,
-          a: 0.72 + Math.random() * 0.24,
-          hue: 0
-        });
+      for(j = 0; j < 5; j++){
+        for(k = 0; k < 5; k++){
+          mid.push({
+            phi: (i / 8) * Math.PI * 2 + Math.PI / 8 + (Math.random() - 0.5) * 0.18,
+            u: 0.16 + (j + Math.random() * 0.7) / 5 * 0.78,
+            v: ((k + Math.random() * 0.6) / 5 * 2 - 1) * 0.62,
+            ph: 0,
+            r: 0.92 + Math.random() * 0.08,
+            g: 0.78 + Math.random() * 0.16,
+            b: 0.50 + Math.random() * 0.22
+          });
+        }
       }
     }
-    // 花蕊：竖立在花心的小粒子
-    for(i = 0; i < 18; i++){
-      flowerParts.push({
-        k: "c",
-        phi: Math.random() * Math.PI * 2,
-        u: 0.05 + Math.random() * 0.16,
-        v: (Math.random() * 2 - 1) * 0.3,
-        sz: 1.6 + Math.random() * 1.8,
-        a: 0.95,
-        hue: 3
-      });
+    // 花蕊：竖直小粒子
+    for(i = 0; i < 36; i++){
+      cores.push({ phi: Math.random() * Math.PI * 2, u: 0.05 + Math.random() * 0.13, v: (Math.random() * 2 - 1) * 0.28, ph: 0, r: 1, g: 0.98, b: 0.88 });
     }
     // 环绕光尘
-    for(i = 0; i < 20; i++){
-      flowerParts.push({ k: "d", phi: Math.random() * Math.PI * 2, th0: 1.0, ph: Math.random() * Math.PI * 2, sz: 1.4 + Math.random() * 2.0, img: 3 });
+    for(i = 0; i < 56; i++){
+      dust.push({ phi: Math.random() * Math.PI * 2, u: 0.75 + Math.random() * 1.0, v: (Math.random() * 2 - 1) * 0.45, ph: Math.random() * Math.PI * 2, r: 0.72, g: 0.82, b: 1 });
     }
-  }
-
-  // 绽放喷发粒子（柔和版：少量光尘向上飘散）
-  var burstParts = [];
-  function spawnBurst(W, H){
-    var R = Math.min(W, H) * 0.40;
-    for(var i = 0; i < 24; i++){
-      var ang = Math.random() * Math.PI * 2;
-      burstParts.push({
-        ang: ang,
-        vx: Math.cos(ang), vy: Math.sin(ang),
-        sp: (0.35 + Math.random() * 1.0) * R,
-        life: 1, decay: 0.05 + Math.random() * 0.04,
-        hue: Math.random() < 0.5 ? 0 : (Math.random() < 0.5 ? 1 : 2),
-        sz: 1.2 + Math.random() * 1.8
-      });
+    // 绽放光尘（预分配 72，按 life 管理）
+    for(i = 0; i < 72; i++){
+      burstItems.push({ life: 0, decay: 0.04, vx: 0, vy: 0, vz: 0, r: 1, g: 0.85, b: 0.6 });
     }
-  }
-  function stepBurst(){
-    for(var i = burstParts.length - 1; i >= 0; i--){
-      var b = burstParts[i];
-      b.life -= b.decay;
-      if(b.life <= 0){ burstParts.splice(i, 1); continue; }
-      var dist = b.sp * (1 - b.life) * 1.3;
-      var bx = FLOWER.x + b.vx * dist;
-      var by = FLOWER.y + b.vy * dist * 0.8 - (1 - b.life) * 50;
-      drawGlow(glowSprites[b.hue], bx, by, b.sz * (1 + (1 - b.life)), b.life * 0.7);
-    }
-  }
+    layers.push(makeLayer(THREE, outer, 0.052, 1));
+    layers.push(makeLayer(THREE, mid, 0.047, 2));
+    layers.push(makeLayer(THREE, cores, 0.032, 3));
+    layers.push(makeLayer(THREE, dust, 0.040, 4));
+    for(i = 0; i < layers.length; i++) group.add(layers[i].pts);
+    var burstLayer = makeLayer(THREE, burstItems, 0.045, 5);
+    burstLayer.pts.visible = false;
+    group.add(burstLayer.pts);
 
-  function drawGlow(img, x, y, size, alpha){
-    if(alpha <= 0.01) return;
-    fctx.globalAlpha = alpha;
-    var s = size * 5;
-    fctx.drawImage(img, x - s / 2, y - s / 2, s, s);
-  }
+    var burstOn = false;
 
-  function renderFlower(W, H){
-    var cx = FLOWER.x, cy = FLOWER.y;
-    var s = FLOWER.spread;
-    var R = Math.min(W, H) * 0.38;
-    FLOWER.spin += 0.010 + s * 0.020;
-    var spin = FLOWER.spin;
-    if(FLOWER.burst > 0){ spawnBurst(W, H); FLOWER.burst = 0; }
-    stepBurst();
+    function update(bloom, midX, midY, triggerBurst){
+      var s = Math.max(0, Math.min(1, bloom));
+      // 花朵位置与微倾斜跟随手指（轻微交互感）
+      group.position.x += ((midX - 0.5) * 1.7 - group.position.x) * 0.14;
+      group.position.y += ((0.5 - midY) * 1.2 - group.position.y) * 0.14;
+      group.rotation.z += (-(midX - 0.5) * 0.30 - group.rotation.z) * 0.10;
+      group.rotation.x += ((0.5 - midY) * 0.22 - group.rotation.x) * 0.10;
+      group.rotation.y += 0.012 + s * 0.022;
 
-    // 花心光核（随开放度变亮）
-    var coreR = R * (0.12 + 0.08 * s);
-    var g0 = fctx.createRadialGradient(cx, cy, 0, cx, cy, coreR * 4);
-    g0.addColorStop(0, "rgba(255,246,214," + (0.4 + 0.5 * s).toFixed(3) + ")");
-    g0.addColorStop(1, "rgba(255,214,140,0)");
-    fctx.fillStyle = g0;
-    fctx.beginPath(); fctx.arc(cx, cy, coreR * 4, 0, Math.PI * 2); fctx.fill();
-    fctx.fillStyle = "rgba(255,252,235,.98)";
-    fctx.beginPath(); fctx.arc(cx, cy, coreR * 0.5, 0, Math.PI * 2); fctx.fill();
-
-    // ---- 3D 粒子莲花 ----
-    var th0 = 0.30 + 1.05 * s;      // 花瓣仰角：闭合=竖直花苞，盛开=水平莲花
-    var tilt = 0.30 + 0.16 * s;     // 整体侧倾，产生立体纵深
-    var ct = Math.cos(tilt), st = Math.sin(tilt);
-    var F = R * 2.8;                // 透视焦距（越小透视越强）
-    var pts = [];
-    for(var i = 0; i < flowerParts.length; i++){
-      var p = flowerParts[i];
-      var ph = p.phi + spin;
-      if(p.k === "d"){
-        var dr = R * (0.75 + s * 1.6) + Math.sin(spin * 2 + p.ph) * R * 0.15;
-        var dx = cx + Math.cos(p.phi + spin * 0.7) * dr;
-        var dy = cy + Math.sin(p.phi + spin * 0.7) * dr * 0.72;
-        var tw = 0.4 + 0.6 * (0.5 + 0.5 * Math.sin(spin * 3 + p.ph));
-        drawGlow(glowSprites[3], dx, dy, p.sz * (1 + s * 0.6), tw);
-        continue;
+      var th0 = 0.10 + 1.32 * s;   // 花瓣仰角：闭合≈竖直花苞，绽放≈水平莲花
+      var L, th, r, w, phi, px, py, pz, cph, sph, st, cth;
+      for(L = 0; L < 4; L++){
+        var layer = layers[L], items = layer.items, pos = layer.pos, col = layer.col, order = layer.order;
+        for(i = 0; i < layer.count; i++){
+          var p = items[i];
+          if(L === 3){ // 光尘：环绕公转
+            var dr = 1.18 + 0.35 * s + Math.sin(group.rotation.y * 2 + p.ph) * 0.16;
+            phi = p.phi + group.rotation.y * 0.8;
+            px = Math.cos(phi) * dr;
+            pz = Math.sin(phi) * dr * 0.72;
+            py = 0.10 + Math.sin(group.rotation.y * 1.6 + p.ph) * 0.20;
+          } else if(L === 2){ // 花蕊：始终竖直
+            phi = p.phi;
+            cph = Math.cos(phi); sph = Math.sin(phi);
+            px = cph * p.u - sph * p.v * 0.18;
+            pz = sph * p.u + cph * p.v * 0.18;
+            py = 0.06 + p.u * 0.5;
+          } else { // 花瓣：3D 花瓣曲面（径向 u、横向 v、仰角 th）
+            th = th0 * (0.60 + 0.55 * p.u);
+            r = p.u;
+            w = p.v * petalW(p.u) * 0.46 * (0.5 + 0.5 * s);
+            phi = p.phi + group.rotation.y;
+            cph = Math.cos(phi); sph = Math.sin(phi);
+            st = Math.sin(th); cth = Math.cos(th);
+            px = cph * r * st - sph * w;
+            pz = sph * r * st + cph * w;
+            py = r * cth;
+          }
+          pos[i * 3] = px; pos[i * 3 + 1] = py; pos[i * 3 + 2] = pz;
+          col[i * 3] = p.r; col[i * 3 + 1] = p.g; col[i * 3 + 2] = p.b;
+          order[i] = i;
+        }
+        // 层内按 z 深度从远到近重排（近的盖住远的，立体遮挡）
+        order.sort(function(a, b){ return pos[a * 3 + 2] - pos[b * 3 + 2]; });
+        var np = new Float32Array(pos), nc = new Float32Array(col);
+        for(i = 0; i < layer.count; i++){
+          var si = order[i];
+          np[i * 3] = pos[si * 3]; np[i * 3 + 1] = pos[si * 3 + 1]; np[i * 3 + 2] = pos[si * 3 + 2];
+          nc[i * 3] = col[si * 3]; nc[i * 3 + 1] = col[si * 3 + 1]; nc[i * 3 + 2] = col[si * 3 + 2];
+        }
+        layer.pos.set(np); layer.col.set(nc);
+        layer.pts.geometry.attributes.position.needsUpdate = true;
+        layer.pts.geometry.attributes.color.needsUpdate = true;
       }
-      // 花瓣曲面上的 3D 点：径向 u、横向 v，仰角随 u 略增（尖端更展开）
-      var th = (p.k === "c") ? 0.16 : th0 * (0.62 + 0.55 * p.u);
-      var r = R * p.u;
-      var w = p.v * petalW(p.u) * R * 0.42 * (0.55 + 0.45 * s);
-      var sinT = Math.sin(th), cosT = Math.cos(th);
-      var cph = Math.cos(ph), sph = Math.sin(ph);
-      var x = cph * r * sinT - sph * w;
-      var y = sph * r * sinT + cph * w;
-      var z = r * cosT;
-      // 绕 x 轴侧倾（3D 旋转）
-      var y2 = y * ct - z * st;
-      var z2 = y * st + z * ct;
-      // 透视投影（z 远 → 变小变暗）
-      var pr = F / (F + z2);
-      var sx = cx + x * pr;
-      var sy = cy - y2 * pr;
-      var szz = p.sz * pr;
-      var dist = Math.max(0, z2 / (R * 1.1));
-      var alpha = p.a * Math.max(0.22, 1 - dist * 0.6);
-      pts.push({ sx: sx, sy: sy, z: z2, sz: szz, a: alpha, hue: p.hue });
+      // 绽放瞬间：光尘向外飘散
+      if(triggerBurst && !burstOn){
+        burstOn = true;
+        burstLayer.pts.visible = true;
+        var bi = burstLayer.items;
+        for(i = 0; i < bi.length; i++){
+          var ang = Math.random() * Math.PI * 2;
+          var el = Math.PI / 2 * (0.45 + Math.random() * 0.5);
+          bi[i].vx = Math.cos(ang) * Math.sin(el);
+          bi[i].vz = Math.sin(ang) * Math.sin(el);
+          bi[i].vy = Math.cos(el);
+          bi[i].life = 1;
+          bi[i].decay = 0.035 + Math.random() * 0.03;
+          bi[i].r = 1; bi[i].g = 0.75 + Math.random() * 0.2; bi[i].b = 0.55 + Math.random() * 0.35;
+        }
+      }
+      if(burstOn){
+        var bp = burstLayer.pos, bc = burstLayer.col, alive = false;
+        for(i = 0; i < burstLayer.count; i++){
+          var b = burstLayer.items[i];
+          b.life -= b.decay;
+          if(b.life <= 0){ bp[i * 3] = 999; bp[i * 3 + 1] = 999; bp[i * 3 + 2] = 999; bc[i * 3] = 0; bc[i * 3 + 1] = 0; bc[i * 3 + 2] = 0; continue; }
+          alive = true;
+          var d = (1 - b.life) * 1.5;
+          bp[i * 3] = b.vx * d; bp[i * 3 + 1] = b.vy * d * 1.05 + 0.12; bp[i * 3 + 2] = b.vz * d;
+          bc[i * 3] = b.r * b.life; bc[i * 3 + 1] = b.g * b.life; bc[i * 3 + 2] = b.b * b.life;
+        }
+        burstLayer.pts.geometry.attributes.position.needsUpdate = true;
+        burstLayer.pts.geometry.attributes.color.needsUpdate = true;
+        if(!alive){ burstOn = false; burstLayer.pts.visible = false; }
+      }
     }
-    // 深度排序：远 → 近（近的盖在远的上面，立体感）
-    pts.sort(function(a, b){ return b.z - a.z; });
-    for(i = 0; i < pts.length; i++){
-      var q = pts[i];
-      drawGlow(glowSprites[q.hue], q.sx, q.sy, q.sz, q.a);
+
+    function render(){
+      renderer.render(scene, camera);
     }
-    fctx.globalAlpha = 1;
+    function resize(w, h){
+      if(w > 0 && h > 0){
+        renderer.setSize(w, h, false);
+        camera.aspect = w / h;
+        camera.updateProjectionMatrix();
+      }
+    }
+    function dispose(){
+      scene.traverse(function(o){
+        if(o.geometry) o.geometry.dispose();
+        if(o.material){
+          if(o.material.map) o.material.map.dispose();
+          o.material.dispose();
+        }
+      });
+      renderer.dispose();
+    }
+    resize(canvas.clientWidth || 560, canvas.clientHeight || 420);
+    return { update: update, render: render, resize: resize, dispose: dispose };
   }
+
+
+
 
   // ---------- 打卡图合成 ----------
   function composeCard(){
@@ -419,16 +477,19 @@
 
   // ---------- 手势检测循环 ----------
   var lastLandmarks = null, rafId = null, frameSkip = 0;
+  var midX = 0.5, midY = 0.5;
   function loop(ts){
     if(!running) return;
     rafId = requestAnimationFrame(loop);
     if(frameSkip % 3 !== 0){ frameSkip++; return; }
     frameSkip++;
-    if(!landmarker || cam.readyState < 2) return;
+    if(!landmarker || cam.readyState < 2){
+      if(flower3D) flower3D.render();
+      return;
+    }
     var res;
     try { res = landmarker.detectForVideo(cam, performance.now()); }
     catch(e){ return; }
-    fctx.clearRect(0, 0, fx.width, fx.height);
     var lm = null;
     if(res && res.landmarks && res.landmarks.length > 0){
       lastLandmarks = res.landmarks[0];
@@ -437,9 +498,8 @@
     if(lm){
       var gap = fingerGap(lm);
       FLOWER.spread += (gap - FLOWER.spread) * 0.22;
-      var W = fx.width, H = fx.height;
-      FLOWER.x += (((lm[8].x + lm[12].x) / 2) * W - FLOWER.x) * 0.28;
-      FLOWER.y += (((lm[8].y + lm[12].y) / 2) * H - FLOWER.y) * 0.28;
+      midX += (((lm[8].x + lm[12].x) / 2) - midX) * 0.28;
+      midY += (((lm[8].y + lm[12].y) / 2) - midY) * 0.28;
       if(FLOWER.spread > 0.88){
         bloomFrames++;
         if(bloomFrames > 46 && !fired){
@@ -458,7 +518,12 @@
       FLOWER.spread *= 0.97;
       setHint("食指和中指张开一点，让花醒来");
     }
-    renderFlower(fx.width, fx.height);
+    if(flower3D){
+      var bf = FLOWER.burst > 0;
+      if(bf) FLOWER.burst = 0;
+      flower3D.update(FLOWER.spread, midX, midY, bf);
+      flower3D.render();
+    }
   }
 
   function startCam(){
@@ -524,14 +589,28 @@
     var onOk = function(hl){
       clearTimeout(guard); done = true;
       landmarker = hl;
-      fx.width = stage.clientWidth; fx.height = stage.clientHeight;
-      running = true;
       bloomFrames = 0; fired = false;
       FLOWER.spread = 0; FLOWER.burst = 0; FLOWER.spin = 0;
-      FLOWER.x = fx.width / 2; FLOWER.y = fx.height / 2;
-      initFlower();
-      setHint("张开食指和中指，让花醒来");
-      requestAnimationFrame(loop);
+      midX = 0.5; midY = 0.5;
+      setHint("正在点亮 3D 渲染引擎…");
+      loadThree().then(function(THREE){
+        if(flower3D){ try { flower3D.dispose(); } catch(e){} flower3D = null; }
+        try {
+          flower3D = createFlower3D(THREE, fx);
+          flower3D.resize(stage.clientWidth, stage.clientHeight);
+        } catch(err){
+          flower3D = null;
+          loadText.textContent = "3D 渲染初始化失败（浏览器可能不支持 WebGL），点「直接拍照」也能打卡";
+          snapBtn.disabled = false;
+          return;
+        }
+        running = true;
+        setHint("张开食指和中指，让花醒来");
+        requestAnimationFrame(loop);
+      }).catch(function(){
+        loadText.textContent = "3D 渲染库加载失败，请检查网络后刷新（或点「直接拍照」）";
+        snapBtn.disabled = false;
+      });
     };
     var onErr = function(e){
       clearTimeout(guard); done = true;
@@ -610,7 +689,7 @@
     cardWrap.hidden = true;
     running = false;
     stopCam();
-    fctx.clearRect(0, 0, fx.width, fx.height);
+    if(flower3D){ try { flower3D.dispose(); } catch(e){} flower3D = null; }
     loading.hidden = false;
     loadText.textContent = "点击「开始打卡」，重新开启摄像头";
     startCam();
@@ -618,7 +697,10 @@
 
   startBtn.addEventListener("click", startCam);
   // 返回时清理摄像头
-  window.addEventListener("beforeunload", function(){ stopCam(); });
+  window.addEventListener("beforeunload", function(){
+    stopCam();
+    if(flower3D){ try { flower3D.dispose(); } catch(e){} flower3D = null; }
+  });
 })();
 </script>
 </body>
