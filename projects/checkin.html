@@ -127,7 +127,7 @@
     return Math.max(0, Math.min(1, (d - 0.025) / 0.10));
   }
 
-  // ---------- 3D 粒子花 ----------
+  // ---------- 指尖光束花 ----------
   function makeGlow(rgb){
     var s = document.createElement("canvas");
     s.width = s.height = 64;
@@ -143,32 +143,69 @@
 
   function initFlower(){
     glowSprites = [
-      makeGlow("255,196,110"),  // 0 金
-      makeGlow("255,150,96"),   // 1 橙
-      makeGlow("255,120,190"),  // 2 粉
+      makeGlow("255,214,140"),  // 0 金
+      makeGlow("255,168,96"),   // 1 橙
+      makeGlow("255,140,200"),  // 2 粉
       makeGlow("255,255,255")   // 3 白
     ];
     flowerParts.length = 0;
-    var i, p;
-    // 花瓣：三层环绕（内/中/外），球坐标分布
-    for(i = 0; i < 156; i++){
-      var layer = i % 3;
+    burstParts.length = 0;
+    var i;
+    // 花瓣光束：32 根，长短交错（每 4 根一根长瓣）
+    for(i = 0; i < 32; i++){
       flowerParts.push({
         k: "p",
-        phi: (i / 156) * Math.PI * 2 + Math.random() * 0.25,
-        th0: 0.42 + layer * 0.30,
-        ph: Math.random() * Math.PI * 2,
-        sz: 2.4 + Math.random() * 2.6,
-        img: (i % 5 === 0) ? 2 : (i % 3 === 0 ? 1 : 0)
+        phi: (i / 32) * Math.PI * 2,
+        th0: (i % 4 === 0) ? 0.38 : 0.55,
+        len: (i % 4 === 0) ? 1.5 : 1.02,
+        w: (i % 4 === 0) ? 5.0 : 3.2,
+        hue: i % 5 === 0 ? 2 : (i % 3 === 0 ? 1 : 0),
+        ph: Math.random() * Math.PI * 2
       });
     }
-    // 花蕊粒子
-    for(i = 0; i < 46; i++){
-      flowerParts.push({ k: "c", phi: Math.random() * Math.PI * 2, th0: 0.10 + Math.random() * 0.18, ph: Math.random() * Math.PI * 2, sz: 1.4 + Math.random() * 2.0, img: 3 });
+    // 内层短光束：12 根，更亮更细
+    for(i = 0; i < 12; i++){
+      flowerParts.push({
+        k: "p2",
+        phi: (i / 12) * Math.PI * 2 + Math.PI / 12,
+        th0: 0.30,
+        len: 0.55,
+        w: 2.4,
+        hue: 0,
+        ph: Math.random() * Math.PI * 2
+      });
     }
     // 环绕光尘
-    for(i = 0; i < 34; i++){
-      flowerParts.push({ k: "d", phi: Math.random() * Math.PI * 2, th0: 1.0 + Math.random() * 1.2, ph: Math.random() * Math.PI * 2, sz: 1.2 + Math.random() * 1.8, img: 3 });
+    for(i = 0; i < 24; i++){
+      flowerParts.push({ k: "d", phi: Math.random() * Math.PI * 2, th0: 1.0, ph: Math.random() * Math.PI * 2, sz: 1.4 + Math.random() * 2.2, img: 3 });
+    }
+  }
+
+  // 绽放喷发粒子
+  var burstParts = [];
+  function spawnBurst(W, H){
+    var R = Math.min(W, H) * 0.40;
+    for(var i = 0; i < 40; i++){
+      var ang = Math.random() * Math.PI * 2;
+      burstParts.push({
+        ang: ang,
+        vx: Math.cos(ang), vy: Math.sin(ang),
+        sp: (0.8 + Math.random() * 2.2) * R,
+        life: 1, decay: 0.028 + Math.random() * 0.03,
+        hue: Math.random() < 0.5 ? 0 : (Math.random() < 0.5 ? 1 : 2),
+        sz: 1.6 + Math.random() * 2.6
+      });
+    }
+  }
+  function stepBurst(){
+    for(var i = burstParts.length - 1; i >= 0; i--){
+      var b = burstParts[i];
+      b.life -= b.decay;
+      if(b.life <= 0){ burstParts.splice(i, 1); continue; }
+      var dist = b.sp * (1 - b.life) * 1.6;
+      var bx = FLOWER.x + b.vx * dist;
+      var by = FLOWER.y + b.vy * dist * 0.85 - (1 - b.life) * 70;
+      drawGlow(glowSprites[b.hue], bx, by, b.sz * (1 + (1 - b.life) * 2), b.life * 0.9);
     }
   }
 
@@ -182,50 +219,59 @@
   function renderFlower(W, H){
     var cx = FLOWER.x, cy = FLOWER.y;
     var s = FLOWER.spread;
-    var R = Math.min(W, H) * 0.36;
-    FLOWER.spin += 0.012 + s * 0.022;
+    var R = Math.min(W, H) * 0.40;
+    var t = FLOWER.spin;
+    FLOWER.spin += 0.016 + s * 0.030;
     var spin = FLOWER.spin;
-    if(FLOWER.burst > 0) FLOWER.burst -= 0.035;
+    if(FLOWER.burst > 0){ spawnBurst(W, H); FLOWER.burst = 0; }
+    stepBurst();
 
-    // 花心光晕（随开放度变亮）
-    var coreR = R * (0.14 + 0.10 * s);
-    var grad = fctx.createRadialGradient(cx, cy, 0, cx, cy, coreR * 5);
-    grad.addColorStop(0, "rgba(255,214,140," + (0.16 + 0.42 * s).toFixed(3) + ")");
-    grad.addColorStop(1, "rgba(255,214,140,0)");
-    fctx.fillStyle = grad;
-    fctx.beginPath(); fctx.arc(cx, cy, coreR * 5, 0, Math.PI * 2); fctx.fill();
-    fctx.fillStyle = "rgba(255,248,220,.95)";
-    fctx.beginPath(); fctx.arc(cx, cy, coreR * 0.72, 0, Math.PI * 2); fctx.fill();
+    // 花心亮核（随开放度变亮）
+    var coreR = R * (0.10 + 0.10 * s);
+    var g0 = fctx.createRadialGradient(cx, cy, 0, cx, cy, coreR * 4);
+    g0.addColorStop(0, "rgba(255,246,214," + (0.35 + 0.5 * s).toFixed(3) + ")");
+    g0.addColorStop(1, "rgba(255,214,140,0)");
+    fctx.fillStyle = g0;
+    fctx.beginPath(); fctx.arc(cx, cy, coreR * 4, 0, Math.PI * 2); fctx.fill();
+    fctx.fillStyle = "rgba(255,252,235,.98)";
+    fctx.beginPath(); fctx.arc(cx, cy, coreR * 0.5, 0, Math.PI * 2); fctx.fill();
 
+    // 光束花瓣：闭合=竖直聚拢成花苞，张开=水平放射成莲花并旋转
     for(var i = 0; i < flowerParts.length; i++){
       var p = flowerParts[i];
       var ph = p.ph + spin * 2;
       if(p.k === "d"){
-        var dr = R * (0.95 + s * 1.7) + Math.sin(spin * 2 + ph) * R * 0.14;
-        var dx = cx + Math.cos(p.phi) * dr;
-        var dy = cy + Math.sin(p.phi) * dr * 0.72;
-        var tw = 0.35 + 0.55 * (0.5 + 0.5 * Math.sin(spin * 3 + p.ph));
-        drawGlow(glowSprites[3], dx, dy, p.sz * (1 + s * 0.5), tw);
+        var dr = R * (0.8 + s * 1.8) + Math.sin(spin * 2 + ph) * R * 0.16;
+        var dx = cx + Math.cos(p.phi + spin * 0.7) * dr;
+        var dy = cy + Math.sin(p.phi + spin * 0.7) * dr * 0.72;
+        var tw = 0.4 + 0.6 * (0.5 + 0.5 * Math.sin(spin * 3 + p.ph));
+        drawGlow(glowSprites[3], dx, dy, p.sz * (1 + s * 0.6), tw);
         continue;
       }
-      // 花瓣/花蕊：球坐标 → 伪 3D 投影（闭合=竖直聚拢，张开=平铺绽放）
-      var th = p.th0 * (1 - s) + (p.th0 + 0.78) * s;
-      var r = R * (0.13 + s * 0.96) * (0.88 + 0.22 * Math.sin(ph));
-      var px = Math.sin(th) * r * Math.cos(p.phi + spin);
-      var py = Math.sin(th) * r * Math.sin(p.phi + spin);
-      var pz = Math.cos(th) * r;
-      var persp = 1.25 + (1 - pz / (R * 1.15)) * 0.5;
-      var sx = cx + px;
-      var sy = cy + py * 0.9;
-      var szz = p.sz * persp;
-      var a = 0.45 + 0.55 * s;
-      if(p.k === "c"){ a = 0.92; szz = p.sz * persp * 0.8; }
-      if(FLOWER.burst > 0 && p.k !== "c"){
-        sx += (sx - cx) * FLOWER.burst * 0.9;
-        sy += (sy - cy) * FLOWER.burst * 0.9;
-        a *= Math.max(0, 1 - FLOWER.burst * 0.7);
-      }
-      drawGlow(glowSprites[p.img], sx, sy, szz, a);
+      // 球坐标：th 从花苞仰角 → 平铺（s=0 竖直聚拢，s=1 水平放射）
+      var th = p.th0 * (1 - s) + 1.47 * s;
+      var breathe = 1 + 0.07 * Math.sin(t * 3 + p.ph);
+      var L = R * p.len * breathe;
+      // 水平展开随 s，竖直高度随 (1-s)
+      var hx = Math.cos(p.phi + spin) * Math.sin(th) * L * (0.35 + 0.65 * s);
+      var hy = Math.sin(p.phi + spin) * Math.sin(th) * L * (0.35 + 0.65 * s);
+      var vz = Math.cos(th) * L * (0.3 + 0.7 * (1 - s));
+      var ex = cx + hx;
+      var ey = cy + hy * 0.92 - vz;
+      // 光束渐变：花心亮 → 彩 → 透明
+      var cols = p.hue === 2 ? "255,140,200" : (p.hue === 1 ? "255,168,96" : "255,206,120");
+      var g = fctx.createLinearGradient(cx, cy, ex, ey);
+      g.addColorStop(0, "rgba(255,250,228,.96)");
+      g.addColorStop(0.32, "rgba(255,232,170,.86)");
+      g.addColorStop(0.72, "rgba(" + cols + ",.66)");
+      g.addColorStop(1, "rgba(" + cols + ",0)");
+      fctx.strokeStyle = g;
+      fctx.lineWidth = p.w * (0.7 + s * 0.55);
+      fctx.lineCap = "round";
+      fctx.beginPath();
+      fctx.moveTo(cx + (ex - cx) * 0.1, cy + (ey - cy) * 0.1);
+      fctx.lineTo(ex, ey);
+      fctx.stroke();
     }
     fctx.globalAlpha = 1;
   }
