@@ -134,6 +134,16 @@ h1,h2,h3,h4{font-family:var(--serif);line-height:1.35}
 .pause-opts button{min-height:48px;border-radius:12px;border:1.5px solid var(--line);background:var(--paper);
   color:var(--ink2);font-size:13px;cursor:pointer}
 .pause-opts button:hover{border-color:var(--gold);color:var(--gold-hi)}
+/* ===== v1.3.2 暂停不再每次问 ===== */
+.pause-remember{display:flex;align-items:flex-start;gap:9px;margin-top:14px;padding-top:12px;
+  border-top:1px solid var(--line2);font-size:12.5px;color:var(--ink2);line-height:1.7;cursor:pointer}
+.pause-remember input{width:18px;height:18px;flex:0 0 auto;margin-top:2px;accent-color:#f2c66d;cursor:pointer}
+.pause-remember .pr-note{display:block;color:var(--ink3);font-size:11.5px;margin-top:2px}
+/* 暂停态旁的「改」——一键暂停之后唯一的回头路，热区按触控标准给足 */
+.pause-edit{min-height:28px;padding:2px 10px;margin-left:6px;border-radius:999px;
+  border:1px solid var(--line);background:transparent;color:var(--gold-hi);
+  font-size:11.5px;font-family:var(--sans);cursor:pointer;vertical-align:middle}
+.pause-edit:hover{border-color:rgba(242,198,109,.55);background:rgba(242,198,109,.08)}
 .protocol-source{font-size:12px;color:var(--ink3);line-height:1.8;margin-top:10px}
 .protocol-source a{color:var(--blue)}
 .ambient-box{border-top:1px solid var(--line2);margin-top:14px;padding-top:13px}
@@ -230,28 +240,10 @@ textarea.input{resize:vertical;min-height:72px;line-height:1.7;font-family:var(-
   background:rgba(242,198,109,.12);border:1px solid rgba(242,198,109,.35);font-size:11px;color:var(--gold-hi);font-family:var(--mono)}
 .star.broken{background:rgba(232,145,91,.1);border-color:rgba(232,145,91,.35);color:var(--ember)}
 
-/* 星河链路：当前链燃烧，最长链留在远处发光 */
-.chain-net-svg{width:100%;height:auto;display:block;overflow:visible}
-.chain-history{fill:none;stroke:rgba(130,166,255,.24);stroke-width:1.2;stroke-dasharray:2 7}
-.chain-track{fill:none;stroke:rgba(242,198,109,.2);stroke-width:1.4}
-.chain-flow{fill:none;stroke:var(--gold-hi);stroke-width:1.7;stroke-linecap:round;stroke-dasharray:3 16;
-  animation:laserMove 1.6s linear infinite;filter:drop-shadow(0 0 3px rgba(242,198,109,.85))}
-@keyframes laserMove{to{stroke-dashoffset:-19}}
-.chain-node{cursor:pointer;outline:none}
-.chain-node:focus .chain-star{stroke:#fff4c8;stroke-width:1.5}
-.chain-star{fill:var(--gold-hi);filter:url(#starGlow);transform-box:fill-box;transform-origin:center}
-.chain-node.active .chain-star{animation:starBreath 2.6s ease-in-out infinite;animation-delay:var(--delay)}
-.chain-node.history .chain-star{fill:var(--blue-soft);opacity:.52;filter:none}
-.chain-node.latest .chain-star{fill:#fff4c8;animation:latestStar 1.9s ease-in-out infinite}
-.chain-halo{fill:none;stroke:rgba(242,198,109,.45);stroke-width:1;animation:satPulse 2.3s ease-in-out infinite}
-@keyframes satPulse{0%,100%{opacity:.16;transform:scale(.88)}50%{opacity:.72;transform:scale(1.16)}}
-@keyframes starBreath{0%,100%{opacity:.72;transform:scale(.88)}50%{opacity:1;transform:scale(1.08)}}
-@keyframes latestStar{0%,100%{filter:url(#starGlow);transform:scale(1)}50%{filter:url(#starGlowStrong);transform:scale(1.3)}}
-.chain-core{fill:rgba(242,198,109,.12);stroke:rgba(242,198,109,.42);stroke-width:1}
-.chain-core-number{fill:var(--gold-hi);font:700 21px var(--serif);text-anchor:middle}
-.chain-core-label{fill:var(--ink3);font:11px var(--sans);letter-spacing:2px;text-anchor:middle}
-.chain-overflow{fill:var(--blue);font:12px var(--mono);text-anchor:middle}
-.chain-net-card-note{text-align:center;margin-top:6px}
+/* v1.3.0：删除「星链网络」的 22 行死样式（.chain-net-svg/.chain-node/.chain-star/
+   .chain-track/.chain-flow/.chain-halo/.chain-core/.chain-history/.chain-overflow
+   及 laserMove / satPulse / starBreath / latestStar 四个关键帧）。
+   那张图在 v0.9.0 就被星链长卷取代，样式与 #starGlow 滤镜都成了孤儿。 */
 .guide-lead{color:var(--ink2);font-size:14px;margin-bottom:10px}
 .guide-more{margin-top:8px;border-top:1px solid var(--line2);padding-top:4px}
 .guide-more summary{cursor:pointer;list-style:none;min-height:44px;display:flex;align-items:center;
@@ -263,9 +255,25 @@ textarea.input{resize:vertical;min-height:72px;line-height:1.7;font-family:var(-
 .guide-note{border-top:1px solid var(--line2);margin-top:13px;padding-top:11px;color:var(--ink3);font-size:12.5px;line-height:1.8}
 .chain-tabs{grid-template-columns:repeat(3,1fr);margin:14px 0 8px}
 .chain-panel{display:none}.chain-panel.on{display:block;animation:fade .25s ease}
-.star-map{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:6px;margin:14px 0 8px}
+/* v1.3.0：星图改为「月历模式」—— 从 90 天平铺改为可翻月的日历 */
+.cal{margin:14px 0 8px}
+.cal-head{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.cal-nav{width:36px;height:36px;flex:none;border-radius:10px;border:1px solid var(--line2);
+  background:rgba(255,255,255,.04);color:var(--ink2);font-size:19px;line-height:1;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;transition:border-color .15s,color .15s}
+.cal-nav:hover:not(:disabled){border-color:var(--line);color:var(--gold-hi)}
+.cal-nav:disabled{opacity:.28;cursor:default}
+.cal-title{flex:1;text-align:center;min-width:0}
+.cal-title b{display:block;font-family:var(--serif);font-size:15.5px;color:var(--gold-hi);letter-spacing:.05em;font-weight:700}
+.cal-title span{display:block;font-size:11px;color:var(--ink3);letter-spacing:.06em;margin-top:2px}
+.cal-week{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;margin-bottom:5px}
+.cal-week span{text-align:center;font-size:10.5px;color:var(--ink3);letter-spacing:.08em}
+.star-map{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;margin:0}
 .map-day{aspect-ratio:1;background:rgba(255,255,255,.04);border:1px solid var(--line2);border-radius:7px;color:var(--ink3);font:11px var(--mono);cursor:pointer;min-width:0}
 .map-day:hover,.map-day:focus{border-color:var(--line);outline:none}
+.map-day.blank{visibility:hidden;pointer-events:none}
+.map-day.today{outline:1.5px solid var(--gold);outline-offset:1px}
+.map-day.broken-day{background:rgba(232,145,91,.18);border-color:rgba(232,145,91,.5);color:#E8915B}
 .map-day.has-star{background:rgba(242,198,109,.30);border-color:rgba(255,217,138,.75);color:var(--gold-hi);box-shadow:0 0 8px rgba(242,198,109,.20)}
 .map-day.cluster{background:rgba(242,198,109,.48);border-color:rgba(255,217,138,.9);box-shadow:0 0 14px rgba(242,198,109,.45)}
 .map-day.white-star{background:rgba(130,166,255,.30);border-color:rgba(150,180,255,.75);color:#BBD0FF;box-shadow:0 0 8px rgba(130,166,255,.22)}
@@ -376,12 +384,15 @@ textarea.input{resize:vertical;min-height:72px;line-height:1.7;font-family:var(-
 .snap-head{margin-top:14px;font-family:var(--serif);font-size:14px;color:var(--gold-hi)}
 .snap-head .muted{font-size:11.5px;margin-left:6px;font-family:var(--sans)}
 .snap-list{margin-top:8px;display:grid;gap:8px}
+/* v1.3.0 自查修正：回收箱的「恢复」是不可逆操作入口，热区给足 40px。
+   （快照那个「恢复」在 .snap-row button 里，已单独改过。） */
+.policy-history-list button{min-height:40px;padding-left:14px;padding-right:14px}
 .snap-row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;
   background:rgba(255,255,255,.04);border:1px solid var(--line2);border-radius:10px;padding:9px 12px}
 .snap-row .s-main{font-size:12.5px;color:var(--ink2);line-height:1.7}
 .snap-row .s-main b{color:var(--gold-hi);font-family:var(--sans);font-weight:600;margin-right:6px}
 .snap-row button{background:transparent;border:1px solid var(--line);color:var(--ink2);border-radius:9px;
-  padding:7px 12px;font-size:12px;cursor:pointer;min-height:38px}
+  padding:7px 12px;font-size:12px;cursor:pointer;min-height:40px}
 .snap-row button:hover{color:var(--gold-hi);border-color:rgba(246,220,155,.5)}
 /* 年度星图预览 */
 .poster-overlay{position:fixed;inset:0;z-index:66;display:none;align-items:center;justify-content:center;
@@ -447,6 +458,15 @@ textarea.input{resize:vertical;min-height:72px;line-height:1.7;font-family:var(-
 .backup-banner .bb-text{font-size:12.5px;line-height:1.7;color:var(--ink2);margin-bottom:10px}
 .backup-banner .bb-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .backup-banner .btn{min-height:40px;padding:8px 12px;font-size:13px}
+/* v1.2.3 数据未能保存：跨页常驻警告（保存成功后自动消失，不再是「只提示一次」） */
+.save-warn{display:none;align-items:center;gap:10px;flex-wrap:wrap;
+  margin:0 0 12px;padding:10px 14px;border-radius:12px;
+  border:1.5px solid rgba(232,145,91,.55);background:rgba(232,145,91,.10);
+  color:var(--ink);font-size:13px;line-height:1.6}
+.save-warn.on{display:flex}
+.save-warn b{color:#F0A86B;flex:none}
+.save-warn span{flex:1 1 200px;min-width:0;color:var(--ink2)}
+.save-warn .btn{flex:none;min-height:40px;padding:8px 14px;font-size:13px}
 /* 收束产出：非模态补记卡片（不打断奖励时刻） */
 .outcome-card{display:none;margin:10px 0 2px;padding:12px 14px;border:1px dashed rgba(242,198,109,.42);
   border-radius:12px;background:rgba(242,198,109,.07)}
@@ -456,6 +476,10 @@ textarea.input{resize:vertical;min-height:72px;line-height:1.7;font-family:var(-
 .outcome-card .oc-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
 .outcome-card .oc-btns .btn{min-height:40px;padding:8px 12px;font-size:13px}
 .outcome-line{font-size:12px;color:var(--gold-hi);margin-top:3px;line-height:1.7}
+/* v1.3.0：单颗星详情卡上的中性标签（准时入座 / 完成度） */
+.detail-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.detail-tags span{font-size:11px;letter-spacing:.06em;color:var(--ink2);
+  border:1px solid var(--line2);border-radius:999px;padding:3px 9px}
 
 /* 星月诗笺：今日星语 + 诗笺卡 */
 .poem-of-day{margin:0 0 10px;font-family:var(--serif);font-size:13px;line-height:1.9;color:var(--gold-hi);
@@ -482,14 +506,54 @@ textarea.input{resize:vertical;min-height:72px;line-height:1.7;font-family:var(-
 .letter-page{background:linear-gradient(180deg,rgba(18,24,48,.96) 0%,rgba(14,20,40,.96) 100%);
   border:1.5px solid rgba(242,198,109,.28);border-radius:18px;max-width:520px;width:92%;
   max-height:85vh;overflow-y:auto;padding:32px 28px 40px;text-align:center;position:relative}
-.letter-page .letter-close{position:absolute;top:12px;right:14px;
+/* v1.3.0 自查修正：关闭按钮原来只有 22px，手机上点不准。改成 44×44 的触控目标
+   （视觉上仍是一个小 ×，但热区撑到标准尺寸）。 */
+.letter-page .letter-close{position:absolute;top:6px;right:6px;
+  display:flex;align-items:center;justify-content:center;
+  width:44px;height:44px;padding:0;border-radius:12px;
   background:none;border:none;color:var(--ink3);font-size:22px;cursor:pointer;line-height:1}
+.letter-page .letter-close:hover{color:var(--gold-hi);background:rgba(255,255,255,.05)}
 .letter-page .letter-date{font-family:var(--sans);font-size:11px;color:var(--ink3);letter-spacing:.12em;
   margin-bottom:18px}
 .letter-page .letter-salute{font-family:var(--serif);font-size:18px;color:var(--gold-hi);margin-bottom:22px}
 .letter-page .letter-body{font-family:var(--serif);font-size:15px;line-height:2.1;color:var(--gold);
   text-align:left;padding:0 4px}
 .letter-page .letter-body .letter-line{margin-bottom:12px}
+/* ===== v1.3.2 寄给未来的信 ===== */
+.future-compose{text-align:left}
+.future-compose .letter-salute{text-align:center}
+.future-picks{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.future-picks button{min-height:40px;padding:8px 14px;border-radius:999px;border:1px solid var(--line);
+  background:transparent;color:var(--ink2);font-size:12.5px;cursor:pointer;font-family:var(--sans)}
+.future-picks button.on{color:var(--gold-hi);border-color:rgba(242,198,109,.55);background:rgba(242,198,109,.08)}
+.future-picks button:hover{color:var(--gold-hi)}
+.future-custom{display:flex;align-items:center;gap:10px;margin-bottom:14px;font-size:12px;color:var(--ink3)}
+.future-custom input{flex:1;min-height:40px;padding:6px 10px;border-radius:10px;border:1px solid var(--line);
+  background:rgba(255,255,255,.03);color:var(--gold);font-family:var(--sans);font-size:13px}
+.future-body{width:100%;box-sizing:border-box;padding:12px 14px;border-radius:12px;border:1px solid var(--line);
+  background:rgba(255,255,255,.03);color:var(--gold);font-family:var(--serif);font-size:14.5px;
+  line-height:1.95;resize:vertical;margin-bottom:10px}
+.future-body:focus{outline:none;border-color:rgba(242,198,109,.5)}
+/* 封着的信 */
+.sealed-letter{position:relative;display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;
+  padding:13px 14px 13px 46px;border-radius:12px;border:1px solid rgba(242,198,109,.16);
+  background:linear-gradient(180deg,rgba(242,198,109,.05),rgba(242,198,109,.02));margin-bottom:8px}
+.sealed-letter.locked{cursor:default}
+.sealed-letter.due{cursor:pointer;border-color:rgba(242,198,109,.45);
+  background:linear-gradient(180deg,rgba(242,198,109,.11),rgba(242,198,109,.04))}
+.sealed-letter.due:hover{border-color:rgba(242,198,109,.7)}
+.sealed-wax{position:absolute;left:12px;top:50%;transform:translateY(-50%);
+  width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:12px;color:#2a1a12;font-family:var(--serif);font-weight:700;
+  background:radial-gradient(circle at 35% 30%,#d9814f,#a9492b);box-shadow:0 1px 4px rgba(0,0,0,.45)}
+.sealed-letter .sl-when{font-size:12.5px;color:var(--ink2);line-height:1.7}
+.sealed-letter .sl-when b{color:var(--gold-hi);font-family:var(--sans);font-weight:600}
+.sealed-letter .sl-left{font-size:11.5px;color:var(--ink3);font-family:var(--sans)}
+.sealed-letter.due .sl-left{color:var(--gold-hi)}
+.sealed-letter .sl-tag{font-size:11px;color:var(--ink3);border:1px solid var(--line);
+  border-radius:999px;padding:4px 10px;font-family:var(--sans);white-space:nowrap}
+.sealed-letter.due .sl-tag{color:var(--gold-hi);border-color:rgba(242,198,109,.45)}
+.sealed-empty{padding:4px 0 2px}
 .letter-page .letter-poem{margin-top:28px;padding-top:18px;border-top:1px solid rgba(242,198,109,.18);
   font-family:var(--serif);font-size:14px;line-height:2;color:var(--gold-hi);text-align:center}
 .letter-page .letter-poem .poem-from{display:block;font-family:var(--sans);font-size:11px;
@@ -505,6 +569,20 @@ textarea.input{resize:vertical;min-height:72px;line-height:1.7;font-family:var(-
 .letter-box .letter-entry .le-date{font-family:var(--sans);font-size:12px;color:var(--ink3);letter-spacing:.06em}
 .letter-box .letter-entry .le-level{font-family:var(--serif);font-size:13px;color:var(--gold);text-align:right}
 .letter-box .letter-entry .le-excerpt{font-family:var(--serif);font-size:12.5px;color:var(--ink2);margin-top:2px}
+/* v1.3.0：信笺匣改为「全部 + 按年折叠」；信尾带上当天的专注成绩 */
+.letter-stat{font-size:11.5px;color:var(--ink3);letter-spacing:.06em;padding:6px 0 10px;
+  border-bottom:1px solid var(--line2);margin-bottom:4px}
+.letter-year{margin-top:6px}
+.letter-year>summary{cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:9px 2px;font-family:var(--serif);font-size:14px;color:var(--gold-hi);letter-spacing:.04em;
+  min-height:44px;border-bottom:1px solid var(--line2);list-style:none}
+.letter-year>summary::-webkit-details-marker{display:none}
+.letter-year>summary em{font-style:normal;font-family:var(--sans);font-size:11.5px;color:var(--ink3);letter-spacing:.06em}
+.letter-year[open]>summary{margin-bottom:2px}
+.letter-focus{margin-top:16px;padding-top:14px;border-top:1px solid rgba(242,198,109,.18);
+  font-family:var(--serif);font-size:13.5px;line-height:1.9;color:var(--gold);text-align:center}
+.letter-focus b{color:var(--gold-hi);font-weight:700}
+.letter-focus.muted{color:var(--ink3)}
 
 /* 小星星：铸星时的微型庆祝 */
 .tiny-star{position:fixed;z-index:70;pointer-events:none}
@@ -544,6 +622,13 @@ textarea.input{resize:vertical;min-height:72px;line-height:1.7;font-family:var(-
 <nav class="topnav" id="topnav"></nav>
 
 <main class="wrap">
+  <!-- v1.2.3：数据没能保存时的常驻警告。放在所有 view 之外，因此每一页都看得到；
+       保存一旦成功即自动隐藏。 -->
+  <div class="save-warn" id="saveWarn" role="alert">
+    <b>数据没能保存</b>
+    <span id="saveWarnText">浏览器存储空间不足，刚铸的星可能丢了。请立刻导出备份。</span>
+    <button class="btn ghost" id="saveWarnExport" type="button">立刻导出</button>
+  </div>
   <section id="view-home" class="view on">
     <div class="poem">
       东风夜放花千树，更吹落，星如雨。
@@ -599,9 +684,9 @@ textarea.input{resize:vertical;min-height:72px;line-height:1.7;font-family:var(-
 
       <h4 class="pt">星火三部曲</h4>
       <ul class="dot">
-        <li><b>第一部 · 云端续火花</b>：已完成。云端常驻、到点主动触达、连续天数——像一只不会睡着的月亮猫，替你守着火花。</li>
-        <li><b>第二部 · 星火专注 Pro</b>：就是你面前的这个项目——点火即专注，满一个时段就铸一颗星（小星星）。静场六种声音、背景乐「月亮代表我的心」、国策树、判例、回收箱，全在一个网页里，不依赖任何服务器。</li>
-        <li><b>第三部 · 星火PPT</b>：已上线（V1.0）。把心里的话，认真做成能讲给世界听的一页页星河——AI 逐页生成、点页即改、全屏放映，导出独立 HTML 或真的 .pptx 带走；API Key 由你自己填、不落盘。</li>
+        <li><b>第一部 · 云端续火花（V5.0）</b>：云端常驻、到点主动触达、连续天数——像一只不会睡着的月亮猫，替你守着火花。</li>
+        <li><b>第二部 · 星火专注 Pro（v1.3.2）</b>：就是你面前的这个项目——点火即专注，满一个时段就铸一颗星（小星星）。静场六种声音、背景乐「月亮代表我的心」、国策树、判例、回收箱，全在一个网页里，不依赖任何服务器。</li>
+        <li><b>第三部 · 星火PPT（V3.6）</b>：把心里的话，认真做成能讲给世界听的一页页星河——AI 逐页生成、点页即改、全屏放映，导出独立 HTML 或真的 .pptx 带走；API Key 由你自己填、不落盘。星河背景、生成前先问一句、图表进导出，都已就位。</li>
       </ul>
       <p class="muted">所有数据只存在你自己的设备上（本地存储），无需登录、无需联网、不读取任何系统权限。</p>
     </article>
@@ -612,7 +697,7 @@ textarea.input{resize:vertical;min-height:72px;line-height:1.7;font-family:var(-
       <ol class="num">
         <li><b>先打开，不用注册。</b>手机浏览器可从菜单选择“添加到主屏幕”，以后像 App 一样打开；你的所有记录只存在当前浏览器里。</li>
         <li><b>去“点火”，写下一件事，点「点火 · 25 分钟」。</b>状态不好就展开「更多启动方式」：5 分钟热身、预约入座、换时长、开静场，都在里面。</li>
-        <li><b>完成就铸星，中途被打断点「结束」由你裁判。</b>去「星链」看轨迹、去「复盘」写一句；换手机或清缓存前，记得在「日志」页导出备份。</li>
+        <li><b>完成就铸星，中途被打断点「结束」由你裁判。</b>去「星链」看轨迹、去「复盘」写一句；换手机或清缓存前，记得在「我的」页导出备份。</li>
       </ol>
       <details class="guide-more">
         <summary>更多细节：静场、背景音乐、判例、星图、国策树、备份</summary>
@@ -622,12 +707,12 @@ textarea.input{resize:vertical;min-height:72px;line-height:1.7;font-family:var(-
           <li><b>预约入座。</b>选 5 / 10 / 15 / 30 分钟，在倒计时内回来点火会记作准时；时间到了仍未点火，会请你判定这次启动是否中断，不会静默消失。</li>
           <li><b>提前收束与判例。</b>正式专注中途被打断时点“结束”：已专注超过 80% 会记为“提前收束”；更早结束时，可以选择继续、断链，或把合理原因“立为判例”。</li>
           <li><b>“立为判例”是一条永久规则。</b>例如把“接水”立为判例后，以后同样情况会默认允许，本次也会铸星。不要为了这一次舒服，把“刷手机”也立成判例；判例只有两类结果：断链，或长期允许。</li>
-          <li><b>静场。</b>白噪、粉噪、棕噪由浏览器本地合成，雨声是真实的雨声录音，海浪、篝火为本地生成的自然声，都不联网、不录音；声音默认关闭，只有你主动开启后才会在专注时播放。</li>
+          <li><b>静场。</b>白噪、粉噪、棕噪由浏览器本地合成，雨声、篝火是真实的声音录音，海浪为现场合成的自然声，都不联网、不录音；声音默认关闭，只有你主动开启后才会在专注时播放。</li>
           <li><b>背景音乐。</b>默认开启，一首钢琴曲《月亮代表我的心》，作为整站的背景乐——一打开网页就缓缓播放，点火开始专注时自动停、专注结束后接着放；有独立开关与音量，可在「更多启动方式」里调整或关掉。</li>
           <li><b>断链不清零。</b>当前星链加 1，历史最长链永久保留；断链只是从新的 #1 再开始，不代表之前所有努力都消失。</li>
-          <li><b>星链、星图与统计。</b>星图记录近 90 天，统计会区分完整完成、提前收束和判例；点击星图日期可以回看当天的“推进”。</li>
+          <li><b>星链、星图与统计。</b>星图是月历模式，可以一直往前翻到第一颗星，覆盖全部历史；统计会区分完整完成、提前收束和判例；点击某一天可以回看当天的“推进”。</li>
           <li><b>国策树。</b>在“复盘 → 国策树”里添加长期规则，第一条可以直接选模板；之后每天最多新增一个节点，没做到时可以熄灭该分支，或用“冻结”短暂冻结。</li>
-          <li><b>备份。</b>在“日志”页导出 JSON。换手机、清浏览器缓存或重装前先备份；导入时会合并记录，同一记录不会重复。</li>
+          <li><b>备份。</b>在“我的”页导出 JSON。换手机、清浏览器缓存或重装前先备份；导入时会合并记录，同一记录不会重复。</li>
         </ol>
       </details>
       <p class="guide-note">规则可以严格，态度不需要苛刻。不要用一次失败否定整条链，也不要用一次“下不为例”慢慢掏空规则。清理浏览器网站数据或更换设备后，本地记录可能无法找回，请定期导出备份。</p>
@@ -791,7 +876,7 @@ textarea.input{resize:vertical;min-height:72px;line-height:1.7;font-family:var(-
   <section id="view-chain" class="view">
     <div class="stats">
       <div class="stat"><div class="n" id="chainCurrent">0</div><div class="l">当前星链</div></div>
-      <div class="stat blue"><div class="n" id="chainBest">0</div><div class="l">历史最长 bestNo</div></div>
+      <div class="stat blue"><div class="n" id="chainBest">0</div><div class="l">历史最长</div></div>
     </div>
     <div class="seg chain-tabs" id="chainTabs">
       <button class="on" data-chain-view="chain">星链</button>
@@ -817,9 +902,17 @@ textarea.input{resize:vertical;min-height:72px;line-height:1.7;font-family:var(-
     </div>
     <div class="chain-panel" id="mapPanel">
       <div class="card">
-        <h3>近 90 天星图</h3>
-        <p class="muted">一格是一天。星越亮，表示当天完成的专注时段越多。</p>
-        <div class="star-map" id="starMap"></div>
+        <h3>月历星图</h3>
+        <p class="muted">一天一格，可翻月看全部历史。星越亮，表示当天完成的专注时段越多。</p>
+        <div class="cal" id="starCal">
+          <div class="cal-head">
+            <button class="cal-nav" id="calPrev" type="button" aria-label="上一个月">‹</button>
+            <div class="cal-title"><b id="calTitle">—</b><span id="calSum"></span></div>
+            <button class="cal-nav" id="calNext" type="button" aria-label="下一个月">›</button>
+          </div>
+          <div class="cal-week" aria-hidden="true"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div>
+          <div class="star-map" id="starMap"></div>
+        </div>
         <div class="map-key"><span><i></i>没有铸星</span><span><i class="k-gold"></i>完成铸星</span><span><i class="k-blue"></i>判例铸星</span></div>
         <div class="day-detail" id="dayDetail"><p class="muted">点一个日期，查看那天留下的专注记录。</p></div>
       </div>
@@ -902,6 +995,13 @@ textarea.input{resize:vertical;min-height:72px;line-height:1.7;font-family:var(-
         <div id="letterPreview"></div>
         <div class="letter-box" id="letterBox"><p class="muted" id="letterBoxEmpty">还没有过去的信。</p></div>
       </div>
+      <div class="card" id="futureLetterCard">
+        <h3>寄给未来的信</h3>
+        <p class="muted">写一封给以后的自己。封起来，到那天才拆得开。</p>
+        <div id="futureSealedList"></div>
+        <button class="btn" id="futureComposeBtn" style="margin-top:10px">写一封寄给未来的信</button>
+        <p class="muted" id="futureLetterHint" style="font-size:11.5px;margin-top:8px"></p>
+      </div>
     </div>
   </section>
   <section id="view-log" class="view">
@@ -952,132 +1052,163 @@ textarea.input{resize:vertical;min-height:72px;line-height:1.7;font-family:var(-
     </div>
     <div class="card">
       <h3>更新日志</h3>
+      <div class="logver">v1.3.2</div>
+      <div class="logdate">2026-10-28</div>
+      <ul class="loglist">
+        <li>寄给未来的信：选个日子封起来，到期才拆开；没到期时只是一枚火漆。</li>
+        <li>信跟着备份走；导入前会告诉你有几封未来的信，重复的自动跳过。</li>
+        <li>点火旁多一个「接着昨天的《…》」，点一下就进专注，任务名已填好。</li>
+        <li>暂停勾一次「以后都这样」就不再问；四个档位一个没少。</li>
+      </ul>
+      <div class="logver">v1.3.1</div>
+      <div class="logdate">2026-10-26</div>
+      <ul class="loglist">
+        <li>信里不再替你下结论——没点火的日子改说「没有留下星」；关闭与恢复按钮热区补足。</li>
+      </ul>
+      <div class="logver">v1.3.0</div>
+      <div class="logdate">2026-10-26</div>
+      <ul class="loglist">
+        <li>星图改成月历：一天一格，可以一直往前翻到第一颗星。</li>
+        <li>每页写着「点火 N 天 · 铸星 M 颗」，断过链的日子和今天都有标记。</li>
+        <li>信件不再只留 30 封，按年折叠，顶部写着「共 N 封 · 从哪天写起」。</li>
+        <li>信尾会写上那天铸了几颗星、坐了多久、最久的是哪件事。</li>
+        <li>单颗星能看「准时入座」和「完成度」；统计多一行「自然走完 / 主动收束」。</li>
+      </ul>
+      <div class="logver">v1.2.3</div>
+      <div class="logdate">2026-10-25</div>
+      <ul class="loglist">
+        <li>数据不再悄悄丢：存不进去会一直在页面上提醒，并给一个「立刻导出」。</li>
+        <li>自动快照从 7 份收到 2 份；升级后旧的多余快照会自动裁掉。</li>
+        <li>存储占用改按真实字节算，并显示占上限的百分比。</li>
+        <li>国策的每日记录只留最近 180 天，更早的不再一直堆着。</li>
+        <li>修好「5 分钟热身」点了没反应、赢级默认不亮却记成小赢、静音串台。</li>
+      </ul>
       <div class="logver">v1.2.2</div>
       <div class="logdate">2026-10-24</div>
       <ul class="loglist">
-        <li>去掉一条<b>死引用</b>：海浪本就是浏览器现场合成，不再登记一个不存在的音频文件——每次开始专注都少一次无谓的 404。声音没有任何变化。</li>
+        <li>去掉一个不存在的海浪文件引用，每次开始专注少一次无谓等待。声音没有变化。</li>
       </ul>
       <div class="logver">v1.2.1</div>
       <div class="logdate">2026-10-24</div>
       <ul class="loglist">
-        <li>「星火三部曲」介绍里的<b>第三部已补实</b>：第三部「星火PPT」已上线（V1.0），不再写「待定」。</li>
+        <li>三部曲介绍里的第三部补实了，不再写「待定」。</li>
       </ul>
       <div class="logver">v1.2.0</div>
       <div class="logdate">2026-10-24</div>
       <ul class="loglist">
-        <li><b>星火来信</b>：复盘页第三个标签「星火来信」——每天复盘写完就封存为一封信。打开任意一天的信，全屏信纸阅读、当日星语附在信尾、读信时「月亮代表我的心」在背景安静地放。信笺匣按日期排，点哪封读哪封。</li>
-        <li><b>小星星 · 铸星庆祝</b>：每铸一颗星，屏幕下方升起一颗微型金星星，配月亮 BGM 一闪——不是又一场仪式，就是一个小回响。</li>
-        <li>CSS 修复：诗笺第二行居中。</li>
+        <li>星火来信上线：每天复盘写完就封成一封信，全屏信纸读，信尾附一句星语。</li>
+        <li>每铸一颗星，屏幕下方升起一颗小金星，配一声轻响。</li>
+        <li>诗笺第二行不居中的问题修好了。</li>
       </ul>
       <div class="logver">v1.1.1</div>
       <div class="logdate">2026-10-23</div>
       <ul class="loglist">
-        <li>背景音乐改为<b>整站背景乐</b>：默认开启，一打开网页就播放；点火进入专注时自动停，期间不再插入；暂停、结束后回到待机接着放。点一下页面即可起声（浏览器要求首次有交互才能出声）。</li>
+        <li>背景乐改成整站陪伴：打开就放，点火自动停，结束后接着放。</li>
       </ul>
       <div class="logver">v1.1.0</div>
       <div class="logdate">2026-10-23</div>
       <ul class="loglist">
-        <li>背景音乐：《月亮代表我的心》钢琴版作为整站的背景乐，默认开启：一打开网页就播放，点火进入专注时自动停，专注结束后接着放；有独立开关与音量。<b>音频为真实录音，随网页预缓存，离线也能播放。</b></li>
-        <li>自然声升级：雨声、篝火改用手边的真实录音（海边篝火白噪音），海浪为现场合成；白粉棕噪仍由浏览器合成，全部不联网。</li>
-        <li>有纪律暂停：暂停时给你一个选项——停 15 / 30 / 60 分钟，到点自动回到专注，避免一停就不回；也可以自由暂停。</li>
-        <li>国策内化进度：每守住一天，规则向内生长——连续 7 天进 <b>E1·生根</b>、21 天成 <b>E2·成树</b>；约束力 =（分支节点数+1）×稳态权重，分叉越深、守住越久，约束越强。</li>
-        <li>回收箱：熄灭的国策不再只是记录，可从此恢复，或永久删除（删除不可恢复）。</li>
+        <li>《月亮代表我的心》钢琴版做背景乐，离线也能放。</li>
+        <li>雨声、篝火换成真实录音，海浪为现场合成，其余本机生成，全部不联网。</li>
+        <li>暂停给 15 / 30 / 60 分钟三档，到点自动回来；也可以自由暂停。</li>
+        <li>国策内化：连续守住 7 天进 E1·生根、21 天成 E2·成树。</li>
+        <li>熄灭的国策可以从回收箱恢复，也可以永久删除。</li>
       </ul>
       <div class="logver">v1.0.0</div>
       <div class="logdate">2026-10-23</div>
       <ul class="loglist">
-        <li>静场新增雨声、海浪、篝火三种自然声：全部由浏览器现场合成，不联网、不加载任何音频文件，离线可用。</li>
-        <li>新增「有新版本 · 点此刷新」提示：以后更新不需要自己找缓存入口。</li>
-        <li>备份中心：本机自动快照现在能看到列表、一键恢复某次快照（恢复前会另存当前数据），并显示存储占用与上次导出时间。</li>
-        <li>导入预检：选文件后先告诉你「将合并多少条」，确认后才写入；重复记录自动跳过。</li>
-        <li>首启引导：第一次打开 30 秒看完三屏（点火 / 中断裁判 / 星链是证据），随时可在「我的 → 怎么用」重看。</li>
-        <li>年度星图上线：把这一年的专注收成一张 1080×1440 的图（星数、最长链、月度分布、最常投入），Canvas 本地绘制、导出 2 倍 PNG，不发往任何服务器。</li>
-        <li>正式版发布：备份中心、首启引导、年度星图、自然声、给同学的上手页全部就绪；版本冻结为 1.0.0。</li>
+        <li>静场新增雨声、海浪、篝火，全部本机生成，不加载音频文件。</li>
+        <li>有新版会提示「点此刷新」，不用自己找缓存入口。</li>
+        <li>备份中心能看到快照列表、一键恢复某次，并显示占用与上次导出时间。</li>
+        <li>导入前先告诉你「将合并多少条」，确认后才写入，重复的自动跳过。</li>
+        <li>第一次打开有 30 秒三屏引导，随时可在「我的 → 怎么用」重看。</li>
+        <li>年度星图：把一年的收成画成一张图，本机绘制，能导出 2 倍图。</li>
+        <li>正式版发布：备份、引导、年度星图、自然声全部就位，版本冻结为 1.0.0。</li>
       </ul>
       <div class="logver">v0.9.0</div>
       <div class="logdate">2026-10-22</div>
       <ul class="loglist">
-        <li>导航 5 → 4：首页与点火合并成「今天」，日志升级为「我的」；打开就知道先看「今天」。</li>
-        <li>「今天」状态卡：未开始 / 专注中 / 暂停 / 预约 / 已铸星 / 断链六种状态，每种只给一个主按钮和一句解释，不再需要自己推断下一步。</li>
-        <li>星链页重做：长卷里每颗星都能点开回看当天任务、时长与推进；进入时链会生长，并默认停在最新一颗；星图把点亮的日子连成星路；第 7/30/100 颗触发一场流星雨。</li>
-        <li>「我的 → 怎么用」：三张图讲清一次专注、中途打断、长期国策；术语统一为判例 / 热身 / 冻结。</li>
-        <li>星月诗笺按 5 组整理：星河 / 月夜 / 疏星淡月 / 夜风与晓 / 人间星语，每组 6 句。</li>
-        <li>旧数据零迁移，旧链接 #focus / #log 仍然可用。</li>
+        <li>导航从 5 页收到 4 页：首页与点火合并成「今天」。</li>
+        <li>「今天」卡有六种状态，每种只给一个主按钮和一句解释。</li>
+        <li>星链长卷每颗星都能点开回看当天任务、时长与推进。</li>
+        <li>星图把点亮的日子连成星路；第 7 / 30 / 100 颗会下一场流星雨。</li>
+        <li>「我的 → 怎么用」用三张图讲清一次专注、中途打断、长期国策。</li>
+        <li>旧数据不用迁移，旧链接 #focus / #log 仍然可用。</li>
       </ul>
       <div class="logver">v0.8.0</div>
       <div class="logdate">2026-10-22</div>
       <ul class="loglist">
-        <li>点火仪式重做：火种升起 → 火舌燃起 → 星链从火心射出并逐颗点亮 → 烟花绽放 → 收束进计时；每次点亮的星数随当前链长联动，最后一颗就是「这一次」。</li>
-        <li>仪式音效：划火、点亮、烟花三种声音全部用 WebAudio 现场合成，不加载任何音频文件，离线可用；仪式右上角可一键开关，默认开启。</li>
-        <li>星语升级：收录 30 句星月诗词（新增 20 句），点火页今天的星语会随日期轮换，专注中也会安静显示一句。</li>
-        <li>降级：系统开启「减少动态效果」时直接淡入计时；低端机自动减少烟花粒子；点火仪式中点击任意处可跳过。</li>
-        <li>首页「使用说明」压实为 3 条，静场、判例、星图、国策树、备份等细节收进「更多细节」折叠，第一次上手只读三句。</li>
-        <li>部署优化：线上字体改为外部 woff2（first paint 不再等 3.8MB HTML），首屏 HTML 从 3.79MB 降到约 134KB；离线时字体由 Service Worker 缓存，不受影响。</li>
+        <li>点火仪式重做：火种升起、星链逐颗点亮、烟花绽放，最后收束进计时。</li>
+        <li>仪式音效的划火、点亮、烟花全部本机合成，不加载音频文件。</li>
+        <li>星语收录 30 句星月诗词，随日期轮换，专注中也会安静显示一句。</li>
+        <li>系统开了「减少动态效果」就直接淡入计时；点任意处可跳过仪式。</li>
+        <li>首页使用说明压到三条，细节收进折叠，第一次上手只读三句。</li>
+        <li>首屏从 3.79MB 降到约 134KB，打开快了很多；离线时字体仍然可用。</li>
       </ul>
       <div class="logver">v0.7.0</div>
       <div class="logdate">2026-10-22</div>
       <ul class="loglist">
-        <li>极简点火：默认只留任务输入和一个「点火 · 25 分钟」按钮；三种启动协议、时长、静场收进「更多启动方式」，选择会被记住；预约进行中自动展开，结束后回到极简。</li>
-        <li>铸星后补一句「这次推进了什么」：用不打断的非模态卡片，可跳过；先落库再问，关页面也不会丢这颗星；成果可在星链点星、星图当天详情里回看。</li>
-        <li>数据自动备份：本机自动快照（最新 + 最近 6 次结束状态），主数据写坏可自愈；空间不足时自动降级并明确提示，主数据损坏会另存坏档；超过 7 天未导出时点火页温和提醒，日志页显示上次导出时间。</li>
-        <li>星月诗笺：点火页每天一句「今日星语」，首页新增可展开的十句星月诗笺。</li>
-        <li>备份包版本升到 5，旧备份仍可导入合并，并带上成果与上次导出时间。</li>
+        <li>极简点火：默认只留任务输入和一个「点火」按钮。</li>
+        <li>三种启动方式、时长、静场收进「更多启动方式」，选择会被记住。</li>
+        <li>铸星后补一句「这次推进了什么」，可跳过；先存再问，关页面也不丢。</li>
+        <li>卡住了会自动留一份本机快照，主数据写坏能自愈；超 7 天没导出会提醒。</li>
+        <li>点火页每天一句「今日星语」，首页有可展开的十句星月诗笺。</li>
       </ul>
       <div class="logver">v0.6.0</div>
       <div class="logdate">2026-10-21</div>
       <ul class="loglist">
-        <li>品牌统一：所有可见名称更新为「星火专注 Pro」。</li>
-        <li>新增「静场」背景声：白噪、粉噪、棕噪全部由浏览器本地生成，离线可用。</li>
-        <li>背景声支持音量和类型记忆，随专注开始、暂停、结束淡入淡出。</li>
-        <li>复盘页新增「国策树」：模板、自定义规则、每日结算、递归熄灭和冻结。</li>
-        <li>国策节点支持内化进度，并可从 5 分钟热身、正式专注和每日复盘中自动判定。</li>
+        <li>所有可见名称统一为「星火专注 Pro」。</li>
+        <li>新增「静场」背景声：白噪、粉噪、棕噪，全部本机生成，离线可用。</li>
+        <li>背景声有音量和类型记忆，随专注开始、暂停、结束淡入淡出。</li>
+        <li>复盘页新增「国策树」：模板、自定义规则、每日结算、冻结。</li>
+        <li>国策节点有内化进度，能从热身、正式专注和每日复盘里自动判定。</li>
       </ul>
       <div class="logver">v0.4.0</div>
       <div class="logdate">2026-10-21</div>
       <ul class="loglist">
-        <li>点火页升级为三种启动协议：立即点火、5 分钟热身、预约入座。</li>
-        <li>新增 5 分钟低阻力热身：提前结束不影响主星链，延长后才进入正式专注。</li>
-        <li>判例升级为判例簿，记录判例来源、使用次数和永久约束；预约错过需要主动判定。</li>
-        <li>新增启动协议统计：直接启动、热身转化、预约守约和连续启动。</li>
-        <li>首页使用说明重写，补充三种启动方式、判例规则、数据备份和理论来源。</li>
+        <li>点火页升级为三种启动：立即点火、5 分钟热身、预约入座。</li>
+        <li>5 分钟热身提前结束不影响主星链，延长后才进入正式专注。</li>
+        <li>判例升级成判例簿，能看到来源、用过几次、是否仍然生效。</li>
+        <li>新增启动方式统计：直接启动、热身转化、预约守约和连续启动。</li>
+        <li>首页使用说明重写，补上三种启动、判例规则、数据备份和理论来源。</li>
       </ul>
       <div class="logver">v0.3.1</div>
       <div class="logdate">2026-10-19</div>
       <ul class="loglist">
-        <li>字体本地化：思源宋体（Noto Serif SC）内嵌进页面，完全离线也能保持月夜星火的宋体质感，不再依赖外部字体加载。</li>
-        <li>星图高亮增强：完成铸星的日期金色、判例铸星的日期蓝色更醒目，并带微光，回看更直观。</li>
-        <li>模拟用户全流程回归（桌面 + 移动）：无控制台报错、移动端无横向溢出。</li>
+        <li>思源宋体内嵌进页面，完全离线也保持宋体质感。</li>
+        <li>星图里完成铸星的日期金色、判例铸星的日期蓝色，更醒目也带微光。</li>
+        <li>桌面和手机各走了一遍全流程：无报错、没有横向溢出。</li>
       </ul>
       <div class="logver">v0.3.0</div>
       <div class="logdate">2026-10-19</div>
       <ul class="loglist">
-        <li>新增星链 / 星图 / 统计三种视图：近 90 天专注可视化，点击日期可回看记录。</li>
-        <li>新增今日、7 天、30 天投入统计、常做任务、判例中断原因与历史最长链。</li>
-        <li>完成状态细分：完整完成、提前收束、判例铸星与断链如实记录。</li>
-        <li>新增 JSON 数据导出与合并导入；升级后仍是纯本地、无账号的个人专注档案。</li>
-        <li>星链动画升级为星河链路：首页使用说明改为首次使用的逐步引导。</li>
-        <li>移除外部字体依赖，离线安装后使用系统字体也能完整运行。</li>
+        <li>新增星链、星图、统计三种视图，点日期能回看记录。</li>
+        <li>投入统计按今日 / 7 天 / 30 天，另有常做任务和历史最长链。</li>
+        <li>完成状态细分：完整完成、提前收束、判例铸星与断链都如实记。</li>
+        <li>数据可导出 JSON，也能合并导入；仍是纯本地、无账号。</li>
+        <li>星链动画升级为星河链路。</li>
+        <li>去掉外部字体依赖，离线用系统字体也能完整运行。</li>
       </ul>
       <div class="logver">v0.2.0</div>
       <div class="logdate">2026-10-19</div>
       <ul class="loglist">
-        <li>首页重构：公式与理论根基上移，"是什么 / 思路来源 / 为什么点火"合并为一篇有分论点的介绍文章。</li>
-        <li>新增理论根基引用：双曲贴现、执行意图、损失厌恶、番茄工作法，标注提出者。</li>
-        <li>点火动画：点击后播放火焰燃起、火星飞溅动画，再进入计时。</li>
-        <li>预约入座时长可改（5 / 10 / 15 / 30 分钟），并实时显示入座倒计时。</li>
-        <li>星链网络：卫星沿轨道分布、以激光相连，光脉冲沿链路流动，卫星数随当前链长度。</li>
-        <li>复盘增加 Idea（灵感）与 Thinking（感受）记录，历史可回看。</li>
+        <li>首页重写：公式与理论根基上移，合并成一篇有分论点的介绍。</li>
+        <li>理论来源标注提出者：双曲贴现、执行意图、损失厌恶、番茄工作法。</li>
+        <li>点火时会先播放火焰燃起、火星飞溅，再进入计时。</li>
+        <li>预约时长可选 5 / 10 / 15 / 30 分钟，并实时显示入座倒计时。</li>
+        <li>星链网络：卫星沿轨道分布、以激光相连，光脉冲沿链路流动。</li>
+        <li>复盘新增「灵感」和「感受」两栏，历史都能回看。</li>
       </ul>
       <div class="logver">v0.1.0</div>
       <div class="logdate">2026-10-19</div>
       <ul class="loglist">
-        <li>星火三部曲第二部，专注链（星链）首版，面向大学生专注力。</li>
-        <li>点火仪式；预约 15 分钟内入座，记录准时入座。</li>
-        <li>专注计时基于时间戳差值，防漂移、可暂停 / 结束，环形进度。</li>
-        <li>中途中断由用户当裁判：断链清零，或把合理中断立为永久判例。</li>
-        <li>完成铸星 #N，当前链 +1，历史最长链 bestNo 永久保留。</li>
-        <li>每日轻复盘：记录最大一件好事（小赢 / 中赢 / 大赢）。</li>
-        <li>纯本地存储（localStorage），无需服务器、无需登录，PWA 可加到主屏幕。</li>
+        <li>星火三部曲第二部首版，面向大学生的专注系统。</li>
+        <li>点火仪式：预约 15 分钟内入座，会记下你是否准时。</li>
+        <li>计时基于时间戳差值，防漂移，可暂停和结束，带环形进度。</li>
+        <li>中断由自己当裁判：断链清零，或把合理中断立为永久判例。</li>
+        <li>完成铸星，链号加一，历史最长链永久保留。</li>
+        <li>每日轻复盘：记下最大一件好事，分小赢 / 中赢 / 大赢。</li>
+        <li>纯本地存储，无需服务器和登录，可加到手机主屏幕。</li>
       </ul>
     </div>
   </section>
@@ -1123,6 +1254,27 @@ textarea.input{resize:vertical;min-height:72px;line-height:1.7;font-family:var(-
   <div class="letter-page" id="letterPage"></div>
 </div>
 
+<!-- v1.3.2 写一封寄给未来的信 -->
+<div class="letter-overlay" id="futureOverlay">
+  <div class="letter-page future-compose" id="futureCompose">
+    <button class="letter-close" id="futureComposeClose" type="button">&times;</button>
+    <div class="letter-date">寄给未来的信</div>
+    <div class="letter-salute">写给以后的自己</div>
+    <p class="muted" style="font-size:12.5px;line-height:1.9;text-align:left;margin-bottom:14px">
+      写点什么吧。等到那天，它自己会出现。
+    </p>
+    <div class="future-picks" id="futurePicks"></div>
+    <div class="future-custom">
+      <label for="futureDate">或者自己选一天</label>
+      <input type="date" id="futureDate">
+    </div>
+    <textarea id="futureBody" class="future-body" rows="7"
+      placeholder="现在的你，想对那天的人说些什么……"></textarea>
+    <p class="muted" id="futureComposeMsg" style="font-size:11.5px;min-height:16px;text-align:left"></p>
+    <button class="btn primary" id="futureSaveBtn" type="button">封好，寄出去</button>
+  </div>
+</div>
+
 <!-- 点火仪式（内容由 playIgnite 按当前链长动态生成） -->
 <div class="ignite-mask" id="igniteMask"></div>
 
@@ -1144,11 +1296,17 @@ const defaultState=()=>({
   chain:{currentNo:0,bestNo:0,genesis:null},
   blocks:[],whitelist:[],precedents:[],reservation:null,appointments:[],recons:[],
   startup:{currentNo:0,bestNo:0,lastAt:null},
-  settings:{sound:{enabled:false,type:'white',volume:22},ceremonySound:true,simpleMode:true},
+  settings:{sound:{enabled:false,type:'white',volume:22},ceremonySound:true,simpleMode:true,
+    /* v1.3.2 暂停不再每次问：默认 **false**，即保持原行为（每次弹四选一）。
+       只有用户自己在弹窗里勾了「以后都这样」才变成一键暂停 —— 不替老用户改默认。 */
+    pauseRemember:false,pauseLastMin:null},
   music:{enabled:true,volume:20},
   meta:{lastExportAt:null,backupSnoozeAt:null,onboardedAt:null},
   policyTree:{version:1,nodes:[],freezes:[],checks:{},events:[],lastAddDay:null},
-  reviews:{},session:null
+  reviews:{},session:null,
+  /* v1.3.2 寄给未来的信：{id, createdAt, deliverOn:'YYYY-MM-DD', body, openedAt|null}
+     挂在 S 上就能被 persistentSnapshot() 整份带进备份，不用改导出逻辑。 */
+  futureLetters:[]
 });
 function loadInitialState(){
   try{
@@ -1167,10 +1325,30 @@ function loadInitialState(){
   }
 }
 let S=loadInitialState();
-let saveWarned=false;
-function save(){try{localStorage.setItem(KEY,JSON.stringify(S));saveWarned=false;}catch(e){
-  if(!saveWarned){saveWarned=true;try{toast('浏览器存储空间不足，这次可能没保存，请尽快导出备份');}catch(e2){}}
-}}
+/* v1.2.3：保存失败必须「持续可见」，不能只提示一次。
+   旧写法 saveWarned 只在成功时复位 —— 配额一旦持续满，用户只看到一次提示，
+   此后每次铸星界面照常「铸星成功」，刷新后星就没了。 */
+let saveFailed=false, saveFailToastAt=0;
+function renderSaveWarning(){
+  const bar=document.getElementById('saveWarn');
+  if(bar)bar.classList.toggle('on',saveFailed);
+}
+function save(){
+  try{
+    localStorage.setItem(KEY,JSON.stringify(S));
+    if(saveFailed){saveFailed=false;renderSaveWarning();}
+  }catch(e){
+    const first=!saveFailed;
+    saveFailed=true;
+    try{renderSaveWarning();}catch(e2){}
+    // 首次立刻提示；此后每 5 分钟最多再提示一次（不再「永不再提」）
+    const now=Date.now();
+    if(first||now-saveFailToastAt>300000){
+      saveFailToastAt=now;
+      try{toast('存储空间不足，这次没保存成功——请立刻导出备份');}catch(e3){}
+    }
+  }
+}
 const $=(s,r=document)=>r.querySelector(s);
 const $$=(s,r=document)=>[...r.querySelectorAll(s)];
 const SUCCESS_STATES=new Set(['done','settled','whitelisted']);
@@ -1197,6 +1375,12 @@ function hydrateState(){
   S.settings=Object.assign({sound:{enabled:false,type:'white',volume:22}},S.settings||{});
   S.settings.sound=Object.assign({enabled:false,type:'white',volume:22},S.settings.sound||{});
   S.settings.ceremonySound=S.settings.ceremonySound!==false;
+  /* v1.3.2：老数据没有暂停记忆字段 —— 一律退回「每次询问」，不让升级改变原有手感 */
+  S.settings.pauseRemember=S.settings.pauseRemember===true;
+  if(S.settings.pauseLastMin!==null&&S.settings.pauseLastMin!==undefined){
+    const m=Number(S.settings.pauseLastMin);
+    S.settings.pauseLastMin=isFinite(m)&&m>=0?m:null;
+  }
   if(!['white','pink','brown','rain','waves','fire'].includes(S.settings.sound.type))S.settings.sound.type='white';
   S.settings.music=Object.assign({enabled:true,volume:20,touched:false},S.settings.music||{});
   S.settings.music.volume=Math.min(60,Math.max(0,Number(S.settings.music.volume)||20));
@@ -1230,6 +1414,9 @@ function hydrateState(){
   const activeReasons=S.precedents.filter(p=>p.active!==false).map(p=>p.reason);
   S.whitelist=[...new Set([...S.whitelist,...activeReasons])];
   S.reviews=S.reviews&&typeof S.reviews==='object'?S.reviews:{};
+  /* v1.3.2：寄给未来的信。老数据没有这个字段，兜底成空数组；
+     同时过滤掉结构不完整的项，避免一条坏数据让整个信笺匣渲染失败。 */
+  S.futureLetters=Array.isArray(S.futureLetters)?S.futureLetters.filter(x=>x&&x.id&&x.body&&x.deliverOn):[];
 }
 hydrateState();save();
 function fmt(sec){sec=Math.max(0,Math.floor(sec));const m=sec/60|0,s=sec%60;return String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');}
@@ -1420,6 +1607,8 @@ function bindSound(){
 /* ===== 背景音乐：月亮代表我的心（钢琴版，真实音频 + PWA 预缓存） ===== */
 const MUSIC_SRC='assets/music-moon.mp3';
 let musicGain=null,musicCtx=null,musicSrc=null,musicMuted=false,musicReady=false,musicFadeTimer=null;
+/* v1.2.3：音频加载/解码失败的标记。用于让界面说实话，而不是一直宣称「正在播放」。 */
+let musicBroken=false;
 function ensureMusicContext(){
   if(!musicCtx){
     const AC=window.AudioContext||window.webkitAudioContext;
@@ -1432,13 +1621,23 @@ function ensureMusicContext(){
 function loadMusicBuffer(){
   if(musicReady)return Promise.resolve();
   if(!/^https?:$/.test(location.protocol))return Promise.resolve();   // file: 直开预览不载音频，避免无谓请求
-  return fetch(MUSIC_SRC).then(r=>r.arrayBuffer()).then(buf=>{
+  return fetch(MUSIC_SRC).then(r=>{
+    // v1.2.3：404 等 HTTP 错误要走到 catch（原先 r.arrayBuffer() 会把错误页当音频喂给解码器）
+    if(!r.ok)throw new Error('http '+r.status);
+    return r.arrayBuffer();
+  }).then(buf=>{
     const ctx=ensureMusicContext();
-    if(!ctx)return;
+    if(!ctx)throw new Error('no ctx');
     return new Promise((res,rej)=>{
       ctx.decodeAudioData(buf,(ab)=>{musicBuffer=ab;musicReady=true;res();},rej);
     });
-  }).catch(()=>{/* 若加载失败静默，音乐不播，不影响其余功能 */});
+  }).catch(()=>{
+    /* 加载/解码失败：安静地降级，不影响其余功能。
+       v1.2.3：但要把状态记下来 —— 原先失败后界面仍显示「背景音乐 · 月亮代表我的心」，
+       用户看着在播、其实没声，也无处可查。 */
+    musicBroken=true;
+    try{updateMusicUI();}catch(e){}
+  });
 }
 let musicBuffer=null;
 function musicGainValue(){return Math.pow((Number(S.settings.music.volume)||0)/60,1.8)*.42;}
@@ -1512,14 +1711,22 @@ function updateMusicUI(){
   $('#musicVolume').value=S.settings.music.volume;
   $('#musicVolumeValue').textContent=S.settings.music.volume;
   const run=$('#musicRunning');if(!run)return;
+  // v1.2.3：音频坏了就不再宣称「正在播放」—— 用户至少知道为什么没声
   run.style.display=enabled?'flex':'none';
   if(enabled){
-    $('#musicRunningLabel').textContent=musicMuted?(cur&&cur.soundMuted?'已静音 · 月亮代表我的心':'背景音乐 · 已静音'):'背景音乐 · 月亮代表我的心';
+    $('#musicRunningLabel').textContent=musicBroken
+      ?'背景音乐加载失败（不影响其它功能）'
+      :(musicMuted?(cur&&cur.musicMuted?'已静音 · 月亮代表我的心':'背景音乐 · 已静音'):'背景音乐 · 月亮代表我的心');
   }
 }
 function showMusicRunning(sess){
   const mr=$('#musicRunning');if(!mr)return;
-  if(sess&&S.settings.music.enabled){mr.style.display='flex';$('#musicRunningLabel').textContent=musicMuted?'背景音乐 · 已静音':'背景音乐 · 月亮代表我的心';}
+  if(sess&&S.settings.music.enabled){
+    mr.style.display='flex';
+    $('#musicRunningLabel').textContent=musicBroken
+      ?'背景音乐加载失败（不影响其它功能）'
+      :(musicMuted?'背景音乐 · 已静音':'背景音乐 · 月亮代表我的心');
+  }
   else{mr.style.display='none';}
 }
 function bindMusic(){
@@ -1530,13 +1737,17 @@ function bindMusic(){
     if(!S.settings.music.enabled){toast('先开启背景音乐');return;}
     if(musicMuted||musicSrc){musicMuted=false;startMusic();}
     else{musicMuted=true;stopMusic();}
-    if(cur){cur.soundMuted=musicMuted;S.session=cur;save();}
+    // v1.2.3：静音状态写到独立字段 musicMuted。
+    // 原先复用 cur.soundMuted，与「静场静音」撞在一起 ——
+    // 专注中只静音背景乐，刷新后静场也会被误判为静音。
+    if(cur){cur.musicMuted=musicMuted;S.session=cur;save();}
     showMusicRunning(!!cur);
     updateMusicUI();
   };
   updateMusicUI();
 }
-function prepareMusicGesture(){ if(S.settings.music.enabled)ensureMusicContext(); }
+/* v1.2.3：删掉死函数 prepareMusicGesture —— 全站 0 处调用；
+   手势解锁实际由 prepareAmbientGesture 与文件末尾的 pointerdown 完成。 */
 
 /* ===== 导航 ===== */
 const TABS=[
@@ -1592,7 +1803,18 @@ function updateSessionChrome(){
   const isRecon=cur.mode==='recon';
   $('#pauseBtn').textContent=cur.pauseTs?'继续':'暂停';
   $('#stopBtn').textContent=isRecon?'结束热身':'结束';
-  $('#ringState').textContent=cur.pauseTs?'已暂停':isRecon?'正在热身':'星链燃烧中';
+  /* v1.3.2：暂停态显示当前档位 + 一个「改」——这是一键暂停之后唯一的回头路，
+     必须常驻可见，否则用户一旦勾了「以后都这样」就再也找不到设置入口。 */
+  const rs=$('#ringState');
+  if(cur.pauseTs){
+    const min=S.settings.pauseLastMin;
+    const desc=(min>0)?('停 '+min+' 分钟'):'自由暂停';
+    rs.innerHTML='已暂停 · '+escHtml(desc)+' <button class="pause-edit" id="pauseEditBtn" type="button">改</button>';
+    const pe=$('#pauseEditBtn');
+    if(pe)pe.onclick=()=>openPauseDialog();
+  }else{
+    rs.textContent=isRecon?'正在热身':'星链燃烧中';
+  }
 }
 
 function tick(){
@@ -1651,7 +1873,7 @@ function startSession(mode){
   prepareAmbientGesture();
   const task=$('#taskInput').value.trim();
   cur={id:Date.now(),planMin:mode==='recon'?5:planMin,task,startTs:null,pausedMs:0,
-    pauseTs:null,onTime:false,mode,soundMuted:false,
+    pauseTs:null,onTime:false,mode,soundMuted:false,musicMuted:false,
     startedFrom:mode==='recon'?'recon':mode==='reserve'?'appointment':'direct'};
   igniting=true;
   playIgnite(()=>{
@@ -1841,16 +2063,25 @@ const PAUSE_OPTS=[{label:'停 15 分钟',min:15},{label:'停 30 分钟',min:30},
 function openPauseDialog(){
   if(!cur||!cur.pauseTs)return;
   const opts=PAUSE_OPTS.map(o=>`<button class="pause-opt" data-min="${o.min}">${o.label}</button>`).join('');
+  const last=S.settings.pauseLastMin;
   openDialog('有纪律暂停',
     '暂停可以，但最好给它一个边界，到点自动回来继续专注，避免一停就不回。',
     `<div class="pause-opts">${opts}</div>
-     <p class="muted" style="margin-top:8px">自由暂停不会自动到点，但暂停期间计时仍是停在原处。</p>`,
+     <p class="muted" style="margin-top:8px">自由暂停不会自动到点，但暂停期间计时仍是停在原处。</p>
+     <label class="pause-remember" for="pauseRememberChk">
+       <input type="checkbox" id="pauseRememberChk"${S.settings.pauseRemember?' checked':''}>
+       <span>以后都这样，不用再问我<span class="pr-note">（想改随时点暂停状态旁的「改」）</span></span>
+     </label>`,
     ()=>{
       $$('.pause-opt').forEach(b=>b.onclick=()=>{
         const min=+b.dataset.min;
+        /* v1.3.2：记住这次选择。勾了「以后都这样」才生效，否则下次仍弹窗。 */
+        S.settings.pauseLastMin=min;
+        const chk=$('#pauseRememberChk');
+        S.settings.pauseRemember=!!(chk&&chk.checked);
         if(min>0){cur.pauseUntilTs=Date.now()+min*60000;armPauseResume();toast('已暂停，'+min+' 分钟后自动回到专注');}
         else{cur.pauseUntilTs=null;clearPauseTimer();toast('已自由暂停，点「继续」回到专注');}
-        closeJudge();save();renderTodayCard();
+        closeJudge();save();renderTodayCard();updateSessionChrome();
       });
     });
 }
@@ -1881,8 +2112,19 @@ function togglePause(){
     stopAmbient();startMusic();   // 暂停期间回到背景乐
     updateSessionChrome();
     S.session=cur;save();tick();
-    // 有纪律暂停：弹出定时选项，给暂停一个边界；若已有自动恢复计时则不重复弹
-    if(!cur.pauseUntilTs)openPauseDialog();
+    /* v1.3.2：用户勾过「以后都这样」就直接按上次的选择暂停，不再每次弹四选一。
+       防线：只有 pauseRemember 为真 **且** 确实记过选择时才跳过弹窗；
+       任何一项不满足，都退回原来的「每次询问」行为。 */
+    const rem=S.settings.pauseRemember,lastMin=S.settings.pauseLastMin;
+    if(rem&&lastMin!==null&&lastMin!==undefined&&!cur.pauseUntilTs){
+      const min=Number(lastMin);
+      if(min>0){cur.pauseUntilTs=Date.now()+min*60000;armPauseResume();}
+      else{cur.pauseUntilTs=null;clearPauseTimer();}
+      S.session=cur;save();updateSessionChrome();
+      toast(min>0?('已暂停，'+min+' 分钟后自动回到专注'):'已自由暂停，点「继续」回到专注');
+    }else if(!cur.pauseUntilTs){
+      openPauseDialog();
+    }
   }
 }
 
@@ -1948,7 +2190,6 @@ function openReconDecision(){
       $('#reconFinish').onclick=()=>{closeJudge();finishRecon('completed');};
     });
 }
-const WIN_KINDS=new Set(['done','settled','whitelisted']);
 function finish(kind,reason,endedBy){
   if(!cur)return;
   clearInterval(T);
@@ -2083,6 +2324,25 @@ function closeJudge(){$('#judgeMask').classList.remove('on');}
 
 /* ===== v0.9.0：今天状态卡（唯一答案：现在该做什么） ===== */
 function todayWinBlocks(){const k=dayKey();return S.blocks.filter(b=>isSuccessBlock(b)&&dayKey(new Date(b.endedAt))===k);}
+/* ===== v1.3.2 接着昨天的那件事 =====
+   解决的真实摩擦：每天开始都要重新输入任务名，哪怕这是同一件事的延续
+   （期末复习持续两周很常见）。而输入框恰好卡在「刚决定要专注」的那一刻。
+   规则：取最近一次成功铸星的任务名；若它就是今天做的，则不提示
+   ——今天刚做过的那件事由「再来一颗」接管，「接着」这个词会显得莫名其妙。 */
+function lastCarryTask(){
+  const today=dayKey();
+  const wins=S.blocks.filter(isSuccessBlock)
+    .filter(b=>b&&b.task&&String(b.task).trim())
+    .sort((a,b)=>(b.endedAt||0)-(a.endedAt||0));
+  const last=wins[0];
+  if(!last)return null;
+  const dk=dayKey(new Date(last.endedAt||Date.now()));
+  if(dk===today)return null;
+  const y=new Date();y.setDate(y.getDate()-1);
+  const isYesterday=(dk===dayKey(y));
+  return {task:String(last.task).trim().slice(0,40),day:dk,isYesterday:isYesterday,
+          label:(isYesterday?'接着昨天的':'接着上次的')};
+}
 function renderTodayCard(){
   const box=$('#todayCard');if(!box)return;
   const state=$('#tcState'),hint=$('#tcHint'),main=$('#tcMain'),links=$('#tcLinks'),dot=$('#tcDot');
@@ -2127,7 +2387,34 @@ function renderTodayCard(){
     state.textContent='今天还没点火';
     hint.textContent='先坐下，再做一件小事。25 分钟起；不想开始就选 5 分钟热身。';
     main.textContent='点火 · 25 分钟';
-    addLink('5 分钟热身',()=>{go('focus');setTimeout(()=>{const b=document.querySelector('#protocolTabs button[data-mode="recon"]');if(b)b.click();},260);});
+    addLink('5 分钟热身',()=>{
+      // v1.2.3 修复：原先只是去点折叠区（display:none）里的按钮，
+      // 用户看不到任何变化，最后仍起 25 分钟正式专注 ——
+      // 与「不想开始时给一个低阻力入口」的承诺直接矛盾。
+      // 现在：展开启动方式 → 选中热身 → 直接开始 5 分钟。
+      S.settings.simpleMode=false;save();
+      go('focus');
+      setTimeout(()=>{
+        applySimpleMode();
+        showStartMode('recon');
+        const b=document.getElementById('reconBtn');
+        if(b)b.click();
+      },260);
+    });
+    /* v1.3.2：接着昨天的那件事 —— 省掉每天一次的重复输入 */
+    const carry=lastCarryTask();
+    if(carry){
+      addLink(carry.label+'《'+carry.task+'》',()=>{
+        go('focus');
+        setTimeout(()=>{
+          const t=$('#taskInput');
+          if(t&&!S.session){
+            t.value=carry.task;
+            try{t.focus({preventScroll:true});}catch(e){}
+          }
+        },260);
+      });
+    }
   }
 }
 
@@ -2207,7 +2494,7 @@ function renderChainLong(){
     else{
       const len=Math.hypot(c.x-a.x,c.y-a.y);
       p.setAttribute('stroke-dasharray',String(len));
-      p.setAttribute('stroke-dashoffset',String(window.__chainNoGrow?0:len));
+      p.setAttribute('stroke-dashoffset',String(len));   // v1.3.0：去掉恒假的 window.__chainNoGrow 判断
       p.dataset.len=String(len);
     }
     svg.appendChild(p);
@@ -2226,7 +2513,7 @@ function renderChainLong(){
     c.setAttribute('class','star');c.dataset.i=String(i);
     if(broken){c.setAttribute('fill','none');c.setAttribute('stroke',color.broken);c.setAttribute('stroke-width','1.4');}
     else{c.setAttribute('fill',color[b.state]||color.done);c.style.filter='drop-shadow(0 0 9px rgba(255,230,173,.75))';}
-    c.style.opacity=window.__chainNoGrow?1:0;
+    c.style.opacity=0;   // v1.3.0：原先写的是 window.__chainNoGrow?1:0，该标志恒 undefined，等价于 0
     c.style.cursor='pointer';
     c.addEventListener('click',()=>showChainLongDetail(b));
     svg.appendChild(c);
@@ -2238,7 +2525,9 @@ function renderChainLong(){
     tx.textContent=broken?'断了':((dt.getMonth()+1)+'.'+dt.getDate());
     svg.appendChild(tx);
   });
-  if(!window.__chainNoGrow){
+  /* v1.3.0：原先这里包在 if(!window.__chainNoGrow) 里，但该标志全站只读、从无赋值，
+     恒为 undefined —— 条件永远成立。去掉死条件，用一个裸块保持缩进与结构不变。 */
+  {
     const reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if(reduce){svg.querySelectorAll('.star').forEach(c=>c.style.opacity=1);}
     else{
@@ -2267,6 +2556,16 @@ function showChainLongDetail(b){
   const meta=document.createElement('div');meta.className='muted';
   meta.textContent=(d.getMonth()+1)+' 月 '+d.getDate()+' 日 · '+b.planMin+' 分钟计划 · 实际 '+Math.round((b.actualSec||0)/60)+' 分 · '+st;
   box.appendChild(meta);
+  // v1.3.0：接出原先「只写不读」的字段 —— 但只在中性、有用的场合显示
+  const tags=[];
+  if(b.onTime)tags.push('准时入座');
+  const ratio=Number(b.completedRatio);
+  if(isFinite(ratio)&&ratio>0&&ratio<0.995)tags.push('完成度 '+Math.round(ratio*100)+'%');
+  if(tags.length){
+    const tagRow=document.createElement('div');tagRow.className='detail-tags';
+    tags.forEach(t=>{const s=document.createElement('span');s.textContent=t;tagRow.appendChild(s);});
+    box.appendChild(tagRow);
+  }
   if(b.outcome){const oc=document.createElement('div');oc.className='outcome-line';oc.textContent='推进：'+b.outcome;box.appendChild(oc);}
 }
 
@@ -2348,23 +2647,92 @@ function showChainView(view){
   $('#statsPanel').classList.toggle('on',chainView==='stats');
   if(chainView==='map')requestAnimationFrame(drawMapLines);
 }
-function bindChainViews(){$$('#chainTabs button').forEach(b=>b.onclick=()=>showChainView(b.dataset.chainView));}
+function bindChainViews(){
+  $$('#chainTabs button').forEach(b=>b.onclick=()=>showChainView(b.dataset.chainView));
+  // v1.3.0：月历翻月
+  const pv=$('#calPrev'),nx=$('#calNext');
+  if(pv)pv.onclick=()=>calShift(-1);
+  if(nx)nx.onclick=()=>calShift(1);
+}
 function localDayStart(daysAgo){const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()-daysAgo);return d;}
 function blocksByDay(){
   const by={};
   S.blocks.forEach(b=>{const k=dayKey(new Date(b.endedAt));(by[k]||(by[k]=[])).push(b);});
   return by;
 }
+/* v1.3.0：星图 = 月历模式。可翻月，覆盖全部历史（原先只有 90 天窗口）。
+   周一为第一列；前后用空白格占位，保证日期落在正确的星期上。 */
+let calYM=null;   // 当前显示的月份 {y, m(0-11)}
+function calBounds(){
+  const ks=Object.keys(blocksByDay()).sort();
+  const now=new Date();
+  let y0=now.getFullYear(),m0=now.getMonth(),y1=y0,m1=m0;
+  if(ks.length){
+    const a=ks[0].split('-').map(Number);
+    y0=a[0];m0=a[1]-1;
+    const b=ks[ks.length-1].split('-').map(Number);
+    if(b[0]*12+(b[1]-1)>y1*12+m1){y1=b[0];m1=b[1]-1;}
+  }
+  return {min:y0*12+m0,max:y1*12+m1};
+}
+function calShift(delta){
+  if(!calYM)return;
+  const bd=calBounds();
+  let idx=calYM.y*12+calYM.m+delta;
+  if(idx<bd.min)idx=bd.min;
+  if(idx>bd.max)idx=bd.max;
+  calYM={y:Math.floor(idx/12),m:idx%12};
+  renderStarMap();
+}
 function renderStarMap(){
   const box=$('#starMap');if(!box)return;
-  const by=blocksByDay();box.innerHTML='';
-  for(let ago=89;ago>=0;ago--){
-    const d=localDayStart(ago),k=dayKey(d),items=by[k]||[],wins=items.filter(isSuccessBlock);
+  const by=blocksByDay();
+  const now=new Date(),todayK=dayKey(now);
+  const bd=calBounds();
+  if(!calYM)calYM={y:now.getFullYear(),m:now.getMonth()};
+  let idx=calYM.y*12+calYM.m;
+  if(idx<bd.min)idx=bd.min;
+  if(idx>bd.max)idx=bd.max;
+  calYM={y:Math.floor(idx/12),m:idx%12};
+  const y=calYM.y,m=calYM.m;
+
+  const first=new Date(y,m,1);
+  const lead=(first.getDay()+6)%7;          // 周一为第一列
+  const days=new Date(y,m+1,0).getDate();   // 当月天数
+
+  box.innerHTML='';
+  const blank=()=>{const s=document.createElement('span');s.className='map-day blank';box.appendChild(s);};
+  for(let i=0;i<lead;i++)blank();
+
+  let litDays=0,stars=0;
+  for(let d=1;d<=days;d++){
+    const k=dayKey(new Date(y,m,d));
+    const items=by[k]||[],wins=items.filter(isSuccessBlock);
     const white=wins.length>0&&wins.every(b=>b.state==='whitelisted');
-    const b=document.createElement('button');b.type='button';b.className='map-day'+(wins.length?' has-star':'')+(wins.length>=3?' cluster':'')+(white?' white-star':'');
-    b.textContent=d.getDate();b.title=`${k} · ${wins.length?wins.length+' 次铸星':'没有铸星'}`;
-    b.setAttribute('aria-label',b.title);b.onclick=()=>renderDayDetail(k);box.appendChild(b);
+    const brokenOnly=!wins.length&&items.some(b=>b.state==='broken');
+    const b=document.createElement('button');
+    b.type='button';
+    b.className='map-day'+(wins.length?' has-star':'')+(wins.length>=3?' cluster':'')+(white?' white-star':'')
+      +(brokenOnly?' broken-day':'')+(k===todayK?' today':'');
+    b.textContent=d;
+    b.title=`${k} · ${wins.length?wins.length+' 次铸星':'没有铸星'}${brokenOnly?' · 断链':''}`;
+    b.setAttribute('aria-label',b.title);
+    b.onclick=()=>renderDayDetail(k);
+    box.appendChild(b);
+    if(wins.length)litDays++;
+    stars+=wins.length;
   }
+  const total=lead+days;
+  for(let i=0;i<(7-total%7)%7;i++)blank();
+
+  const t=$('#calTitle'),s=$('#calSum');
+  if(t)t.textContent=`${y} 年 ${m+1} 月`;
+  if(s)s.textContent=`点火 ${litDays} 天 · 铸星 ${stars} 颗`;
+  const pv=$('#calPrev'),nx=$('#calNext');
+  if(pv)pv.disabled=idx<=bd.min;
+  if(nx)nx.disabled=idx>=bd.max;
+
+  requestAnimationFrame(drawMapLines);
 }
 function renderDayDetail(key){
   const box=$('#dayDetail'),items=(blocksByDay()[key]||[]).sort((a,b)=>(a.endedAt||0)-(b.endedAt||0));
@@ -2384,8 +2752,11 @@ function renderFocusStats(){
   const top=Object.keys(names).sort((a,b)=>names[b]-names[a])[0]||'还没有填写任务';
   const white=wins.filter(b=>b.state==='whitelisted'),reasons={};white.forEach(b=>{if(b.reason)reasons[b.reason]=(reasons[b.reason]||0)+1;});
   const reason=Object.keys(reasons).sort((a,b)=>reasons[b]-reasons[a])[0]||'暂无';
+  // v1.3.0：接出 endedBy —— 区分「自然走完」与「你主动收束」。中性陈述，不评判。
+  const byEnd={timer:0,manual:0,judge:0};
+  wins.forEach(b=>{const k=String(b.endedBy||'timer');byEnd[k]=(byEnd[k]||0)+1;});
   const card=(n,l,extra='')=>`<div class="stat${extra}"><div class="n">${escHtml(n)}</div><div class="l">${escHtml(l)}</div></div>`;
-  box.innerHTML=card(minutesFor(todayWins)+' 分','今日投入')+card(todayWins.length+' 颗','今日铸星')+card(minutesFor(week)+' 分','近 7 天')+card(minutesFor(month)+' 分','近 30 天')+card(wins.length+' 次','累计铸星')+card(S.chain.bestNo+' 颗','历史最长')+card(top,'最常投入任务',' wide')+card(white.length+' 次 · '+reason,'判例中断',' wide');
+  box.innerHTML=card(minutesFor(todayWins)+' 分','今日投入')+card(todayWins.length+' 颗','今日铸星')+card(minutesFor(week)+' 分','近 7 天')+card(minutesFor(month)+' 分','近 30 天')+card(wins.length+' 次','累计铸星')+card(S.chain.bestNo+' 颗','历史最长')+card(byEnd.timer+' / '+byEnd.manual,'自然走完 / 主动收束',' wide')+card(top,'最常投入任务',' wide')+card(white.length+' 次 · '+reason,'判例中断',' wide');
 }
 function renderStartupStats(){
   const box=$('#startupStats');if(!box)return;
@@ -2400,79 +2771,13 @@ function renderStartupStats(){
     card(converted+' 次 · '+rate+'%','热身转正式')+card(arrived+' 次 · '+arriveRate+'%','预约守时');
 }
 
-/* ===== 星河链路：当前链燃烧，最长链留在远处 ===== */
-function currentChainBlocks(){
-  const chain=[];
-  for(let i=S.blocks.length-1;i>=0;i--){
-    const b=S.blocks[i];
-    if(b.state==='broken')break;
-    if(isSuccessBlock(b))chain.unshift(b);
-  }
-  return chain;
-}
-function curvePoint(t,baseY){
-  const p0=[28,baseY],p1=[108,28],p2=[282,34],p3=[372,baseY-12];
-  const u=1-t;
-  return [u*u*u*p0[0]+3*u*u*t*p1[0]+3*u*t*t*p2[0]+t*t*t*p3[0],
-    u*u*u*p0[1]+3*u*u*t*p1[1]+3*u*t*t*p2[1]+t*t*t*p3[1]];
-}
-function starPath(r){return `M0 ${-r} L${r*.28} ${-r*.28} L${r} 0 L${r*.28} ${r*.28} L0 ${r} L${-r*.28} ${r*.28} L${-r} 0 L${-r*.28} ${-r*.28} Z`;}
+/* HTML 转义：全站公用的工具函数。
+   （原先夹在已删除的「星链网络」死代码里，这次单独保留下来，别动它。） */
 function escHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
-function starTitle(block,index,total){
-  if(!block)return `第 ${index+1} 颗星 · 当前星链第 ${index+1}/${total}`;
-  const time=new Date(block.endedAt).toLocaleString();
-  const task=block.task||'未填写任务';
-  const kind=blockStateLabel(block);
-  const out=block.outcome?` · 推进：${block.outcome}`:'';
-  return `第 ${index+1} 颗星 · ${task} · ${block.actualSec/60|0} 分 · ${kind}${out} · ${time}`;
-}
-function showStarDetail(index,total){
-  const block=currentChainBlocks()[index];
-  if(!block){toast(`第 ${index+1} 颗星 · 当前星链第 ${index+1}/${total}`);return;}
-  const kind=blockStateLabel(block);
-  const out=block.outcome?` · 推进：${block.outcome}`:'';
-  toast(`第 ${index+1} 颗星 · ${block.task||'专注'} · ${block.actualSec/60|0} 分 · ${kind}${out}`);
-}
-function renderChainNet(){
-  const box=$('#chainNet');
-  const total=Math.max(0,S.chain.currentNo||0);
-  const best=Math.max(total,S.chain.bestNo||0);
-  const visible=Math.min(total,28),historyVisible=Math.min(best,28);
-  const blocks=currentChainBlocks();
-  const activePath='M28 166 C108 28 282 34 372 154';
-  const historyPath='M28 188 C120 92 270 96 372 178';
-  let history='',stars='';
-  for(let i=0;i<historyVisible;i++){
-    if(i<visible)continue;
-    const t=historyVisible===1?.5:i/(historyVisible-1),p=curvePoint(t,188),r=i%5===0?3.4:2.2;
-    history+=`<g class="chain-node history" transform="translate(${p[0].toFixed(1)},${p[1].toFixed(1)})"><path class="chain-star" d="${starPath(r)}"/></g>`;
-  }
-  for(let i=0;i<visible;i++){
-    const sourceIndex=total<=28?i:Math.round(i*(total-1)/(visible-1));
-    const t=visible===1?.5:i/(visible-1),p=curvePoint(t,166),r=i===visible-1?6:(i%5===0?4.5:3.2);
-    const latest=i===visible-1?' latest':'';
-    const title=escHtml(starTitle(blocks[sourceIndex],sourceIndex,total));
-    stars+=`<g class="chain-node active${latest}" role="button" tabindex="0" aria-label="${title}" transform="translate(${p[0].toFixed(1)},${p[1].toFixed(1)})" style="--delay:${(i*.11).toFixed(2)}s" onclick="showStarDetail(${sourceIndex},${total})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();showStarDetail(${sourceIndex},${total})}">
-      <title>${title}</title>${latest?'<circle class="chain-halo" r="11"/>':''}<path class="chain-star" d="${starPath(r)}"/>
-    </g>`;
-  }
-  const overflow=total>visible?`<text x="200" y="211" class="chain-overflow">+ ${total-visible} 颗星已汇入这条星河</text>`:'';
-  const note=total?`当前 ${total} 颗星正在连成一条路，点一颗星可回看那段专注。`:'第一段专注完成后，第一颗星会在这里亮起。';
-  box.innerHTML=
-    `<svg viewBox="0 0 400 222" class="chain-net-svg" aria-label="当前星链可视化">
-      <defs>
-        <filter id="starGlow" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="1.8" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-        <filter id="starGlowStrong" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-      </defs>
-      <path d="${historyPath}" class="chain-history"/>
-      <path d="${activePath}" class="chain-track"/>
-      ${total>1?`<path d="${activePath}" class="chain-flow"/>`:''}
-      ${history}${stars}
-      <g transform="translate(200,119)"><circle class="chain-core" r="31"/><text y="-2" class="chain-core-number">${total}</text><text y="15" class="chain-core-label">当前星链</text></g>
-      ${overflow}
-    </svg>
-    <p class="muted chain-net-card-note">${note}</p>`;
-}
+/* v1.3.0：删除「星链网络」死代码簇（原 starTitle / showStarDetail / renderChainNet）。
+   它们从不被调用：renderChainNet 要写的容器 #chainNet 在 HTML 里根本不存在，
+   该图早在 v0.9.0 就被「星链长卷」取代，但代码与配套 CSS/#starGlow 滤镜漏删。
+   保留的 escHtml 见上。 */
 
 /* ===== 国策星树 ===== */
 const POLICY_TEMPLATES=[
@@ -2520,15 +2825,49 @@ function policyBranchIds(rootId){
   return ids;
 }
 function activePolicyNodes(){return S.policyTree.nodes.filter(n=>n.status==='lit');}
+/* v1.2.3：国策每日勾选记录只保留最近 180 天。
+   国策「内化」只用到连续天数 / 累计天数，180 天足够；
+   而它原本只增不减、且会被复制进每一份快照，是长期容量里增长最快的一项。 */
+const POLICY_CHECKS_TTL_DAYS=180;
+function prunePolicyChecks(){
+  try{
+    const keys=Object.keys(S.policyTree.checks);
+    if(keys.length<=POLICY_CHECKS_TTL_DAYS)return 0;
+    const keep=new Set(),base=new Date();
+    for(let i=0;i<POLICY_CHECKS_TTL_DAYS;i++){
+      const d=new Date(base.getFullYear(),base.getMonth(),base.getDate()-i);
+      keep.add(dayKey(d));
+    }
+    let removed=0;
+    keys.forEach(k=>{if(!keep.has(k)){delete S.policyTree.checks[k];removed++;}});
+    return removed;
+  }catch(e){return 0;}
+}
 function todayPolicyChecks(){
   const day=dayKey();
-  if(!S.policyTree.checks[day])S.policyTree.checks[day]={};
+  if(!S.policyTree.checks[day]){
+    S.policyTree.checks[day]={};
+    // 只在「跨天新建」时顺手裁剪，所以最多一天跑一次
+    if(Object.keys(S.policyTree.checks).length>POLICY_CHECKS_TTL_DAYS)prunePolicyChecks();
+  }
   return S.policyTree.checks[day];
 }
+/* v1.2.3：国策变更事件历史上限 200 → 30。
+   它全站 0 处渲染（从不展示），却会被复制进每一份快照。
+   这里选择「收缩」而不是「删除」：收缩即可达到容量目标，
+   而删除用户数据不可逆；将来真要做「国策史」时，最近 30 条还在。 */
+const POLICY_EVENTS_MAX=30;
 function pushPolicyEvent(type,nodeId,extra={}){
   S.policyTree.events.push(Object.assign({id:'ev-'+Date.now()+'-'+Math.random().toString(36).slice(2,6),
     type,nodeId,at:Date.now(),day:dayKey()},extra));
-  S.policyTree.events=S.policyTree.events.slice(-200);
+  S.policyTree.events=S.policyTree.events.slice(-POLICY_EVENTS_MAX);
+}
+function prunePolicyEvents(){
+  try{
+    const n=S.policyTree.events.length;
+    if(n>POLICY_EVENTS_MAX){S.policyTree.events=S.policyTree.events.slice(-POLICY_EVENTS_MAX);return n-POLICY_EVENTS_MAX;}
+  }catch(e){}
+  return 0;
 }
 function applyPolicyDone(node){
   node.successDays=(Number(node.successDays)||0)+1;
@@ -2683,7 +3022,8 @@ function renderPolicyNode(node,depth=0){
       <div class="policy-meta">
         <span class="steady steady-${st.key}" title="${st.hint}">${st.label}</span>
         <span>约束力 ${constr}</span><span>${policyModeLabel(node.mode)}</span><span>连续 ${node.consecutiveDays} 天</span>
-        <span>最长 ${node.bestStreak} 天</span><span>内化 ${Math.round(node.internalization)}%</span></div>
+        <span>最长 ${node.bestStreak} 天</span><span>内化 ${Math.round(node.internalization)}%</span>
+        <span>累计守住 ${Number(node.successDays)||0} 天</span><span>失守 ${Number(node.missedDays)||0} 天</span></div>
       <div class="policy-meter"><i style="width:${Math.min(100,node.internalization)}%"></i></div>
       ${actions}</div></details>${branch}</div>`;
 }
@@ -2770,6 +3110,25 @@ function bindPolicy(){
 
 /* ===== 星火来信：信笺匣 + 全屏读信 ===== */
 const LETTER_LEVEL_MAP={'小赢':'小赢的一天','中赢':'不错的一天','大赢':'超棒的一天'};
+/* v1.3.0：把「那一天」的专注成绩算出来，写进信里 —— 让信成为那一天的实物，而不只是心情。
+   注意：链序号没有按天存过，所以这里给的是**累计第几颗星**（诚实表述，不假装是当时的链号）。 */
+function dayFocusSummary(dk){
+  try{
+    const items=(blocksByDay()[dk]||[]).filter(isSuccessBlock);
+    if(!items.length)return null;
+    const mins=Math.round(items.reduce((n,b)=>n+(Number(b.actualSec)||0),0)/60);
+    const lastEnd=items.reduce((m,b)=>Math.max(m,b.endedAt||0),0);
+    let cum=0,atDayEnd=0;
+    S.blocks.forEach(b=>{if(isSuccessBlock(b)){cum++;if((b.endedAt||0)<=lastEnd)atDayEnd=cum;}});
+    const longest=items.slice().sort((a,b)=>(Number(b.actualSec)||0)-(Number(a.actualSec)||0))[0];
+    return {
+      stars:items.length, mins:mins,
+      from:Math.max(1,atDayEnd-items.length+1), to:atDayEnd,
+      task:String((longest&&longest.task)||'').trim(),
+      taskMin:Math.round((Number(longest&&longest.actualSec)||0)/60)
+    };
+  }catch(e){return null;}
+}
 function openLetter(dayKeyValue){
   const v=S.reviews[dayKeyValue];
   if(!v)return;
@@ -2787,6 +3146,22 @@ function openLetter(dayKeyValue){
   if(v.idea)body+=`<div class="letter-line">冒出来的一个灵感：${escHtml(v.idea)}</div>`;
   if(v.thinking)body+=`<div class="letter-line">那一刻在想的：${escHtml(v.thinking)}</div>`;
   if(!body)body='<div class="letter-line">那一天，你坐了下来，什么也没写——但你已经到场了。</div>';
+  // v1.3.0：带上那天铸的星
+  const fs=dayFocusSummary(dayKeyValue);
+  let focusLine;
+  if(fs){
+    focusLine='<div class="letter-focus">这一天你铸了 <b>'+fs.stars+'</b> 颗星，坐了 <b>'+fs.mins+'</b> 分钟'
+      +(fs.task?'，最久的一段是《'+escHtml(fs.task)+'》（'+fs.taskMin+' 分钟）':'')
+      +'。<br>累计第 '+fs.from+(fs.to>fs.from?'–'+fs.to:'')+' 颗。</div>';
+  }else{
+    /* v1.3.0 自查修正：文案不能替用户下结论。
+       「没点火」说得太满 —— 用户可能点了火、也坐了半小时，只是中途断了，或者那一屏根本没记录。
+       所以改成描述「记录里有什么」，而不是断言「他做了什么」。 */
+    const anyThatDay=(blocksByDay()[dayKeyValue]||[]);
+    focusLine=anyThatDay.length
+      ?'<div class="letter-focus muted">这一天点了火，但没能铸成星——它也是你的一天。</div>'
+      :'<div class="letter-focus muted">这一天没有留下星——但它也是你的一天。</div>';
+  }
   const poem=todayPoem();
   const page=$('#letterPage');
   page.innerHTML=
@@ -2794,6 +3169,7 @@ function openLetter(dayKeyValue){
     `<div class="letter-date">${dateStr}</div>`+
     `<div class="letter-salute">写给自己的信 · ${levelLabel}</div>`+
     `<div class="letter-body">${body}</div>`+
+    focusLine+
     `<div class="letter-poem">「${poem.t}」<span class="poem-from">${poem.a}</span></div>`;
   $('#letterOverlay').classList.add('on');
   $('#letterCloseBtn').onclick=()=>$('#letterOverlay').classList.remove('on');
@@ -2801,6 +3177,7 @@ function openLetter(dayKeyValue){
 }
 $('#letterOverlay').onclick=function(e){if(e.target===this)this.classList.remove('on');};
 function renderLetterPanel(){
+  renderSealedLetters();   /* v1.3.2：先渲染封存的信，避免下面的提前 return 把它跳过 */
   const k=dayKey(),r=S.reviews[k];
   const preview=$('#letterPreview'),box=$('#letterBox');
   // 今日预读
@@ -2813,24 +3190,171 @@ function renderLetterPanel(){
   }else{
     preview.innerHTML='<p class="muted">今天先复盘，写完保存后就能给自己写信了。</p>';
   }
-  // 历史信笺匣
-  const keys=Object.keys(S.reviews).sort().reverse().slice(0,30);
+  // 历史信笺匣：v1.3.0 起显示**全部**（原先只显示最近 30 封，第 31 封起永远看不到），
+  // 按年折叠，默认展开当年，早年收起。
+  const allKeys=Object.keys(S.reviews).sort().reverse();
   box.innerHTML='';
-  if(!keys.length){
+  if(!allKeys.length){
     box.innerHTML='<p class="muted" id="letterBoxEmpty">还没有过去的信。</p>';
     return;
   }
-  keys.forEach(dk=>{
-    const v=S.reviews[dk];
-    const line=(v.best||v.idea||v.thinking||'').slice(0,30);
-    const d=dk.split('-');
-    const el=document.createElement('div');
-    el.className='letter-entry';
-    el.innerHTML='<div><div class="le-date">'+d[1]+'月'+d[2]+'日</div><div class="le-excerpt">'+escHtml(line)+(line.length>=30?'…':'')+'</div></div>'+
-      '<div class="le-level">'+(v.level||'小赢')+'</div>';
-    el.onclick=()=>openLetter(dk);
-    box.appendChild(el);
+  const stat=document.createElement('div');
+  stat.className='letter-stat';
+  const firstKey=allKeys[allKeys.length-1];
+  stat.textContent=`共 ${allKeys.length} 封 · 从 ${firstKey.replace(/-/g,'.')} 写起`;
+  box.appendChild(stat);
+
+  const nowYear=String(new Date().getFullYear());
+  const byYear={};
+  allKeys.forEach(dk=>{const y=dk.slice(0,4);(byYear[y]||(byYear[y]=[])).push(dk);});
+  Object.keys(byYear).sort().reverse().forEach(y=>{
+    const list=byYear[y];
+    const sec=document.createElement('details');
+    sec.className='letter-year';
+    sec.open=(y===nowYear);
+    const sum=document.createElement('summary');
+    const yn=document.createElement('span');yn.textContent=y+' 年';
+    const cnt=document.createElement('em');cnt.textContent=list.length+' 封';
+    sum.appendChild(yn);sum.appendChild(cnt);
+    sec.appendChild(sum);
+    const wrapEl=document.createElement('div');
+    list.forEach(dk=>{
+      const v=S.reviews[dk]||{};
+      const line=(v.best||v.idea||v.thinking||'').slice(0,30);
+      const d=dk.split('-');
+      const el=document.createElement('div');
+      el.className='letter-entry';
+      el.innerHTML='<div><div class="le-date">'+d[1]+'月'+d[2]+'日</div><div class="le-excerpt">'+escHtml(line)+(line.length>=30?'…':'')+'</div></div>'+
+        '<div class="le-level">'+(v.level||'小赢')+'</div>';
+      el.onclick=()=>openLetter(dk);
+      wrapEl.appendChild(el);
+    });
+    sec.appendChild(wrapEl);
+    box.appendChild(sec);
   });
+}
+
+/* ===== v1.3.2 寄给未来的信 =====
+   为什么做：现在的信写完当天就能读，读多了就退化成日记。
+   「写给未来的自己」缺的不是文笔，是**时间差**。
+   数据：{id, createdAt, deliverOn:'YYYY-MM-DD', body, openedAt|null}
+   挂在 S 上 → persistentSnapshot() 是整份 JSON 深拷贝，备份自动带上（风险对策①无需额外代码）。 */
+const FUTURE_PRESETS=[
+  {label:'一个月后',m:1},{label:'三个月后',m:3},
+  {label:'半年后',m:6},{label:'明年今天',m:12}
+];
+let futurePick=null;
+function dateKeyOf(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function futureAddMonths(n){
+  const d=new Date(),day=d.getDate();
+  d.setMonth(d.getMonth()+n);
+  if(d.getDate()<day)d.setDate(0);   // 月末溢出（1月31日+1月）归位到该月最后一天
+  return d;
+}
+function futureDaysUntil(deliverOn){
+  const t=new Date(deliverOn+'T00:00:00'),n=new Date();n.setHours(0,0,0,0);
+  return Math.round((t-n)/86400000);
+}
+function futureLabel(deliverOn){
+  const p=String(deliverOn).split('-');
+  if(p.length!==3)return deliverOn;
+  return p[0]+' 年 '+Number(p[1])+' 月 '+Number(p[2])+' 日';
+}
+function renderSealedLetters(){
+  const list=$('#futureSealedList');
+  if(!list)return;
+  const all=(S.futureLetters||[]).slice().sort((a,b)=>a.deliverOn<b.deliverOn?-1:1);
+  list.innerHTML='';
+  if(!all.length){
+    list.innerHTML='<p class="muted sealed-empty" id="futureSealedEmpty">还没有封存过信。写一封，把它交给时间。</p>';
+  }
+  all.forEach(fl=>{
+    const left=futureDaysUntil(fl.deliverOn);
+    const due=left<=0,opened=!!fl.openedAt;
+    const row=document.createElement('div');
+    row.className='sealed-letter '+(opened||!due?'locked':'due');
+    row.innerHTML=
+      '<div class="sealed-wax">封</div>'+
+      '<div><div class="sl-when"><b>'+futureLabel(fl.deliverOn)+'</b></div>'+
+      '<div class="sl-left">'+(opened?'这封信你已经读过了'
+        :due?'今天可以拆了':'还有 '+left+' 天')+'</div></div>'+
+      '<div class="sl-tag">'+(opened?'已读':due?'拆开':'未到期')+'</div>';
+    if(!opened&&due)row.onclick=()=>openFutureLetter(fl.id);
+    list.appendChild(row);
+  });
+  /* 风险对策③：到期前 7 天温和提醒——只是提一句，不催、不弹窗、不打断 */
+  const hint=$('#futureLetterHint');
+  if(!hint)return;
+  const ready=all.filter(fl=>!fl.openedAt&&futureDaysUntil(fl.deliverOn)<=0);
+  const soon=all.filter(fl=>!fl.openedAt&&futureDaysUntil(fl.deliverOn)>0&&futureDaysUntil(fl.deliverOn)<=7);
+  if(ready.length)hint.textContent='有一封信到期了，可以拆开看看。';
+  else if(soon.length)hint.textContent=soon.length+' 封信快到期了——'+futureLabel(soon[0].deliverOn)+'。';
+  else if(all.length)hint.textContent='已封存 '+all.length+' 封。它们会在各自的日子出现。';
+  else hint.textContent='';
+}
+function openFutureCompose(){
+  const picks=$('#futurePicks'),fd=$('#futureDate'),msg=$('#futureComposeMsg');
+  if(!picks||!fd)return;
+  futurePick=null;
+  picks.innerHTML='';
+  FUTURE_PRESETS.forEach(p=>{
+    const b=document.createElement('button');
+    b.type='button';b.textContent=p.label;
+    b.onclick=()=>{
+      futurePick=dateKeyOf(futureAddMonths(p.m));
+      fd.value=futurePick;
+      $$('#futurePicks button').forEach(x=>x.classList.remove('on'));
+      b.classList.add('on');
+    };
+    picks.appendChild(b);
+  });
+  fd.value='';$('#futureBody').value='';if(msg)msg.textContent='';
+  $('#futureOverlay').classList.add('on');
+  setTimeout(()=>{try{$('#futureBody').focus();}catch(e){}},120);
+}
+function saveFutureLetter(){
+  const msg=$('#futureComposeMsg'),box=$('#futureBody'),fd=$('#futureDate');
+  let body=(box&&box.value||'').trim();
+  const pick=(fd&&fd.value)||futurePick||'';
+  if(!body){if(msg)msg.textContent='还没写内容——写一句也可以。';return;}
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(pick)){if(msg)msg.textContent='选一个未来的日子吧。';return;}
+  if(futureDaysUntil(pick)<1){if(msg)msg.textContent='要选今天以后的某一天。';return;}
+  if(body.length>4000)body=body.slice(0,4000);
+  S.futureLetters.push({id:'fl-'+Date.now()+'-'+Math.random().toString(36).slice(2,7),
+    createdAt:Date.now(),deliverOn:pick,body:body,openedAt:null});
+  save();
+  $('#futureOverlay').classList.remove('on');
+  renderSealedLetters();
+  toast('已经封好，'+futureLabel(pick)+' 那天会出现在这里。');
+}
+function openFutureLetter(id){
+  const fl=(S.futureLetters||[]).find(x=>String(x.id)===String(id));
+  if(!fl)return;
+  if(futureDaysUntil(fl.deliverOn)>0){toast('还没到日子——它还在路上。');return;}
+  if(!fl.openedAt){fl.openedAt=Date.now();save();}
+  const page=$('#letterPage');
+  page.innerHTML=
+    `<button class="letter-close" id="letterCloseBtn">&times;</button>`+
+    `<div class="letter-date">${futureLabel(fl.deliverOn)}</div>`+
+    `<div class="letter-salute">那时的你，写给现在的你</div>`+
+    `<div class="letter-body"><div class="letter-line" style="white-space:pre-wrap">${escHtml(fl.body)}</div></div>`+
+    `<div class="letter-focus muted">写于 ${dateKeyOf(new Date(fl.createdAt)).replace(/-/g,'.')}</div>`;
+  $('#letterOverlay').classList.add('on');
+  $('#letterCloseBtn').onclick=()=>$('#letterOverlay').classList.remove('on');
+  page.scrollTop=0;
+  renderSealedLetters();
+}
+function bindFutureLetters(){
+  const cb=$('#futureComposeBtn');if(cb)cb.onclick=openFutureCompose;
+  const cc=$('#futureComposeClose');if(cc)cc.onclick=()=>$('#futureOverlay').classList.remove('on');
+  const sb=$('#futureSaveBtn');if(sb)sb.onclick=saveFutureLetter;
+  const ov=$('#futureOverlay');
+  if(ov)ov.onclick=function(e){if(e.target===this)this.classList.remove('on');};
+  const fd=$('#futureDate');
+  if(fd)fd.onchange=()=>{
+    futurePick=fd.value;
+    $$('#futurePicks button').forEach(x=>x.classList.remove('on'));
+  };
 }
 
 /* ===== 复盘 ===== */
@@ -2839,7 +3363,10 @@ function renderReview(){
   $('#reviewInput').value=r?r.best:'';
   $('#ideaInput').value=r&&r.idea?r.idea:'';
   $('#thinkingInput').value=r&&r.thinking?r.thinking:'';
-  chosenLvl=r?r.level:null;
+  // v1.2.3：默认高亮「小赢」，让「看到的」等于「会存下的」。
+  // 原先新的一天三个按钮都不亮，保存时却静默记为「小赢」——
+  // 用户以为没选就等于不评，结果信里写着「小赢的一天」。
+  chosenLvl=r?r.level:'小赢';
   $$('#winSeg button').forEach(b=>b.classList.toggle('on',b.dataset.lvl===chosenLvl));
   const hist=$('#reviewHistory');hist.innerHTML='';
   const keys=Object.keys(S.reviews).sort().reverse().slice(0,14);
@@ -2871,9 +3398,11 @@ const BACKUP_SCHEMA='starspark_focuspro_backup',BACKUP_VERSION=5;
 function persistentSnapshot(){
   const data=JSON.parse(JSON.stringify(S));data.session=null;data.reservation=null;return data;
 }
-/* 本机自动快照：每次铸星/断链后留存“最新 + 最近 6 个历史状态”，
+/* 本机自动快照：每次铸星/断链后留存“最新 + 上 1 份”，
    可在主数据写坏时自愈。注意：清除浏览器数据会连同本快照一起删除，
-   真正防清缓存仍需定期导出 JSON（见点火页横幅）。 */
+   真正防清缓存仍需定期导出 JSON（见点火页横幅）。
+   v1.2.3 起由「最新 + 最近 6 份」收缩为 2 份：每份都是整份 S 的完整副本，
+   7 份等于把占用放大 8 倍，而留 1 份回退已足够自愈。 */
 /* ===== v1.0.0：年度星图（Canvas 直绘，零依赖，导出 2x PNG） ===== */
 function annualStats(year){
   const inYear=function(b){const d=new Date(b.endedAt||0);return d.getFullYear()===year;};
@@ -3090,14 +3619,53 @@ function readAutoSnapshots(){
     return list;
   }catch(e){return [];}
 }
+/* v1.2.3：容量改按「真实字节」算。
+   旧写法 JSON.stringify(S).length/1024 有两个错：
+     (1) 只统计主键、不算快照，而快照才是大头；
+     (2) 按字符数算，而 localStorage 是 UTF-16 —— 每字符 2 字节，实际翻倍。
+   另：这里**故意不用** navigator.storage.estimate() 算百分比 ——
+   它返回的是「整个 origin 的用量」，包含 Service Worker 缓存的约 9 MB 音频，
+   拿它当 localStorage 的分母会得出毫无意义的比例。
+   分母取浏览器通用的每源约 5 MB（各浏览器略有差异，文案里写明）。 */
+const LS_QUOTA_ASSUMED=5*1024*1024;
+let storageBytesReal=null;   // 若浏览器支持 usageDetails.localStorage，用真实值覆盖估算
+function storageBytesSync(){
+  let b=0;
+  [KEY,AUTO_KEY,KEY+'__corrupt',KEY+'__pre_restore'].forEach(k=>{
+    try{const v=localStorage.getItem(k);if(v)b+=v.length*2;}catch(e){}
+  });
+  return b;
+}
+function refreshStorageEstimate(){
+  try{
+    if(navigator.storage&&navigator.storage.estimate){
+      navigator.storage.estimate().then(est=>{
+        const det=est&&est.usageDetails;
+        if(det&&typeof det.localStorage==='number'){
+          storageBytesReal=det.localStorage;
+          try{renderBackupCenter();}catch(e){}
+        }
+      }).catch(()=>{});
+    }
+  }catch(e){}
+}
+function storagePercent(){
+  const bytes=storageBytesReal!==null?storageBytesReal:storageBytesSync();
+  return {bytes:bytes,pct:Math.max(0,Math.round(bytes/LS_QUOTA_ASSUMED*100))};
+}
 function renderBackupCenter(){
   const list=$('#snapList');if(!list)return;
   const health=$('#dataHealth');
-  const size=(JSON.stringify(S).length/1024).toFixed(1);
+  const {bytes,pct}=storagePercent();
+  const kb=(bytes/1024).toFixed(1);
   if(health){
     const d=daysSince(S.meta.lastExportAt);
     const ex=d===null?'从未导出':(d===0?'今天导出过':(d+' 天前导出过'));
-    health.textContent=`当前 ${S.blocks.length} 条专注 · 约 ${size} KB · ${ex}`;
+    // 存储已写满时，这是比任何估算都准的「地面真相」
+    const warn=saveFailed
+      ?' · ⚠ 存储已写满，正在丢数据 —— 请立刻导出'
+      :(pct>=70?' · 建议导出一次备份':'');
+    health.textContent=`当前 ${S.blocks.length} 条专注 · 已占约 ${kb} KB（${pct}% · 浏览器上限约 5 MB）· ${ex}${warn}`;
   }
   const snaps=readAutoSnapshots();
   list.innerHTML='';
@@ -3183,13 +3751,16 @@ function takeAutoSnapshot(){
     snap.history=Array.isArray(snap.history)?snap.history:[];
     const payload={at:Date.now(),data:persistentSnapshot()};
     if(snap.latest)snap.history.push(snap.latest);
-    snap.history=snap.history.slice(-6);
+    // v1.2.3：从「最新 + 最近 6 份」收缩为「最新 + 上 1 份」。
+    // 每份都是整份 S 的完整副本，7 份等于把占用放大 8 倍；
+    // 留 1 份回退已足够自愈（主数据写坏时能退到上一状态），占用降到原来的 1/4。
+    snap.history=snap.history.slice(-1);
     snap.latest=payload;
     try{
       localStorage.setItem(AUTO_KEY,JSON.stringify(snap));
     }catch(err){
-      // 空间不足：先缩到 3 份再试一次；仍失败则明确停用，不让用户误以为有保险
-      snap.history=snap.history.slice(-2);
+      // 空间不足：连回退那份也丢掉，只留最新；仍失败则明确停用，不让用户误以为有保险
+      snap.history=[];
       try{localStorage.setItem(AUTO_KEY,JSON.stringify(snap));}
       catch(err2){
         if(S.meta&&!S.meta.autoBackupDisabledAt){
@@ -3201,6 +3772,21 @@ function takeAutoSnapshot(){
     }
   }catch(e){}
   try{renderBackupCenter();}catch(e){}
+}
+/* v1.2.3：一次性收缩历史遗留的臃肿快照。
+   老版本存了最多 7 份完整副本，用户升级后不会自动变小 ——
+   这里在启动时乘机裁到「最新 + 1 份回退」，立刻把空间还回去。 */
+function shrinkAutoSnapshotOnce(){
+  try{
+    const raw=JSON.parse(localStorage.getItem(AUTO_KEY));
+    if(!raw||typeof raw!=='object')return false;
+    const h=Array.isArray(raw.history)?raw.history:[];
+    if(h.length<=1)return false;
+    const before=h.length;
+    raw.history=h.slice(-1);
+    localStorage.setItem(AUTO_KEY,JSON.stringify(raw));
+    return before;
+  }catch(e){return false;}
 }
 /* 导出保命提醒：只在有铸星记录、且从未导出或超过 7 天、且未在 7 天内“稍后”时出现 */
 function daysSince(ts){if(!ts)return null;return Math.floor((Date.now()-Number(ts))/86400000);}
@@ -3226,7 +3812,7 @@ function renderAutoBackupNote(){
   const exportTxt=d===null?'还从未导出过':d===0?'今天刚导出过':`上次导出在 ${d} 天前`;
   const stateTxt=S.meta.autoBackupDisabledAt
     ?'本机自动快照已停用（存储空间不足），请以导出 JSON 为准'
-    :'已开启本机自动快照（最近 6 次结束状态），写坏可自愈';
+    :'已开启本机自动快照（最新 + 上 1 份），写坏可自愈';
   note.textContent=`${stateTxt}；但清除浏览器数据会一起删除，务必定期导出。当前：${exportTxt}。`;
 }
 function rebuildChain(previousBest){
@@ -3258,7 +3844,10 @@ function importPreview(incoming){
   const polSeen=new Set(S.policyTree.nodes.map(n=>String(n.id)));
   const np=((incoming.policyTree&&incoming.policyTree.nodes)||[]).filter(n=>n&&n.id!==undefined&&!polSeen.has(String(n.id))).length;
   const prec=(incoming.precedents||incoming.whitelist||[]).length;
-  return {nb:nb,nr:nr,nrec:nrec,nap:nap,np:np,prec:prec};
+  /* v1.3.2：寄给未来的信也要报数，否则导入时用户不知道有没有带过来 */
+  const flSeen=new Set((S.futureLetters||[]).map(x=>String(x.id)));
+  const nf=(incoming.futureLetters||[]).filter(x=>x&&x.id&&!flSeen.has(String(x.id))).length;
+  return {nb:nb,nr:nr,nrec:nrec,nap:nap,np:np,prec:prec,nf:nf};
 }
 function importBackupFile(file){
   if(!file)return;
@@ -3282,6 +3871,7 @@ function importBackupFile(file){
     if(pv.nap)parts.push(pv.nap+' 条预约');
     if(pv.np)parts.push(pv.np+' 个国策');
     if(pv.prec)parts.push(pv.prec+' 条判例');
+    if(pv.nf)parts.push(pv.nf+' 封寄给未来的信');   /* v1.3.2 风险对策②：导入前先报封信数 */
     const summary=parts.length?parts.join('、'):'没有新记录（全部重复）';
     openDialog('导入备份 · 先确认','这份备份导出于 '+when+'。将合并：'+summary+'。重复记录会自动跳过，现有数据不会被覆盖。',
       '<button class="btn primary" id="impOk" type="button">确认合并</button>'+
@@ -3341,18 +3931,30 @@ function applyImportIncoming(incoming,payload){
       });
       const freezeSeen=new Set(S.policyTree.freezes.map(f=>String(f.id)));
       (incoming.policyTree.freezes||[]).forEach(f=>{if(f&&f.id!==undefined&&!freezeSeen.has(String(f.id)))S.policyTree.freezes.push(f);});
-      S.policyTree.events=[...S.policyTree.events,...(incoming.policyTree.events||[])].slice(-200);
+      S.policyTree.events=[...S.policyTree.events,...(incoming.policyTree.events||[])].slice(-POLICY_EVENTS_MAX);
       S.policyTree.lastAddDay=S.policyTree.lastAddDay||incoming.policyTree.lastAddDay||null;
     }
     Object.keys(incoming.reviews).forEach(k=>{if(!S.reviews[k]){S.reviews[k]=incoming.reviews[k];addedReviews++;}});
+    /* v1.3.2：寄给未来的信按 id 去重合并——按 id 而非按日期，
+       因为同一天完全可能封存两封不同的信。 */
+    let addedFuture=0;
+    const flSeen2=new Set((S.futureLetters||[]).map(x=>String(x.id)));
+    (incoming.futureLetters||[]).forEach(x=>{
+      if(x&&x.id&&x.body&&x.deliverOn&&!flSeen2.has(String(x.id))){
+        S.futureLetters.push(x);flSeen2.add(String(x.id));addedFuture++;
+      }
+    });
     rebuildChain(Math.max(oldBest,Number(incomingBest)||0));save();takeAutoSnapshot();
     renderChain();renderReview();if(reviewView==='policy')renderPolicyTree();
     renderAutoBackupNote();renderBackupCenter();renderTodayCard();
-    $('#backupStatus').textContent=`已合并：新增 ${addedBlocks} 段专注、${addedReviews} 条复盘、${addedRecons} 次热身、${addedAppointments} 条预约、${addedPrecedents} 条判例、${addedPolicies} 个国策；重复记录已跳过。`;
+    if(typeof renderSealedLetters==='function')renderSealedLetters();
+    $('#backupStatus').textContent=`已合并：新增 ${addedBlocks} 段专注、${addedReviews} 条复盘、${addedRecons} 次热身、${addedAppointments} 条预约、${addedPrecedents} 条判例、${addedPolicies} 个国策、${addedFuture} 封寄给未来的信；重复记录已跳过。`;
   }catch(e){$('#backupStatus').textContent='合并时出错，当前数据没有被覆盖。';}
 }
 function bindBackup(){
   $('#exportBackup').onclick=exportBackup;
+  // v1.2.3：常驻保存警告上的「立刻导出」，与备份中心共用一个导出函数
+  const swx=$('#saveWarnExport');if(swx)swx.onclick=exportBackup;
   $('#importFile').onchange=e=>{importBackupFile(e.target.files&&e.target.files[0]);e.target.value='';};
   $('#bbExport').onclick=()=>exportBackup();
   $('#bbSnooze').onclick=()=>{S.meta.backupSnoozeAt=Date.now();save();renderBackupBanner();};
@@ -3460,6 +4062,10 @@ function stopReserve(){
 function restore(){
   if(S.session){cur=S.session;showRunning();
     showSessionPoem();
+    // v1.2.3：会话里记的是独立的 musicMuted，恢复时要同步到模块变量 ——
+    // 原先两者共用 soundMuted，静音状态会在刷新后串到静场上。
+    if(typeof cur.musicMuted==='boolean')musicMuted=cur.musicMuted;
+    if(typeof cur.soundMuted!=='boolean')cur.soundMuted=false;
     updateSessionChrome();
     if(cur.pauseTs){$('#pauseBtn').textContent='继续';tick();if(cur.pauseUntilTs)armPauseResume();startMusic();}
     else{startTick();startAmbient();stopMusic();}
@@ -3550,9 +4156,32 @@ function renderPoemBook(){
 /* ===== 初始化 ===== */
 buildNav();
 try{renderPoemOfDay();renderPoemBook();}catch(e){}
-try{bindFocus();bindSimple();bindSound();bindMusic();bindReview();bindPolicy();bindChainViews();bindBackup();bindOutcomeCard();bindOnboarding();bindAnnualPoster();}catch(e){}
+try{bindFocus();bindSimple();bindSound();bindMusic();bindReview();bindPolicy();bindChainViews();bindBackup();bindOutcomeCard();bindOnboarding();bindAnnualPoster();bindFutureLetters();}catch(e){}
 try{restore();}catch(e){}
 try{applySimpleMode();renderBackupBanner();renderTodayCard();maybeShowOnboarding();}catch(e){}
+/* v1.2.3：启动时探一次存储。若此刻就已经写不进去（配额满 / 隐私模式），
+   立刻把常驻警告亮出来 —— 不等用户先铸一颗星才发现丢了。 */
+try{
+  const probe=KEY+'__probe';
+  localStorage.setItem(probe,'1');
+  localStorage.removeItem(probe);
+  renderSaveWarning();
+}catch(e){
+  saveFailed=true;
+  renderSaveWarning();
+}
+/* v1.2.3：顺手把历史遗留的臃肿快照（最多 7 份）裁到 2 份，立刻把空间还回去 */
+try{
+  const shrunk=shrinkAutoSnapshotOnce();
+  if(shrunk>1)setTimeout(()=>{try{toast('已把本机快照从 '+shrunk+' 份收缩为 2 份，腾出存储空间');}catch(e){}},600);
+}catch(e){}
+/* v1.2.3：取一次真实存储占用（支持 usageDetails 的浏览器会给准数） */
+try{refreshStorageEstimate();}catch(e){}
+/* v1.2.3：把历史遗留的超期数据裁一次 —— 国策勾选只留 180 天、变更事件只留 30 条 */
+try{
+  const rc=prunePolicyChecks(), re=prunePolicyEvents();
+  if(rc||re){save();}
+}catch(e){}
 /* 背景乐：浏览器要求先有一次用户手势才能起声。用户首次点击/按键后，若在待机态且音乐开启，开始播放 */
 (function(){
   const unlock=()=>{
