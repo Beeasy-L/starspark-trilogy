@@ -59,8 +59,7 @@
 
     <div class="stage" id="stage">
       <div class="loading" id="loading">
-        <div class="sp" aria-hidden="true"></div>
-        <span id="load-text">正在准备摄像头…</span>
+        <span id="load-text">点击下方「开始打卡」，开启摄像头</span>
       </div>
       <video id="cam" autoplay playsinline muted></video>
       <canvas id="fx" class="fx"></canvas>
@@ -333,9 +332,20 @@
       loadText.textContent = "当前浏览器不支持摄像头";
       return;
     }
-    loadText.textContent = "正在请求摄像头…";
+    loadText.textContent = "正在请求摄像头，请在弹窗里点「允许」…";
+    var pending = true;
+    var guard = setTimeout(function(){
+      if(pending){
+        pending = false;
+        loadText.textContent = "摄像头没有响应（用 file:// 本地打开时权限常被拦截）——点「直接拍照」也能打卡";
+        snapBtn.disabled = false;
+      }
+    }, 8000);
     navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: false })
       .then(function(s){
+        clearTimeout(guard);
+        if(!pending) return s;
+        pending = false;
         stream = s;
         cam.srcObject = s;
         loading.hidden = true;
@@ -346,6 +356,8 @@
       })
       .then(loadModel)
       .catch(function(err){
+        clearTimeout(guard);
+        pending = false;
         loadText.textContent = "摄像头被拒绝或不可用——点「直接拍照」也能打卡";
         snapBtn.disabled = false;
       });
@@ -424,7 +436,7 @@
     stopCam();
     fctx.clearRect(0, 0, fx.width, fx.height);
     loading.hidden = false;
-    loadText.textContent = "正在准备摄像头…";
+    loadText.textContent = "点击「开始打卡」，重新开启摄像头";
     startCam();
   });
 
