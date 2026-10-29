@@ -31,6 +31,12 @@
 /* 本页专属：手机竖版截图按自身比例显示，不裁切主体 */
 .big-shot.phone{max-width:400px;margin-left:auto;margin-right:auto}
 .feature .ph.phone{aspect-ratio:780/1688}
+/* 本页专属：特色亮点单列居中，避免宽屏双栏排面过宽 */
+.features{grid-template-columns:1fr;max-width:780px;margin-left:auto;margin-right:auto}
+.feature .ph.phone{aspect-ratio:auto;max-width:480px;margin:0 auto;width:100%}
+.feature .ph img{height:auto;object-fit:contain}
+.feature .body{text-align:center;padding:14px 24px 20px}
+.feature .body p{max-width:620px;margin:0 auto}
 </style>
 </head>
 <body data-page="detail" data-bgm-src='[{"src":"../assets/xiaoxingxing.mp3","label":"小星星","volume":0.0830},{"src":"../assets/moon.mp3","label":"月亮代表我的心","volume":0.1493}]'>
@@ -56,7 +62,7 @@
     </div>
 
     <div class="big-shot phone">
-      <img src="../assets/focus-today.webp" width="780" height="1688" alt="星火专注 Pro 今天页：一句话说清今天的状态，一个主按钮开始点火" fetchpriority="high">
+      <img src="../assets/focus-today.webp" width="780" height="1688" alt="星火专注 Pro 今天页：一眼知道该做什么" fetchpriority="high">
       <div class="cap">今天页 &#183; 一眼知道该做什么</div>
     </div>
 
