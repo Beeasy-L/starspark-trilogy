@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>今日星火打卡 · 星火三部曲</title>
-  <meta name="description" content="对着镜头比个✌，让指尖开出一朵花。星火三部曲隐藏打卡彩蛋——打卡图可下载、可分享。">
+  <meta name="description" content="对着镜头，用食指和中指张合，让指尖开出一朵 3D 粒子花。星火三部曲隐藏打卡彩蛋——打卡图可下载、可分享。">
   <meta name="author" content="Esty">
   <meta name="theme-color" content="#070b18">
   <link rel="canonical" href="https://beeasy-l.github.io/starspark-trilogy/projects/checkin.html">
@@ -54,7 +54,7 @@
     <header class="checkin-hero">
       <div class="k">STARFIRE · HIDDEN CHECK-IN</div>
       <h1>今日星火打卡</h1>
-      <p>对着镜头，比一个✌——让指尖开出一朵花。<br>花开的那一刻，就是今天的打卡完成：会生成一张属于你的星火打卡图，可以下载，也可以分享给想一起守星火的人。</p>
+      <p>对着镜头，伸出食指和中指——张开，花就开；并拢，花就合。<br>把花开到最大，就是今天的打卡完成：会生成一张你的星火打卡图，可以下载，也可以分享给想一起守星火的人。</p>
     </header>
 
     <div class="stage" id="stage">
@@ -63,7 +63,7 @@
       </div>
       <video id="cam" autoplay playsinline muted></video>
       <canvas id="fx" class="fx"></canvas>
-      <div class="hint" id="hint" hidden>正在寻找你的手…</div>
+      <div class="hint" id="hint" hidden>食指和中指张开一点，让花醒来</div>
     </div>
 
     <div class="ctrls">
@@ -97,11 +97,13 @@
   var KEY = "starfire-checkin-count";
   var count = parseInt(localStorage.getItem(KEY) || "0", 10);
 
-  var stream = null, landmarker = null, running = false, victoryFrames = 0;
-  var flowerFired = false, firingAt = 0;
+  var stream = null, landmarker = null, running = false;
+  var bloomFrames = 0, fired = false;
 
-  var VICTORY_FRAMES = 10;   // 连续 ~10 帧判定为✌
-  var COOLDOWN_MS = 6000;    // 每次开花后 6 秒冷却，避免连续误触
+  // 3D 粒子花状态
+  var FLOWER = { x: 0, y: 0, spread: 0, spin: 0, burst: 0 };
+  var flowerParts = [];
+  var glowSprites = [];
 
   function setHint(txt, hit){
     hint.hidden = false;
@@ -110,62 +112,120 @@
   }
   function hideHint(){ hint.hidden = true; }
 
-  function isVictory(landmarks){
-    if(!landmarks) return false;
-    // 归一化坐标（0~1，y 向下）：指尖在上=数字小
-    var lm = landmarks;
-    var tip8 = lm[8], tip12 = lm[12];        // 食、中指指尖
-    var pip6 = lm[6], pip10 = lm[10];        // 食、中指第二关节
-    var tip16 = lm[16], tip20 = lm[20];      // 无名指、小指指尖
-    var pip14 = lm[14], pip18 = lm[18];      // 无名、小指第二关节
-    // 食指、中指伸得够直：指尖明显高于第二关节
-    var straight = (tip8.y < pip6.y - 0.03) && (tip12.y < pip10.y - 0.03);
-    // 无名指、小指收着：指尖不低于第二关节太多
-    var bentRing = (tip16.y > pip14.y + 0.01);
-    var bentPinky = (tip20.y > pip18.y + 0.01);
-    // 两指分开：8 与 12 的水平距离有一定间隔
-    var apart = Math.abs(tip8.x - tip12.x) > 0.03;
-    return straight && bentRing && bentPinky && apart;
+  // 镜像坐标（与预览一致：视频与画布都 scaleX(-1)）
+  function flipLandmarks(lm){
+    var out = [];
+    for(var i = 0; i < lm.length; i++) out.push({ x: 1 - lm[i].x, y: lm[i].y });
+    return out;
   }
 
-  // ---------- 指尖开花 ----------
-  var petals = [];
-  function spawnFlower(cx, cy, W, H){
-    var n = 26, base = Math.min(W, H) * 0.16;
-    for(var i = 0; i < n; i++){
-      var ang = (i / n) * Math.PI * 2;
-      var r0 = base * (0.25 + 0.5 * Math.random());
-      petals.push({
-        x: cx, y: cy,
-        vx: Math.cos(ang) * r0 * 0.06,
-        vy: Math.sin(ang) * r0 * 0.06 - 0.7,
-        life: 1, decay: 0.012 + 0.008 * Math.random(),
-        hue: Math.random() < 0.6 ? 44 : (Math.random() < 0.5 ? 28 : 300)
+  // 食指(8)+中指(12)张合度 → 0~1（并拢≈0，张开≈1）
+  function fingerGap(lm){
+    if(!lm) return 0;
+    var dx = lm[8].x - lm[12].x, dy = lm[8].y - lm[12].y;
+    var d = Math.sqrt(dx * dx + dy * dy);
+    return Math.max(0, Math.min(1, (d - 0.025) / 0.10));
+  }
+
+  // ---------- 3D 粒子花 ----------
+  function makeGlow(rgb){
+    var s = document.createElement("canvas");
+    s.width = s.height = 64;
+    var g = s.getContext("2d");
+    var grd = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+    grd.addColorStop(0, "rgba(" + rgb + ",1)");
+    grd.addColorStop(0.35, "rgba(" + rgb + ",.55)");
+    grd.addColorStop(1, "rgba(" + rgb + ",0)");
+    g.fillStyle = grd;
+    g.fillRect(0, 0, 64, 64);
+    return s;
+  }
+
+  function initFlower(){
+    glowSprites = [
+      makeGlow("255,196,110"),  // 0 金
+      makeGlow("255,150,96"),   // 1 橙
+      makeGlow("255,120,190"),  // 2 粉
+      makeGlow("255,255,255")   // 3 白
+    ];
+    flowerParts.length = 0;
+    var i, p;
+    // 花瓣：三层环绕（内/中/外），球坐标分布
+    for(i = 0; i < 156; i++){
+      var layer = i % 3;
+      flowerParts.push({
+        k: "p",
+        phi: (i / 156) * Math.PI * 2 + Math.random() * 0.25,
+        th0: 0.42 + layer * 0.30,
+        ph: Math.random() * Math.PI * 2,
+        sz: 2.4 + Math.random() * 2.6,
+        img: (i % 5 === 0) ? 2 : (i % 3 === 0 ? 1 : 0)
       });
     }
-  }
-  function stepFlowers(){
-    for(var i = petals.length - 1; i >= 0; i--){
-      var p = petals[i];
-      p.x += p.vx; p.y += p.vy; p.vy += 0.06; p.life -= p.decay;
-      if(p.life <= 0){ petals.splice(i, 1); }
+    // 花蕊粒子
+    for(i = 0; i < 46; i++){
+      flowerParts.push({ k: "c", phi: Math.random() * Math.PI * 2, th0: 0.10 + Math.random() * 0.18, ph: Math.random() * Math.PI * 2, sz: 1.4 + Math.random() * 2.0, img: 3 });
+    }
+    // 环绕光尘
+    for(i = 0; i < 34; i++){
+      flowerParts.push({ k: "d", phi: Math.random() * Math.PI * 2, th0: 1.0 + Math.random() * 1.2, ph: Math.random() * Math.PI * 2, sz: 1.2 + Math.random() * 1.8, img: 3 });
     }
   }
-  function drawFlowers(W, H){
-    for(var i = 0; i < petals.length; i++){
-      var p = petals[i];
-      var a = Math.max(0, Math.min(1, p.life));
-      fctx.globalAlpha = a;
-      fctx.fillStyle = p.hue === 300 ? "hsl(300,80%,82%)" : (p.hue === 28 ? "hsl(28,95%,72%)" : "hsl(44,92%,78%)");
-      var r = 2.6 + 3.2 * (1 - a);
-      fctx.beginPath();
-      fctx.arc(p.x, p.y, r, 0, Math.PI * 2);
-      fctx.fill();
-      // 拖尾
-      fctx.globalAlpha = a * 0.35;
-      fctx.beginPath();
-      fctx.arc(p.x - p.vx * 3, p.y - p.vy * 3, r * 0.6, 0, Math.PI * 2);
-      fctx.fill();
+
+  function drawGlow(img, x, y, size, alpha){
+    if(alpha <= 0.01) return;
+    fctx.globalAlpha = alpha;
+    var s = size * 5;
+    fctx.drawImage(img, x - s / 2, y - s / 2, s, s);
+  }
+
+  function renderFlower(W, H){
+    var cx = FLOWER.x, cy = FLOWER.y;
+    var s = FLOWER.spread;
+    var R = Math.min(W, H) * 0.36;
+    FLOWER.spin += 0.012 + s * 0.022;
+    var spin = FLOWER.spin;
+    if(FLOWER.burst > 0) FLOWER.burst -= 0.035;
+
+    // 花心光晕（随开放度变亮）
+    var coreR = R * (0.14 + 0.10 * s);
+    var grad = fctx.createRadialGradient(cx, cy, 0, cx, cy, coreR * 5);
+    grad.addColorStop(0, "rgba(255,214,140," + (0.16 + 0.42 * s).toFixed(3) + ")");
+    grad.addColorStop(1, "rgba(255,214,140,0)");
+    fctx.fillStyle = grad;
+    fctx.beginPath(); fctx.arc(cx, cy, coreR * 5, 0, Math.PI * 2); fctx.fill();
+    fctx.fillStyle = "rgba(255,248,220,.95)";
+    fctx.beginPath(); fctx.arc(cx, cy, coreR * 0.72, 0, Math.PI * 2); fctx.fill();
+
+    for(var i = 0; i < flowerParts.length; i++){
+      var p = flowerParts[i];
+      var ph = p.ph + spin * 2;
+      if(p.k === "d"){
+        var dr = R * (0.95 + s * 1.7) + Math.sin(spin * 2 + ph) * R * 0.14;
+        var dx = cx + Math.cos(p.phi) * dr;
+        var dy = cy + Math.sin(p.phi) * dr * 0.72;
+        var tw = 0.35 + 0.55 * (0.5 + 0.5 * Math.sin(spin * 3 + p.ph));
+        drawGlow(glowSprites[3], dx, dy, p.sz * (1 + s * 0.5), tw);
+        continue;
+      }
+      // 花瓣/花蕊：球坐标 → 伪 3D 投影（闭合=竖直聚拢，张开=平铺绽放）
+      var th = p.th0 * (1 - s) + (p.th0 + 0.78) * s;
+      var r = R * (0.13 + s * 0.96) * (0.88 + 0.22 * Math.sin(ph));
+      var px = Math.sin(th) * r * Math.cos(p.phi + spin);
+      var py = Math.sin(th) * r * Math.sin(p.phi + spin);
+      var pz = Math.cos(th) * r;
+      var persp = 1.25 + (1 - pz / (R * 1.15)) * 0.5;
+      var sx = cx + px;
+      var sy = cy + py * 0.9;
+      var szz = p.sz * persp;
+      var a = 0.45 + 0.55 * s;
+      if(p.k === "c"){ a = 0.92; szz = p.sz * persp * 0.8; }
+      if(FLOWER.burst > 0 && p.k !== "c"){
+        sx += (sx - cx) * FLOWER.burst * 0.9;
+        sy += (sy - cy) * FLOWER.burst * 0.9;
+        a *= Math.max(0, 1 - FLOWER.burst * 0.7);
+      }
+      drawGlow(glowSprites[p.img], sx, sy, szz, a);
     }
     fctx.globalAlpha = 1;
   }
@@ -269,16 +329,7 @@
     cardWrap.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
-  function fireAndSnap(){
-    if(!running) return;
-    var rect = stage.getBoundingClientRect();
-    var lms = lastLandmarks;
-    var cx = rect.width / 2, cy = rect.height / 2;
-    if(lms){
-      cx = lms[8].x * rect.width + 8;
-      cy = lms[8].y * rect.height - 20;
-    }
-    spawnFlower(cx, cy, rect.width, rect.height);
+  function fireCheckin(){
     setHint("花开啦 ✌", true);
     setTimeout(function(){
       count++;
@@ -288,7 +339,7 @@
       running = false;
       stopCam();
       hideHint();
-    }, 900);
+    }, 1100);
   }
 
   // ---------- 手势检测循环 ----------
@@ -303,28 +354,36 @@
     try { res = landmarker.detectForVideo(cam, performance.now()); }
     catch(e){ return; }
     fctx.clearRect(0, 0, fx.width, fx.height);
-    stepFlowers(); drawFlowers(fx.width, fx.height);
     var lm = null;
     if(res && res.landmarks && res.landmarks.length > 0){
-      lm = res.landmarks[0];
-      lastLandmarks = lm;
+      lastLandmarks = res.landmarks[0];
+      lm = flipLandmarks(lastLandmarks);
     }
-    if(isVictory(lm)){
-      victoryFrames++;
-      if(victoryFrames >= VICTORY_FRAMES && !flowerFired && Date.now() - firingAt > COOLDOWN_MS){
-        flowerFired = true; firingAt = Date.now();
-        fireAndSnap();
+    if(lm){
+      var gap = fingerGap(lm);
+      FLOWER.spread += (gap - FLOWER.spread) * 0.22;
+      var W = fx.width, H = fx.height;
+      FLOWER.x += (((lm[8].x + lm[12].x) / 2) * W - FLOWER.x) * 0.28;
+      FLOWER.y += (((lm[8].y + lm[12].y) / 2) * H - FLOWER.y) * 0.28;
+      if(FLOWER.spread > 0.88){
+        bloomFrames++;
+        if(bloomFrames > 46 && !fired){
+          fired = true;
+          FLOWER.burst = 1;
+          fireCheckin();
+        } else if(!fired){
+          setHint("要开了…两指再张开一点");
+        }
       } else {
-        setHint("检测到✌，稳住…");
+        bloomFrames = 0;
+        setHint("两指张开，花开；并拢，花合");
       }
     } else {
-      if(victoryFrames > 0) victoryFrames--;
-      if(Date.now() - firingAt > COOLDOWN_MS){
-        setHint("比一个✌试试");
-      } else {
-        setHint("休息一下，等下朵花");
-      }
+      bloomFrames = 0;
+      FLOWER.spread *= 0.97;
+      setHint("食指和中指张开一点，让花醒来");
     }
+    renderFlower(fx.width, fx.height);
   }
 
   function startCam(){
@@ -392,8 +451,11 @@
       landmarker = hl;
       fx.width = stage.clientWidth; fx.height = stage.clientHeight;
       running = true;
-      victoryFrames = 0; flowerFired = false; firingAt = 0;
-      setHint("比一个✌试试");
+      bloomFrames = 0; fired = false;
+      FLOWER.spread = 0; FLOWER.burst = 0; FLOWER.spin = 0;
+      FLOWER.x = fx.width / 2; FLOWER.y = fx.height / 2;
+      initFlower();
+      setHint("张开食指和中指，让花醒来");
       requestAnimationFrame(loop);
     };
     var onErr = function(e){
