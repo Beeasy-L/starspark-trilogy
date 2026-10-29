@@ -192,58 +192,52 @@
     scene.add(group);
 
     var layers = [];
-    var outer = [], mid = [], cores = [], dust = [], burstItems = [];
-    var i, j, k;
-    // 外层花瓣：8 片 × 6×6 粒子（点云铺满花瓣曲面，金橙粉渐变）
-    for(i = 0; i < 8; i++){
-      for(j = 0; j < 6; j++){
-        for(k = 0; k < 6; k++){
-          outer.push({
-            phi: (i / 8) * Math.PI * 2 + (Math.random() - 0.5) * 0.20,
-            u: 0.13 + (j + Math.random() * 0.7) / 6 * 0.85,
-            v: ((k + Math.random() * 0.6) / 6 * 2 - 1) * 0.80,
-            ph: 0,
-            r: 0.62 + Math.random() * 0.30,
-            g: 0.42 + Math.random() * 0.26,
-            b: 0.38 + Math.random() * 0.24
-          });
+    var cores = [], dust = [], burstItems = [];
+    var i, j, k, li;
+    // 四层花瓣，由外到内：琥珀金 → 金橙 → 粉 → 紫罗兰，逐层错位、逐层更亮更小更竖
+    var layerDefs = [
+      { petals: 8, gu: 6, gv: 6, scale: 1.00, off: 0.000,    delay: 0.00, thMul: 0.95, base: [0.86, 0.56, 0.24], jit: [0.12, 0.16, 0.14] },
+      { petals: 8, gu: 5, gv: 5, scale: 0.82, off: 0.19635, delay: 0.14, thMul: 1.00, base: [0.97, 0.74, 0.42], jit: [0.03, 0.14, 0.18] },
+      { petals: 8, gu: 5, gv: 5, scale: 0.65, off: 0.39270, delay: 0.28, thMul: 1.06, base: [0.93, 0.64, 0.80], jit: [0.05, 0.13, 0.20] },
+      { petals: 8, gu: 4, gv: 4, scale: 0.49, off: 0.58905, delay: 0.42, thMul: 1.12, base: [0.86, 0.68, 0.96], jit: [0.10, 0.20, 0.04] }
+    ];
+    for(li = 0; li < layerDefs.length; li++){
+      var def = layerDefs[li], items = [];
+      for(i = 0; i < def.petals; i++){
+        for(j = 0; j < def.gu; j++){
+          for(k = 0; k < def.gv; k++){
+            items.push({
+              phi: (i / def.petals) * Math.PI * 2 + def.off + (Math.random() - 0.5) * 0.20,
+              u: 0.13 + (j + Math.random() * 0.7) / def.gu * 0.85,
+              v: ((k + Math.random() * 0.6) / def.gv * 2 - 1) * 0.80,
+              ph: 0,
+              r: def.base[0] + def.jit[0] * Math.random(),
+              g: def.base[1] + def.jit[1] * Math.random(),
+              b: def.base[2] + def.jit[2] * Math.random(),
+              scale: def.scale, delay: def.delay, thMul: def.thMul
+            });
+          }
         }
       }
+      layers.push(makeLayer(THREE, items, 0.052 - li * 0.004, li + 1));
     }
-    // 中层花瓣：8 片 × 5×5，错开 22.5°，更亮
-    for(i = 0; i < 8; i++){
-      for(j = 0; j < 5; j++){
-        for(k = 0; k < 5; k++){
-          mid.push({
-            phi: (i / 8) * Math.PI * 2 + Math.PI / 8 + (Math.random() - 0.5) * 0.18,
-            u: 0.16 + (j + Math.random() * 0.7) / 5 * 0.78,
-            v: ((k + Math.random() * 0.6) / 5 * 2 - 1) * 0.62,
-            ph: 0,
-            r: 0.92 + Math.random() * 0.08,
-            g: 0.78 + Math.random() * 0.16,
-            b: 0.50 + Math.random() * 0.22
-          });
-        }
-      }
-    }
-    // 花蕊：竖直小粒子
+    // 花蕊：竖直小粒子（暖金）
     for(i = 0; i < 36; i++){
-      cores.push({ phi: Math.random() * Math.PI * 2, u: 0.05 + Math.random() * 0.13, v: (Math.random() * 2 - 1) * 0.28, ph: 0, r: 1, g: 0.98, b: 0.88 });
+      cores.push({ phi: Math.random() * Math.PI * 2, u: 0.05 + Math.random() * 0.13, v: (Math.random() * 2 - 1) * 0.28, ph: 0, r: 1, g: 0.98, b: 0.86 });
     }
-    // 环绕光尘
+    // 环绕光尘：蓝紫双色点缀
     for(i = 0; i < 56; i++){
-      dust.push({ phi: Math.random() * Math.PI * 2, u: 0.75 + Math.random() * 1.0, v: (Math.random() * 2 - 1) * 0.45, ph: Math.random() * Math.PI * 2, r: 0.72, g: 0.82, b: 1 });
+      var purple = Math.random() < 0.5;
+      dust.push({ phi: Math.random() * Math.PI * 2, u: 0.75 + Math.random() * 1.0, v: (Math.random() * 2 - 1) * 0.45, ph: Math.random() * Math.PI * 2, r: purple ? 0.72 : 0.62, g: purple ? 0.66 : 0.84, b: purple ? 1.0 : 0.98 });
     }
     // 绽放光尘（预分配 72，按 life 管理）
     for(i = 0; i < 72; i++){
       burstItems.push({ life: 0, decay: 0.04, vx: 0, vy: 0, vz: 0, r: 1, g: 0.85, b: 0.6 });
     }
-    layers.push(makeLayer(THREE, outer, 0.052, 1));
-    layers.push(makeLayer(THREE, mid, 0.047, 2));
-    layers.push(makeLayer(THREE, cores, 0.032, 3));
-    layers.push(makeLayer(THREE, dust, 0.040, 4));
+    layers.push(makeLayer(THREE, cores, 0.032, 5));
+    layers.push(makeLayer(THREE, dust, 0.040, 6));
     for(i = 0; i < layers.length; i++) group.add(layers[i].pts);
-    var burstLayer = makeLayer(THREE, burstItems, 0.045, 5);
+    var burstLayer = makeLayer(THREE, burstItems, 0.045, 7);
     burstLayer.pts.visible = false;
     group.add(burstLayer.pts);
 
@@ -258,28 +252,29 @@
       group.rotation.x += ((0.5 - midY) * 0.22 - group.rotation.x) * 0.10;
       group.rotation.y += 0.012 + s * 0.022;
 
-      var th0 = 0.10 + 1.32 * s;   // 花瓣仰角：闭合≈竖直花苞，绽放≈水平莲花
+      // 每层独立 bloom：由外到内一层层开（delay 越大开得越晚），闭合时反向逐层收
       var L, th, r, w, phi, px, py, pz, cph, sph, st, cth;
-      for(L = 0; L < 4; L++){
+      for(L = 0; L < 6; L++){
         var layer = layers[L], items = layer.items, pos = layer.pos, col = layer.col, order = layer.order;
         for(i = 0; i < layer.count; i++){
           var p = items[i];
-          if(L === 3){ // 光尘：环绕公转
+          if(L === 5){ // 光尘：环绕公转
             var dr = 1.18 + 0.35 * s + Math.sin(group.rotation.y * 2 + p.ph) * 0.16;
             phi = p.phi + group.rotation.y * 0.8;
             px = Math.cos(phi) * dr;
             pz = Math.sin(phi) * dr * 0.72;
             py = 0.10 + Math.sin(group.rotation.y * 1.6 + p.ph) * 0.20;
-          } else if(L === 2){ // 花蕊：始终竖直
+          } else if(L === 4){ // 花蕊：始终竖直
             phi = p.phi;
             cph = Math.cos(phi); sph = Math.sin(phi);
             px = cph * p.u - sph * p.v * 0.18;
             pz = sph * p.u + cph * p.v * 0.18;
             py = 0.06 + p.u * 0.5;
-          } else { // 花瓣：3D 花瓣曲面（径向 u、横向 v、仰角 th）
-            th = th0 * (0.60 + 0.55 * p.u);
-            r = p.u;
-            w = p.v * petalW(p.u) * 0.46 * (0.5 + 0.5 * s);
+          } else { // 花瓣层：本层绽放度 = clamp((s - delay)/0.22)
+            var bl = Math.max(0, Math.min(1, (s - p.delay) / 0.22));
+            th = (0.10 + 1.32 * bl) * p.thMul;   // 闭合≈竖直花苞，绽放≈水平莲花
+            r = p.u * p.scale;                   // 层半径：外层大、内层小
+            w = p.v * petalW(p.u) * 0.46 * (0.5 + 0.5 * bl) * p.scale;
             phi = p.phi + group.rotation.y;
             cph = Math.cos(phi); sph = Math.sin(phi);
             st = Math.sin(th); cth = Math.cos(th);
@@ -288,7 +283,12 @@
             py = r * cth;
           }
           pos[i * 3] = px; pos[i * 3 + 1] = py; pos[i * 3 + 2] = pz;
-          col[i * 3] = p.r; col[i * 3 + 1] = p.g; col[i * 3 + 2] = p.b;
+          if(L < 4){ // 绽放时花瓣微微点亮
+            var fade = 0.90 + 0.10 * Math.max(0, Math.min(1, (s - p.delay) / 0.22));
+            col[i * 3] = p.r * fade; col[i * 3 + 1] = p.g * fade; col[i * 3 + 2] = p.b * fade;
+          } else {
+            col[i * 3] = p.r; col[i * 3 + 1] = p.g; col[i * 3 + 2] = p.b;
+          }
           order[i] = i;
         }
         // 层内按 z 深度从远到近重排（近的盖住远的，立体遮挡）
