@@ -363,13 +363,22 @@
       });
   }
 
-  // ---------- 手势模型（换源：npmmirror 国内 CDN 提供 JS 库与 wasm 运行时，模型走 GitHub raw 直链） ----------
+  // ---------- 手势模型（双源：抖音 CDN 模型脚本为主，GitHub raw 直链兜底；JS 库与 wasm 走 npmmirror） ----------
   var MP_JS = "https://cdn.npmmirror.com/packages/%40mediapipe%2ftasks-vision/0.10.14/files/vision_bundle.mjs";
   var MP_WASM = "https://cdn.npmmirror.com/packages/%40mediapipe%2ftasks-vision/0.10.14/files/wasm";
-  var MP_MODEL = "https://raw.githubusercontent.com/IoT-gamer/hand_landmarker/main/android/src/main/assets/hand_landmarker.task";
+  var MP_MODEL_JS = "https://aka.doubaocdn.com/s/FVBGBjs3oy";
+  var MP_MODEL_RAW = "https://raw.githubusercontent.com/IoT-gamer/hand_landmarker/main/android/src/main/assets/hand_landmarker.task";
+
+  function modelBytes(){
+    var b64 = window.__STARFIRE_MODEL_B64 || "";
+    var bin = atob(b64);
+    var bytes = new Uint8Array(bin.length);
+    for(var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    return bytes;
+  }
 
   function loadModel(){
-    loadText.textContent = "正在加载手势模型（首次约 8MB，之后走缓存，请耐心等待）…";
+    loadText.textContent = "正在加载手势模型（首次约 8MB，请稍候）…";
     var done = false;
     var guard = setTimeout(function(){
       if(!done){
@@ -377,30 +386,61 @@
         snapBtn.disabled = false;
       }
     }, 90000);
-    import(MP_JS)
-      .then(function(mod){
-        return mod.FilesetResolver.forVisionTasks(MP_WASM).then(function(fileset){
-          return mod.HandLandmarker.createFromOptions(fileset, {
-            baseOptions: { modelAssetPath: MP_MODEL, delegate: "CPU" },
-            runningMode: "VIDEO",
-            numHands: 1
+
+    var onOk = function(hl){
+      clearTimeout(guard); done = true;
+      landmarker = hl;
+      fx.width = stage.clientWidth; fx.height = stage.clientHeight;
+      running = true;
+      victoryFrames = 0; flowerFired = false; firingAt = 0;
+      setHint("比一个✌试试");
+      requestAnimationFrame(loop);
+    };
+    var onErr = function(e){
+      clearTimeout(guard); done = true;
+      loadText.textContent = "模型加载失败，请检查网络后刷新（或点「直接拍照」）";
+      snapBtn.disabled = false;
+    };
+
+    // 方式 B：npmmirror 库 + raw 直链模型（兜底）
+    var startWithRaw = function(){
+      import(MP_JS)
+        .then(function(mod){
+          return mod.FilesetResolver.forVisionTasks(MP_WASM).then(function(fileset){
+            return mod.HandLandmarker.createFromOptions(fileset, {
+              baseOptions: { modelAssetPath: MP_MODEL_RAW, delegate: "CPU" },
+              runningMode: "VIDEO",
+              numHands: 1
+            });
           });
-        });
-      })
-      .then(function(hl){
-        clearTimeout(guard); done = true;
-        landmarker = hl;
-        fx.width = stage.clientWidth; fx.height = stage.clientHeight;
-        running = true;
-        victoryFrames = 0; flowerFired = false; firingAt = 0;
-        setHint("比一个✌试试");
-        requestAnimationFrame(loop);
-      })
-      .catch(function(e){
-        clearTimeout(guard); done = true;
-        loadText.textContent = "模型加载失败，请检查网络后刷新（或点「直接拍照」）";
-        snapBtn.disabled = false;
-      });
+        })
+        .then(onOk)
+        .catch(onErr);
+    };
+
+    // 方式 A：doubaocdn 模型脚本 → base64 解码 → modelAssetBuffer
+    var s = document.createElement("script");
+    s.src = MP_MODEL_JS;   // 注意：不加 crossOrigin（no-cors 请求不带 Origin）
+    s.onload = function(){
+      if(window.__STARFIRE_MODEL_B64 && window.__STARFIRE_MODEL_B64.length > 1000){
+        import(MP_JS)
+          .then(function(mod){
+            return mod.FilesetResolver.forVisionTasks(MP_WASM).then(function(fileset){
+              return mod.HandLandmarker.createFromOptions(fileset, {
+                baseOptions: { modelAssetBuffer: modelBytes(), delegate: "CPU" },
+                runningMode: "VIDEO",
+                numHands: 1
+              });
+            });
+          })
+          .then(onOk)
+          .catch(onErr);
+      } else {
+        startWithRaw();
+      }
+    };
+    s.onerror = function(){ startWithRaw(); };
+    document.head.appendChild(s);
   }
 
   function stopCam(){
