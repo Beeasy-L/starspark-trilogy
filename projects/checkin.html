@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>今日星火打卡 · 星火三部曲</title>
-  <meta name="description" content="对着镜头，用食指和中指张合，让指尖开出一朵 3D 粒子花。星火三部曲隐藏打卡彩蛋——打卡图可下载、可分享。">
+  <meta name="description" content="对着镜头，握拳再张开手掌，让掌心开出一朵 3D 粒子花。星火三部曲隐藏打卡彩蛋——打卡图可下载、可分享。">
   <meta name="author" content="Esty">
   <meta name="theme-color" content="#070b18">
   <link rel="canonical" href="https://beeasy-l.github.io/starspark-trilogy/projects/checkin.html">
@@ -54,7 +54,7 @@
     <header class="checkin-hero">
       <div class="k">STARFIRE · HIDDEN CHECK-IN</div>
       <h1>今日星火打卡</h1>
-      <p>对着镜头，伸出食指和中指——张开，花就开；并拢，花就合。<br>把花开到最大，就是今天的打卡完成：会生成一张你的星火打卡图，可以下载，也可以分享给想一起守星火的人。</p>
+      <p>对着镜头，握拳再张开手掌——张开，花就开；握拳，花就合。<br>把花开到最大，就是今天的打卡完成：会生成一张你的星火打卡图，可以下载，也可以分享给想一起守星火的人。</p>
     </header>
 
     <div class="stage" id="stage">
@@ -63,7 +63,7 @@
       </div>
       <video id="cam" autoplay playsinline muted></video>
       <canvas id="fx" class="fx"></canvas>
-      <div class="hint" id="hint" hidden>食指和中指张开一点，让花醒来</div>
+      <div class="hint" id="hint" hidden>张开手掌，让花醒来</div>
     </div>
 
     <div class="ctrls">
@@ -118,12 +118,20 @@
     return out;
   }
 
-  // 食指(8)+中指(12)张合度 → 0~1（并拢≈0，张开≈1）
-  function fingerGap(lm){
+  // 张拳度：四指尖到掌心的平均距离 / 手尺寸 → 0~1（握拳≈0，张拳≈1）
+  function fistOpen(lm){
     if(!lm) return 0;
-    var dx = lm[8].x - lm[12].x, dy = lm[8].y - lm[12].y;
-    var d = Math.sqrt(dx * dx + dy * dy);
-    return Math.max(0, Math.min(1, (d - 0.025) / 0.10));
+    var palm = { x: (lm[0].x + lm[5].x + lm[9].x + lm[13].x + lm[17].x) / 5,
+                 y: (lm[0].y + lm[5].y + lm[9].y + lm[13].y + lm[17].y) / 5 };
+    var d = 0, i, idx = [8, 12, 16, 20];
+    for(i = 0; i < idx.length; i++){
+      var dx = lm[idx[i]].x - palm.x, dy = lm[idx[i]].y - palm.y;
+      d += Math.sqrt(dx * dx + dy * dy);
+    }
+    d /= idx.length;
+    var h = Math.sqrt(Math.pow(lm[9].x - lm[0].x, 2) + Math.pow(lm[9].y - lm[0].y, 2));
+    if(h < 1e-4) return 0;
+    return Math.max(0, Math.min(1, (d / h - 0.20) / 0.42));
   }
 
   // ---------- Three.js 3D 粒子莲花 ----------
@@ -179,7 +187,7 @@
     return { pts: pts, items: items, pos: pos, col: col, count: count, order: new Array(count) };
   }
 
-  // 创建 3D 粒子莲花（闭合花苞 ⇄ 绽放莲花，绕轴自旋，跟随手势微倾）
+  // 创建 3D 粒子莲花（闭合花苞 ⇄ 绽放莲花，绕轴自旋，跟随掌心微倾）
   function createFlower3D(THREE, canvas){
     var renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: false, powerPreference: "high-performance" });
     renderer.setClearColor(0x000000, 0);
@@ -194,12 +202,12 @@
     var layers = [];
     var cores = [], dust = [], burstItems = [];
     var i, j, k, li;
-    // 四层花瓣，由外到内：深玫红 → 玫红 → 粉 → 亮粉白，逐层错位、逐层更亮更小更竖
+    // 四层花瓣，由外到内：鲜玫红 → 玫红 → 粉 → 亮粉白，逐层错位、逐层更亮更小更竖
     var layerDefs = [
-      { petals: 8, gu: 6, gv: 6, scale: 1.00, off: 0.000,    delay: 0.00, thMul: 0.95, base: [0.92, 0.28, 0.38], jit: [0.06, 0.10, 0.10] },
-      { petals: 8, gu: 5, gv: 5, scale: 0.82, off: 0.19635, delay: 0.14, thMul: 1.00, base: [0.98, 0.42, 0.50], jit: [0.02, 0.10, 0.12] },
-      { petals: 8, gu: 5, gv: 5, scale: 0.65, off: 0.39270, delay: 0.28, thMul: 1.06, base: [1.00, 0.60, 0.70], jit: [0.00, 0.10, 0.12] },
-      { petals: 8, gu: 4, gv: 4, scale: 0.49, off: 0.58905, delay: 0.42, thMul: 1.12, base: [1.00, 0.76, 0.88], jit: [0.00, 0.10, 0.08] }
+      { petals: 8, gu: 6, gv: 6, scale: 1.00, off: 0.000,    delay: 0.00, thMul: 0.95, base: [0.96, 0.16, 0.30], jit: [0.04, 0.10, 0.10] },
+      { petals: 8, gu: 5, gv: 5, scale: 0.82, off: 0.19635, delay: 0.14, thMul: 1.00, base: [1.00, 0.28, 0.42], jit: [0.00, 0.10, 0.10] },
+      { petals: 8, gu: 5, gv: 5, scale: 0.65, off: 0.39270, delay: 0.28, thMul: 1.06, base: [1.00, 0.48, 0.62], jit: [0.00, 0.10, 0.12] },
+      { petals: 8, gu: 4, gv: 4, scale: 0.49, off: 0.58905, delay: 0.42, thMul: 1.12, base: [1.00, 0.72, 0.86], jit: [0.00, 0.10, 0.08] }
     ];
     for(li = 0; li < layerDefs.length; li++){
       var def = layerDefs[li], items = [];
@@ -219,7 +227,7 @@
           }
         }
       }
-      layers.push(makeLayer(THREE, items, 0.052 - li * 0.004, li + 1));
+      layers.push(makeLayer(THREE, items, 0.062 - li * 0.005, li + 1));
     }
     // 花蕊：竖直小粒子（暖粉金）
     for(i = 0; i < 36; i++){
@@ -245,7 +253,7 @@
 
     function update(bloom, midX, midY, triggerBurst){
       var s = Math.max(0, Math.min(1, bloom));
-      // 花朵位置与微倾斜跟随手指（轻微交互感）
+      // 花朵位置与微倾斜跟随掌心（落在手心，轻微交互感）
       group.position.x += ((midX - 0.5) * 1.7 - group.position.x) * 0.14;
       group.position.y += ((0.5 - midY) * 1.2 - group.position.y) * 0.14;
       group.rotation.z += (-(midX - 0.5) * 0.30 - group.rotation.z) * 0.10;
@@ -283,8 +291,8 @@
             py = r * cth;
           }
           pos[i * 3] = px; pos[i * 3 + 1] = py; pos[i * 3 + 2] = pz;
-          if(L < 4){ // 绽放时花瓣微微点亮
-            var fade = 0.90 + 0.10 * Math.max(0, Math.min(1, (s - p.delay) / 0.22));
+          if(L < 4){ // 绽放时花瓣明显点亮
+            var fade = 0.70 + 0.30 * Math.max(0, Math.min(1, (s - p.delay) / 0.22));
             col[i * 3] = p.r * fade; col[i * 3 + 1] = p.g * fade; col[i * 3 + 2] = p.b * fade;
           } else {
             col[i * 3] = p.r; col[i * 3 + 1] = p.g; col[i * 3 + 2] = p.b;
@@ -496,10 +504,13 @@
       lm = flipLandmarks(lastLandmarks);
     }
     if(lm){
-      var gap = fingerGap(lm);
+      var gap = fistOpen(lm);
       FLOWER.spread += (gap - FLOWER.spread) * 0.22;
-      midX += (((lm[8].x + lm[12].x) / 2) - midX) * 0.28;
-      midY += (((lm[8].y + lm[12].y) / 2) - midY) * 0.28;
+      // 花朵落在手掌心（腕+四指掌根的加权中心），轻微跟随
+      var palm = { x: (lm[0].x + lm[5].x + lm[9].x + lm[13].x + lm[17].x) / 5,
+                   y: (lm[0].y + lm[5].y + lm[9].y + lm[13].y + lm[17].y) / 5 };
+      midX += (palm.x - midX) * 0.28;
+      midY += (palm.y - midY) * 0.28;
       if(FLOWER.spread > 0.88){
         bloomFrames++;
         if(bloomFrames > 46 && !fired){
@@ -507,16 +518,16 @@
           FLOWER.burst = 1;
           fireCheckin();
         } else if(!fired){
-          setHint("要开了…两指再张开一点");
+          setHint("要开了…把手再张开一点");
         }
       } else {
         bloomFrames = 0;
-        setHint("两指张开，花开；并拢，花合");
+        setHint("张开手掌，花开；握拳，花合");
       }
     } else {
       bloomFrames = 0;
       FLOWER.spread *= 0.97;
-      setHint("食指和中指张开一点，让花醒来");
+      setHint("握拳再张开手掌，让花醒来");
     }
     if(flower3D){
       var bf = FLOWER.burst > 0;
@@ -605,7 +616,7 @@
           return;
         }
         running = true;
-        setHint("张开食指和中指，让花醒来");
+        setHint("张开手掌，让花醒来");
         requestAnimationFrame(loop);
       }).catch(function(){
         loadText.textContent = "3D 渲染库加载失败，请检查网络后刷新（或点「直接拍照」）";
