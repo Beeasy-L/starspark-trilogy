@@ -18,10 +18,10 @@
 .checkin-hero .k{font-size:12px;letter-spacing:.34em;color:var(--gold2);opacity:.75}
 .checkin-hero h1{font-size:34px;margin:10px 0 12px;color:var(--gold);letter-spacing:.08em}
 .checkin-hero p{color:var(--muted);font-size:14px;line-height:2;max-width:560px;margin:0 auto}
-.stage{position:relative;max-width:560px;margin:26px auto 0;border:1px solid rgba(242,198,109,.28);border-radius:18px;overflow:hidden;background:#04060f;aspect-ratio:4/3}
-.stage video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scaleX(-1)}
+.stage{position:relative;max-width:560px;margin:26px auto 0;border:1px solid rgba(242,198,109,.28);border-radius:18px;overflow:hidden;background:#050505;aspect-ratio:4/3}
+.stage video{position:absolute;right:10px;bottom:10px;width:150px;aspect-ratio:4/3;object-fit:cover;transform:scaleX(-1);border-radius:10px;border:1px solid rgba(255,255,255,.18);opacity:.8;z-index:3}
 .stage canvas.fx{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;transform:scaleX(-1)}
-.stage .hint{position:absolute;left:0;right:0;bottom:14px;padding:8px 14px;font-size:13px;color:#fff;background:rgba(4,6,15,.55);border-radius:999px;display:inline-block;width:fit-content;margin:0 auto;letter-spacing:.06em}
+.stage .hint{position:absolute;left:0;right:0;bottom:14px;padding:8px 14px;font-size:13px;color:#fff;background:rgba(4,6,15,.55);border-radius:999px;display:inline-block;width:fit-content;margin:0 auto;letter-spacing:.06em;z-index:4}
 .stage .hint.hit{color:#0a0f1e;background:linear-gradient(120deg,#f6dc9b,#ffb35c);font-weight:600}
 .stage .loading{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:var(--muted);font-size:13px;background:#04060f}
 .stage .loading .sp{width:34px;height:34px;border-radius:50%;border:2px solid rgba(242,198,109,.25);border-top-color:var(--gold);animation:spin 1s linear infinite}
@@ -187,138 +187,147 @@
     return { pts: pts, items: items, pos: pos, col: col, count: count, order: new Array(count) };
   }
 
-  // 创建 3D 粒子莲花（闭合花苞 ⇄ 绽放莲花，绕轴自旋，跟随掌心微倾）
+  // 创建 3D 粒子莲花（粒子聚形：握拳收拢 ⇄ 张拳绽放，黑底发光，绕轴自旋，跟随掌心）
   function createFlower3D(THREE, canvas){
     var renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: false, powerPreference: "high-performance" });
     renderer.setClearColor(0x000000, 0);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
     var scene = new THREE.Scene();
     var camera = new THREE.PerspectiveCamera(50, canvas.clientWidth / canvas.clientHeight, 0.1, 20);
-    camera.position.set(0, 1.15, 3.1);
+    camera.position.set(0, 1.05, 3.0);
     camera.lookAt(0, 0, 0);
     var group = new THREE.Group();
     scene.add(group);
 
-    var layers = [];
-    var cores = [], dust = [], burstItems = [];
-    var i, j, k, li;
-    // 四层花瓣，由外到内：鲜玫红 → 玫红 → 粉 → 亮粉白，逐层错位、逐层更亮更小更竖
-    var layerDefs = [
-      { petals: 8, gu: 6, gv: 6, scale: 1.00, off: 0.000,    delay: 0.00, thMul: 0.95, base: [0.96, 0.16, 0.30], jit: [0.04, 0.10, 0.10] },
-      { petals: 8, gu: 5, gv: 5, scale: 0.82, off: 0.19635, delay: 0.14, thMul: 1.00, base: [1.00, 0.28, 0.42], jit: [0.00, 0.10, 0.10] },
-      { petals: 8, gu: 5, gv: 5, scale: 0.65, off: 0.39270, delay: 0.28, thMul: 1.06, base: [1.00, 0.48, 0.62], jit: [0.00, 0.10, 0.12] },
-      { petals: 8, gu: 4, gv: 4, scale: 0.49, off: 0.58905, delay: 0.42, thMul: 1.12, base: [1.00, 0.72, 0.86], jit: [0.00, 0.10, 0.08] }
-    ];
-    for(li = 0; li < layerDefs.length; li++){
-      var def = layerDefs[li], items = [];
-      for(i = 0; i < def.petals; i++){
-        for(j = 0; j < def.gu; j++){
-          for(k = 0; k < def.gv; k++){
-            items.push({
-              phi: (i / def.petals) * Math.PI * 2 + def.off + (Math.random() - 0.5) * 0.20,
-              u: 0.13 + (j + Math.random() * 0.7) / def.gu * 0.85,
-              v: ((k + Math.random() * 0.6) / def.gv * 2 - 1) * 0.80,
-              ph: 0,
-              r: def.base[0] + def.jit[0] * Math.random(),
-              g: def.base[1] + def.jit[1] * Math.random(),
-              b: def.base[2] + def.jit[2] * Math.random(),
-              scale: def.scale, delay: def.delay, thMul: def.thMul
-            });
-          }
+    // 用 Canvas 画一朵红粉莲花，再采样像素作粒子目标 —— 粒子形状 = 画出来的莲花
+    function generateLotusTargets(count){
+      var S = 512, cv = document.createElement("canvas");
+      cv.width = cv.height = S;
+      var g = cv.getContext("2d");
+      g.clearRect(0, 0, S, S);
+      var cx = S / 2, cy = S / 2;
+      var layers = [
+        { n: 8, r0: 0.30, len: 0.52, wid: 0.30, off: 0.000,   col: "#e02758" },
+        { n: 8, r0: 0.20, len: 0.44, wid: 0.26, off: 0.19635, col: "#ff4d6e" },
+        { n: 8, r0: 0.13, len: 0.35, wid: 0.22, off: 0.000,   col: "#ff8fa8" },
+        { n: 8, r0: 0.07, len: 0.26, wid: 0.18, off: 0.19635, col: "#ffd6e0" }
+      ];
+      var li, i, ang;
+      for(li = 0; li < layers.length; li++){
+        var L = layers[li];
+        for(i = 0; i < L.n; i++){
+          ang = (i / L.n) * Math.PI * 2 + L.off;
+          g.save();
+          g.translate(cx, cy);
+          g.rotate(ang);
+          g.beginPath();
+          g.ellipse(cx * L.r0, 0, S * L.len * 0.5, S * L.wid * 0.5, 0, 0, Math.PI * 2);
+          g.fillStyle = L.col;
+          g.fill();
+          g.restore();
         }
       }
-      layers.push(makeLayer(THREE, items, 0.062 - li * 0.005, li + 1));
+      // 花蕊
+      g.fillStyle = "#ffe9a3";
+      g.beginPath(); g.arc(cx, cy, S * 0.045, 0, Math.PI * 2); g.fill();
+      var img = g.getImageData(0, 0, S, S).data;
+      var out = [];
+      var guard = 0;
+      while(out.length < count && guard < 50000){
+        guard++;
+        var px = Math.floor(Math.random() * S), py = Math.floor(Math.random() * S);
+        var idx = (py * S + px) * 4;
+        if(img[idx + 3] > 80){
+          out.push({
+            x: (px - cx) / (S / 2), y: -(py - cy) / (S / 2),
+            z: (Math.random() - 0.5) * 0.12,
+            r: img[idx] / 255, g: img[idx + 1] / 255, b: img[idx + 2] / 255
+          });
+        }
+      }
+      return out;
     }
-    // 花蕊：竖直小粒子（暖粉金）
-    for(i = 0; i < 36; i++){
-      cores.push({ phi: Math.random() * Math.PI * 2, u: 0.05 + Math.random() * 0.13, v: (Math.random() * 2 - 1) * 0.28, ph: 0, r: 1, g: 0.88, b: 0.72 });
+
+    var COUNT = 4200;
+    var targets = generateLotusTargets(COUNT);
+    var items = [];
+    var i;
+    for(i = 0; i < targets.length; i++){
+      items.push({
+        tx: targets[i].x, ty: targets[i].y, tz: targets[i].z,
+        r: targets[i].r, g: targets[i].g, b: targets[i].b,
+        cx: (Math.random() - 0.5) * 3.2, cy: (Math.random() - 0.5) * 2.4 + 0.5, cz: (Math.random() - 0.5) * 2.0,
+        ph: Math.random() * Math.PI * 2
+      });
     }
-    // 环绕光尘：粉紫双色点缀
-    for(i = 0; i < 56; i++){
-      var purple = Math.random() < 0.5;
-      dust.push({ phi: Math.random() * Math.PI * 2, u: 0.75 + Math.random() * 1.0, v: (Math.random() * 2 - 1) * 0.45, ph: Math.random() * Math.PI * 2, r: purple ? 0.92 : 0.98, g: purple ? 0.58 : 0.72, b: purple ? 1.0 : 0.88 });
+    var lotus = makeLayer(THREE, items, 0.030, 1);
+
+    // 环绕光尘 + 绽放光尘
+    var dust = [], burstItems = [];
+    for(i = 0; i < 60; i++){
+      dust.push({ phi: Math.random() * Math.PI * 2, u: 1.0 + Math.random() * 0.9, v: (Math.random() * 2 - 1) * 0.5, ph: Math.random() * Math.PI * 2, r: 0.92, g: 0.58, b: 1.0 });
     }
-    // 绽放光尘（预分配 72，按 life 管理）
     for(i = 0; i < 72; i++){
-      burstItems.push({ life: 0, decay: 0.04, vx: 0, vy: 0, vz: 0, r: 1, g: 0.85, b: 0.6 });
+      burstItems.push({ life: 0, decay: 0.04, vx: 0, vy: 0, vz: 0, r: 1, g: 0.85, b: 0.7 });
     }
-    layers.push(makeLayer(THREE, cores, 0.032, 5));
-    layers.push(makeLayer(THREE, dust, 0.040, 6));
-    for(i = 0; i < layers.length; i++) group.add(layers[i].pts);
-    var burstLayer = makeLayer(THREE, burstItems, 0.045, 7);
+    var dustLayer = makeLayer(THREE, dust, 0.022, 2);
+    var burstLayer = makeLayer(THREE, burstItems, 0.040, 3);
     burstLayer.pts.visible = false;
+    group.add(lotus.pts);
+    group.add(dustLayer.pts);
     group.add(burstLayer.pts);
 
-    var burstOn = false;
+    var burstOn = false, t = 0;
 
     function update(bloom, midX, midY, triggerBurst){
+      t += 0.016;
       var s = Math.max(0, Math.min(1, bloom));
-      // 花朵位置与微倾斜跟随掌心（落在手心，轻微交互感）
-      group.position.x += ((midX - 0.5) * 1.7 - group.position.x) * 0.14;
-      group.position.y += ((0.5 - midY) * 1.2 - group.position.y) * 0.14;
-      group.rotation.z += (-(midX - 0.5) * 0.30 - group.rotation.z) * 0.10;
-      group.rotation.x += ((0.5 - midY) * 0.22 - group.rotation.x) * 0.10;
-      group.rotation.y += 0.012 + s * 0.022;
+      // 花朵跟随掌心，微倾
+      group.position.x += ((midX - 0.5) * 1.55 - group.position.x) * 0.14;
+      group.position.y += ((0.5 - midY) * 1.15 - group.position.y) * 0.14;
+      group.rotation.z += (-(midX - 0.5) * 0.28 - group.rotation.z) * 0.10;
+      group.rotation.x += ((0.5 - midY) * 0.20 - group.rotation.x) * 0.10;
+      group.rotation.y += 0.006 + s * 0.026;
 
-      // 每层独立 bloom：由外到内一层层开（delay 越大开得越晚），闭合时反向逐层收
-      var L, th, r, w, phi, px, py, pz, cph, sph, st, cth;
-      for(L = 0; L < 6; L++){
-        var layer = layers[L], items = layer.items, pos = layer.pos, col = layer.col, order = layer.order;
-        for(i = 0; i < layer.count; i++){
-          var p = items[i];
-          if(L === 5){ // 光尘：环绕公转
-            var dr = 1.18 + 0.35 * s + Math.sin(group.rotation.y * 2 + p.ph) * 0.16;
-            phi = p.phi + group.rotation.y * 0.8;
-            px = Math.cos(phi) * dr;
-            pz = Math.sin(phi) * dr * 0.72;
-            py = 0.10 + Math.sin(group.rotation.y * 1.6 + p.ph) * 0.20;
-          } else if(L === 4){ // 花蕊：始终竖直
-            phi = p.phi;
-            cph = Math.cos(phi); sph = Math.sin(phi);
-            px = cph * p.u - sph * p.v * 0.18;
-            pz = sph * p.u + cph * p.v * 0.18;
-            py = 0.06 + p.u * 0.5;
-          } else { // 花瓣层：本层绽放度 = clamp((s - delay)/0.22)
-            var bl = Math.max(0, Math.min(1, (s - p.delay) / 0.22));
-            th = (0.10 + 1.32 * bl) * p.thMul;   // 闭合≈竖直花苞，绽放≈水平莲花
-            r = p.u * p.scale;                   // 层半径：外层大、内层小
-            w = p.v * petalW(p.u) * 0.46 * (0.5 + 0.5 * bl) * p.scale;
-            phi = p.phi + group.rotation.y;
-            cph = Math.cos(phi); sph = Math.sin(phi);
-            st = Math.sin(th); cth = Math.cos(th);
-            px = cph * r * st - sph * w;
-            pz = sph * r * st + cph * w;
-            py = r * cth;
-          }
-          pos[i * 3] = px; pos[i * 3 + 1] = py; pos[i * 3 + 2] = pz;
-          if(L < 4){ // 绽放时花瓣明显点亮
-            var fade = 0.70 + 0.30 * Math.max(0, Math.min(1, (s - p.delay) / 0.22));
-            col[i * 3] = p.r * fade; col[i * 3 + 1] = p.g * fade; col[i * 3 + 2] = p.b * fade;
-          } else {
-            col[i * 3] = p.r; col[i * 3 + 1] = p.g; col[i * 3 + 2] = p.b;
-          }
-          order[i] = i;
-        }
-        // 层内按 z 深度从远到近重排（近的盖住远的，立体遮挡）
-        order.sort(function(a, b){ return pos[a * 3 + 2] - pos[b * 3 + 2]; });
-        var np = new Float32Array(pos), nc = new Float32Array(col);
-        for(i = 0; i < layer.count; i++){
-          var si = order[i];
-          np[i * 3] = pos[si * 3]; np[i * 3 + 1] = pos[si * 3 + 1]; np[i * 3 + 2] = pos[si * 3 + 2];
-          nc[i * 3] = col[si * 3]; nc[i * 3 + 1] = col[si * 3 + 1]; nc[i * 3 + 2] = col[si * 3 + 2];
-        }
-        layer.pos.set(np); layer.col.set(nc);
-        layer.pts.geometry.attributes.position.needsUpdate = true;
-        layer.pts.geometry.attributes.color.needsUpdate = true;
+      var exp = 0.42 + 0.85 * s;     // 握拳收拢 0.42，张拳展开 1.27
+      var ze  = 0.35 + 0.75 * s;     // 立体厚度随张开
+      var bright = 0.32 + 0.68 * s;  // 握拳暗、张拳亮
+      var pos = lotus.pos, col = lotus.col;
+      for(i = 0; i < lotus.count; i++){
+        var p = lotus.items[i];
+        var nz = Math.sin(t * 2.2 + p.ph) * 0.018;
+        pos[i * 3]     += (p.tx * exp + nz - pos[i * 3])     * 0.14;
+        pos[i * 3 + 1] += (p.ty * exp - pos[i * 3 + 1])      * 0.14;
+        pos[i * 3 + 2] += (p.tz * ze + nz * 0.5 - pos[i * 3 + 2]) * 0.14;
+        col[i * 3] = p.r * bright;
+        col[i * 3 + 1] = p.g * bright;
+        col[i * 3 + 2] = p.b * bright;
       }
-      // 绽放瞬间：光尘向外飘散
+      lotus.pts.geometry.attributes.position.needsUpdate = true;
+      lotus.pts.geometry.attributes.color.needsUpdate = true;
+
+      // 环绕光尘
+      var dpos = dustLayer.pos, dcol = dustLayer.col;
+      for(i = 0; i < dustLayer.count; i++){
+        var dp = dustLayer.items[i];
+        var dr = dp.u + 0.3 * s + Math.sin(t * 1.4 + dp.ph) * 0.14;
+        var dphi = dp.phi + group.rotation.y * 0.9;
+        dpos[i * 3] = Math.cos(dphi) * dr;
+        dpos[i * 3 + 1] = 0.12 + Math.sin(t * 1.1 + dp.ph) * 0.22;
+        dpos[i * 3 + 2] = Math.sin(dphi) * dr * 0.7;
+        dcol[i * 3] = dp.r; dcol[i * 3 + 1] = dp.g; dcol[i * 3 + 2] = dp.b;
+      }
+      dustLayer.pts.geometry.attributes.position.needsUpdate = true;
+      dustLayer.pts.geometry.attributes.color.needsUpdate = true;
+
+      // 绽放光尘
       if(triggerBurst && !burstOn){
         burstOn = true;
         burstLayer.pts.visible = true;
         var bi = burstLayer.items;
         for(i = 0; i < bi.length; i++){
           var ang = Math.random() * Math.PI * 2;
-          var el = Math.PI / 2 * (0.45 + Math.random() * 0.5);
+          var el = Math.PI / 2 * (0.4 + Math.random() * 0.55);
           bi[i].vx = Math.cos(ang) * Math.sin(el);
           bi[i].vz = Math.sin(ang) * Math.sin(el);
           bi[i].vy = Math.cos(el);
@@ -335,7 +344,7 @@
           if(b.life <= 0){ bp[i * 3] = 999; bp[i * 3 + 1] = 999; bp[i * 3 + 2] = 999; bc[i * 3] = 0; bc[i * 3 + 1] = 0; bc[i * 3 + 2] = 0; continue; }
           alive = true;
           var d = (1 - b.life) * 1.5;
-          bp[i * 3] = b.vx * d; bp[i * 3 + 1] = b.vy * d * 1.05 + 0.12; bp[i * 3 + 2] = b.vz * d;
+          bp[i * 3] = b.vx * d; bp[i * 3 + 1] = b.vy * d * 1.05 + 0.1; bp[i * 3 + 2] = b.vz * d;
           bc[i * 3] = b.r * b.life; bc[i * 3 + 1] = b.g * b.life; bc[i * 3 + 2] = b.b * b.life;
         }
         burstLayer.pts.geometry.attributes.position.needsUpdate = true;
