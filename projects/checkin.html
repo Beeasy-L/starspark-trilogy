@@ -363,45 +363,44 @@
       });
   }
 
+  // ---------- 手势模型（换源：npmmirror 国内 CDN 提供 JS 库与 wasm 运行时，模型走 GitHub raw 直链） ----------
+  var MP_JS = "https://cdn.npmmirror.com/packages/%40mediapipe%2ftasks-vision/0.10.14/files/vision_bundle.mjs";
+  var MP_WASM = "https://cdn.npmmirror.com/packages/%40mediapipe%2ftasks-vision/0.10.14/files/wasm";
+  var MP_MODEL = "https://raw.githubusercontent.com/IoT-gamer/hand_landmarker/main/android/src/main/assets/hand_landmarker.task";
+
   function loadModel(){
-    loadText.textContent = "正在加载手势模型（首次约 5MB，之后走缓存）…";
-    var script = document.createElement("script");
-    script.src = "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/vision_bundle.js";
-    script.crossOrigin = "anonymous";
-    script.onload = function(){
-      var vision = window.FilesetResolver || (window.MediaPipeTasks && window.MediaPipeTasks.FilesetResolver);
-      if(!vision){
-        loadText.textContent = "模型加载失败，请刷新重试";
-        return;
+    loadText.textContent = "正在加载手势模型（首次约 8MB，之后走缓存，请耐心等待）…";
+    var done = false;
+    var guard = setTimeout(function(){
+      if(!done){
+        loadText.textContent = "模型加载超时，请检查网络后刷新（或点「直接拍照」）";
+        snapBtn.disabled = false;
       }
-      vision.forVisionTasks("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm")
-        .then(function(fileset){
-          var cls = window.HandLandmarker || (window.MediaPipeTasks && window.MediaPipeTasks.HandLandmarker);
-          return cls.createFromOptions(fileset, {
-            baseOptions: {
-              modelAssetPath: "https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task",
-              delegate: "CPU"
-            },
+    }, 90000);
+    import(MP_JS)
+      .then(function(mod){
+        return mod.FilesetResolver.forVisionTasks(MP_WASM).then(function(fileset){
+          return mod.HandLandmarker.createFromOptions(fileset, {
+            baseOptions: { modelAssetPath: MP_MODEL, delegate: "CPU" },
             runningMode: "VIDEO",
             numHands: 1
           });
-        })
-        .then(function(hl){
-          landmarker = hl;
-          fx.width = stage.clientWidth; fx.height = stage.clientHeight;
-          running = true;
-          victoryFrames = 0; flowerFired = false; firingAt = 0;
-          setHint("比一个✌试试");
-          requestAnimationFrame(loop);
-        })
-        .catch(function(e){
-          loadText.textContent = "模型加载失败，请刷新重试（或点直接拍照）";
         });
-    };
-    script.onerror = function(){
-      loadText.textContent = "模型加载失败，请检查网络后刷新";
-    };
-    document.head.appendChild(script);
+      })
+      .then(function(hl){
+        clearTimeout(guard); done = true;
+        landmarker = hl;
+        fx.width = stage.clientWidth; fx.height = stage.clientHeight;
+        running = true;
+        victoryFrames = 0; flowerFired = false; firingAt = 0;
+        setHint("比一个✌试试");
+        requestAnimationFrame(loop);
+      })
+      .catch(function(e){
+        clearTimeout(guard); done = true;
+        loadText.textContent = "模型加载失败，请检查网络后刷新（或点「直接拍照」）";
+        snapBtn.disabled = false;
+      });
   }
 
   function stopCam(){
