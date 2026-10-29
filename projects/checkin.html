@@ -194,12 +194,12 @@
     var layers = [];
     var cores = [], dust = [], burstItems = [];
     var i, j, k, li;
-    // 四层花瓣，由外到内：琥珀金 → 金橙 → 粉 → 紫罗兰，逐层错位、逐层更亮更小更竖
+    // 四层花瓣，由外到内：深玫红 → 玫红 → 粉 → 亮粉白，逐层错位、逐层更亮更小更竖
     var layerDefs = [
-      { petals: 8, gu: 6, gv: 6, scale: 1.00, off: 0.000,    delay: 0.00, thMul: 0.95, base: [0.86, 0.56, 0.24], jit: [0.12, 0.16, 0.14] },
-      { petals: 8, gu: 5, gv: 5, scale: 0.82, off: 0.19635, delay: 0.14, thMul: 1.00, base: [0.97, 0.74, 0.42], jit: [0.03, 0.14, 0.18] },
-      { petals: 8, gu: 5, gv: 5, scale: 0.65, off: 0.39270, delay: 0.28, thMul: 1.06, base: [0.93, 0.64, 0.80], jit: [0.05, 0.13, 0.20] },
-      { petals: 8, gu: 4, gv: 4, scale: 0.49, off: 0.58905, delay: 0.42, thMul: 1.12, base: [0.86, 0.68, 0.96], jit: [0.10, 0.20, 0.04] }
+      { petals: 8, gu: 6, gv: 6, scale: 1.00, off: 0.000,    delay: 0.00, thMul: 0.95, base: [0.92, 0.28, 0.38], jit: [0.06, 0.10, 0.10] },
+      { petals: 8, gu: 5, gv: 5, scale: 0.82, off: 0.19635, delay: 0.14, thMul: 1.00, base: [0.98, 0.42, 0.50], jit: [0.02, 0.10, 0.12] },
+      { petals: 8, gu: 5, gv: 5, scale: 0.65, off: 0.39270, delay: 0.28, thMul: 1.06, base: [1.00, 0.60, 0.70], jit: [0.00, 0.10, 0.12] },
+      { petals: 8, gu: 4, gv: 4, scale: 0.49, off: 0.58905, delay: 0.42, thMul: 1.12, base: [1.00, 0.76, 0.88], jit: [0.00, 0.10, 0.08] }
     ];
     for(li = 0; li < layerDefs.length; li++){
       var def = layerDefs[li], items = [];
@@ -221,14 +221,14 @@
       }
       layers.push(makeLayer(THREE, items, 0.052 - li * 0.004, li + 1));
     }
-    // 花蕊：竖直小粒子（暖金）
+    // 花蕊：竖直小粒子（暖粉金）
     for(i = 0; i < 36; i++){
-      cores.push({ phi: Math.random() * Math.PI * 2, u: 0.05 + Math.random() * 0.13, v: (Math.random() * 2 - 1) * 0.28, ph: 0, r: 1, g: 0.98, b: 0.86 });
+      cores.push({ phi: Math.random() * Math.PI * 2, u: 0.05 + Math.random() * 0.13, v: (Math.random() * 2 - 1) * 0.28, ph: 0, r: 1, g: 0.88, b: 0.72 });
     }
-    // 环绕光尘：蓝紫双色点缀
+    // 环绕光尘：粉紫双色点缀
     for(i = 0; i < 56; i++){
       var purple = Math.random() < 0.5;
-      dust.push({ phi: Math.random() * Math.PI * 2, u: 0.75 + Math.random() * 1.0, v: (Math.random() * 2 - 1) * 0.45, ph: Math.random() * Math.PI * 2, r: purple ? 0.72 : 0.62, g: purple ? 0.66 : 0.84, b: purple ? 1.0 : 0.98 });
+      dust.push({ phi: Math.random() * Math.PI * 2, u: 0.75 + Math.random() * 1.0, v: (Math.random() * 2 - 1) * 0.45, ph: Math.random() * Math.PI * 2, r: purple ? 0.92 : 0.98, g: purple ? 0.58 : 0.72, b: purple ? 1.0 : 0.88 });
     }
     // 绽放光尘（预分配 72，按 life 管理）
     for(i = 0; i < 72; i++){
@@ -316,7 +316,7 @@
           bi[i].vy = Math.cos(el);
           bi[i].life = 1;
           bi[i].decay = 0.035 + Math.random() * 0.03;
-          bi[i].r = 1; bi[i].g = 0.75 + Math.random() * 0.2; bi[i].b = 0.55 + Math.random() * 0.35;
+          bi[i].r = 1; bi[i].g = 0.78 + Math.random() * 0.17; bi[i].b = 0.85 + Math.random() * 0.15;
         }
       }
       if(burstOn){
