@@ -38,6 +38,12 @@
 /* 本页专属：让非 4:3 的截图按自身比例显示，不被 cover 裁掉主体 */
 .feature .ph.tall{aspect-ratio:9/16}
 .feature .ph.wide{aspect-ratio:16/9}
+/* 本页专属：特色亮点单列居中，避免宽屏双栏排面过宽 */
+.features{grid-template-columns:1fr;max-width:780px;margin-left:auto;margin-right:auto}
+.feature .ph{aspect-ratio:auto;max-width:640px;margin:0 auto;width:100%}
+.feature .ph img{height:auto;object-fit:contain}
+.feature .body{text-align:center;padding:14px 24px 20px}
+.feature .body p{max-width:620px;margin:0 auto}
 </style>
 </head>
 <body data-page="detail" data-bgm-src='[{"src":"../assets/xiaoxingxing.mp3","label":"小星星","volume":0.0830},{"src":"../assets/moon.mp3","label":"月亮代表我的心","volume":0.1493}]'>
