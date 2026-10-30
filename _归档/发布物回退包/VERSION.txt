@@ -4,10 +4,10 @@
 # 判断本包是否仍与发布物一致，请跑：python tools/check_rollback.py
 # 那个脚本用 SHA256 逐文件比对内容，【不依赖 git hash】—— 这才是硬判据。
 
-打包时间: 2026-10-30 19:01:36
+打包时间: 2026-10-30 19:25:08
 
-主仓          1197b60   (C:\Users\saucc\Desktop\星火三部曲)
+主仓          c27a5d4   (C:\Users\saucc\Desktop\星火三部曲)
 PPT deploy 仓 fa28c67   (产品\星火PPT\deploy\网页版)
-专注Pro 仓    c4476b5   (产品\星火专注Pro\_gitrepo)
+专注Pro 仓    6d6592e   (产品\星火专注Pro\_gitrepo)
 
 一致性自检: python tools/check_rollback.py   （期望 exit=0）
