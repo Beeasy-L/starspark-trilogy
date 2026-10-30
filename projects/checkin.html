@@ -1,0 +1,919 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>星火打卡 · 星火三部曲</title>
+  <meta name="description" content="握拳、张开、再比个✌——掌心的 3D 粒子花随手势开合，定格成一张星火打卡图。星火三部曲隐藏打卡彩蛋，可下载、可分享。">
+  <meta name="author" content="Esty">
+  <meta name="theme-color" content="#070b18">
+  <link rel="canonical" href="https://beeasy-l.github.io/starspark-trilogy/projects/checkin.html">
+
+  <link rel="stylesheet" href="../assets/site.css?v=20261028f">
+  <script src="../assets/site.js?v=20261028d" defer></script>
+<style>
+:root{--gold:#f6dc9b;--gold2:#f2c66d;--ink:#0a0f1e}
+.checkin{max-width:760px;margin:0 auto;padding:0 18px 60px;text-align:center}
+.checkin-hero{margin:34px 0 10px}
+.checkin-hero .k{font-size:12px;letter-spacing:.34em;color:var(--gold2);opacity:.75}
+.checkin-hero h1{font-size:34px;margin:10px 0 12px;color:var(--gold);letter-spacing:.08em}
+.checkin-hero p{color:var(--muted);font-size:14px;line-height:2;max-width:560px;margin:0 auto}
+.stage{position:relative;max-width:560px;margin:26px auto 0;border:1px solid rgba(242,198,109,.28);border-radius:18px;overflow:hidden;background:#050505;aspect-ratio:4/3}
+.stage video{position:absolute;right:12px;bottom:12px;width:140px;aspect-ratio:1/1;object-fit:cover;transform:scaleX(-1);border-radius:12px;border:1px solid rgba(246,220,155,.45);opacity:.92;z-index:3}
+.stage canvas.fx{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;transform:scaleX(-1)}
+.stage .hint{position:absolute;left:0;right:0;bottom:14px;padding:8px 14px;font-size:13px;color:#fff;background:rgba(4,6,15,.55);border-radius:999px;display:inline-block;width:fit-content;margin:0 auto;letter-spacing:.06em;z-index:4}
+.stage .hint.hit{color:#0a0f1e;background:linear-gradient(120deg,#f6dc9b,#ffb35c);font-weight:600}
+.stage .loading{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:var(--muted);font-size:13px;background:#04060f}
+.stage .loading .sp{width:34px;height:34px;border-radius:50%;border:2px solid rgba(242,198,109,.25);border-top-color:var(--gold);animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ctrls{display:flex;gap:12px;justify-content:center;margin-top:20px;flex-wrap:wrap}
+.btn{padding:11px 22px;border-radius:999px;font-size:14px;letter-spacing:.05em;cursor:pointer;border:1px solid rgba(242,198,109,.4);color:var(--gold);background:rgba(242,198,109,.08);transition:.2s}
+.btn:hover{background:rgba(242,198,109,.18)}
+.btn.primary{background:linear-gradient(120deg,#f6dc9b,#f2a95c);color:#0a0f1e;font-weight:600;border:none}
+.btn.primary:hover{filter:brightness(1.06)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.manual-note{font-size:12px;color:var(--muted);margin-top:12px;opacity:.8}
+.card-wrap{margin:30px auto 0;max-width:600px}
+.card-wrap .card{width:100%;border-radius:14px;overflow:hidden;box-shadow:0 12px 40px rgba(0,0,0,.45);border:1px solid rgba(242,198,109,.25)}
+.card-wrap img{width:100%;display:block}
+.card-actions{display:flex;gap:12px;justify-content:center;margin-top:16px;flex-wrap:wrap}
+.privacy{font-size:12px;color:var(--muted);opacity:.75;margin-top:26px;line-height:1.9}
+.count-line{font-size:13px;color:var(--gold2);margin-top:14px;letter-spacing:.04em}
+</style>
+</head>
+<body data-page="detail" data-bgm-src='[{"src":"../assets/xiaoxingxing.mp3","label":"小星星","volume":0.0830},{"src":"../assets/moon.mp3","label":"月亮代表我的心","volume":0.1493}]'>
+  <div class="starfield" id="starfield" aria-hidden="true">
+    <div class="starfield__layer"></div>
+    <div class="starfield__layer"></div>
+    <div class="starfield__layer"></div>
+  </div>
+
+  <main class="wrap checkin">
+    <a class="back-btn" href="../index.html">‹ 返回三部曲</a>
+
+    <header class="checkin-hero">
+      <div class="k">STARFIRE · HIDDEN CHECK-IN</div>
+      <h1>星火打卡</h1>
+      <p>对着镜头，握拳再张开手掌——张开，花就开；握拳，花就合。</p>
+    </header>
+
+    <div class="stage" id="stage">
+      <div class="loading" id="loading">
+        <span id="load-text">点击下方「开始打卡」，开启摄像头</span>
+      </div>
+      <video id="cam" autoplay playsinline muted></video>
+      <canvas id="fx" class="fx"></canvas>
+      <div class="hint" id="hint" hidden>① 握紧拳头</div>
+    </div>
+
+    <div class="ctrls">
+      <button class="btn primary" id="start-btn" type="button">开始打卡</button>
+      <button class="btn" id="snap-btn" type="button" disabled>直接拍照</button>
+    </div>
+
+    <div class="card-wrap" id="card-wrap" hidden>
+      <h2 style="font-size:20px;color:var(--gold);letter-spacing:.1em;margin:0 0 14px">你的星火打卡图</h2>
+      <div class="card"><img id="card-img" alt="星火打卡图"></div>
+      <div class="count-line" id="count-line"></div>
+      <div class="card-actions">
+        <a class="btn primary" id="dl-btn" download="星火打卡.png" href="#">下载打卡图</a>
+        <button class="btn" id="again-btn" type="button">再打一次</button>
+      </div>
+    </div>
+  </main>
+
+<script>
+(function(){
+  "use strict";
+  var $ = function(id){ return document.getElementById(id); };
+  var stage = $("stage"), cam = $("cam"), fx = $("fx");
+  var loading = $("loading"), loadText = $("load-text");
+  var hint = $("hint"), startBtn = $("start-btn"), snapBtn = $("snap-btn");
+  var cardWrap = $("card-wrap"), cardImg = $("card-img"), countLine = $("count-line"), dlBtn = $("dl-btn"), againBtn = $("again-btn");
+
+  var KEY = "starfire-checkin-count";
+  var count = parseInt(localStorage.getItem(KEY) || "0", 10);
+
+  var stream = null, landmarker = null, running = false;
+  var fired = false, gestPhase = 0, phaseHits = 0;
+
+  // Three.js 粒子花状态
+  var FLOWER = { x: 0, y: 0, spread: 0, spin: 0, burst: 0 };
+  var flower3D = null;
+
+  function setHint(txt, hit){
+    hint.hidden = false;
+    hint.textContent = txt;
+    hint.classList.toggle("hit", !!hit);
+  }
+  function hideHint(){ hint.hidden = true; }
+
+  // 镜像坐标（与预览一致：视频与画布都 scaleX(-1)）
+  function flipLandmarks(lm){
+    var out = [];
+    for(var i = 0; i < lm.length; i++) out.push({ x: 1 - lm[i].x, y: lm[i].y });
+    return out;
+  }
+
+  // 张拳度：四指尖到掌心的平均距离 / 手尺寸 → 0~1（握拳≈0，张拳≈1）
+  function fistOpen(lm){
+    if(!lm) return 0;
+    var palm = { x: (lm[0].x + lm[5].x + lm[9].x + lm[13].x + lm[17].x) / 5,
+                 y: (lm[0].y + lm[5].y + lm[9].y + lm[13].y + lm[17].y) / 5 };
+    var d = 0, i, idx = [8, 12, 16, 20];
+    for(i = 0; i < idx.length; i++){
+      var dx = lm[idx[i]].x - palm.x, dy = lm[idx[i]].y - palm.y;
+      d += Math.sqrt(dx * dx + dy * dy);
+    }
+    d /= idx.length;
+    var h = Math.sqrt(Math.pow(lm[9].x - lm[0].x, 2) + Math.pow(lm[9].y - lm[0].y, 2));
+    if(h < 1e-4) return 0;
+    return Math.max(0, Math.min(1, (d / h - 0.20) / 0.42));
+  }
+
+  // 两点距离
+  function ptDist(a,b){ return Math.sqrt((a.x-b.x)*(a.x-b.x)+(a.y-b.y)*(a.y-b.y)); }
+
+  // 手指是否伸直：指尖到手腕的距离明显大于近端指间关节到手腕的距离
+  function fingerExtended(lm, tip, pip){
+    return ptDist(lm[tip], lm[0]) > ptDist(lm[pip], lm[0]) * 1.02;
+  }
+
+  // 握拳 / 张开手掌（复用张拳度）
+  function isFist(lm){ return fistOpen(lm) < 0.15; }
+  function isOpen(lm){ return fistOpen(lm) > 0.72; }
+
+  // ✌ 判定：食指、中指伸直分开，无名指、小指弯曲；不依赖拇指
+  function isVictory(lm){
+    if(!lm) return false;
+    var hand = ptDist(lm[9], lm[0]);
+    if(hand < 1e-4) return false;
+    var indexUp = fingerExtended(lm, 8, 6);
+    var middleUp = fingerExtended(lm, 12, 10);
+    var ringFolded = !fingerExtended(lm, 16, 14);
+    var pinkyFolded = !fingerExtended(lm, 20, 18);
+    var split = ptDist(lm[8], lm[12]) / hand;  // 两指分开度
+    return indexUp && middleUp && ringFolded && pinkyFolded && split > 0.32;
+  }
+
+  // ---------- Three.js 3D 粒子莲花 ----------
+  var THREE_URLS = [
+    "https://cdn.npmmirror.com/packages/three/0.160.0/files/build/three.module.js",
+    "https://cdn.npmmirror.com/packages/three/0.160.0/files/build/three.module.min.js"
+  ];
+  var THREE_READY = null;
+  function loadThree(){
+    if(THREE_READY) return THREE_READY;
+    THREE_READY = import(THREE_URLS[0]).catch(function(){ return import(THREE_URLS[1]); });
+    return THREE_READY;
+  }
+
+  function makeSpriteTexture(THREE){
+    var cv = document.createElement("canvas");
+    cv.width = cv.height = 64;
+    var g = cv.getContext("2d");
+    var grd = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+    grd.addColorStop(0, "rgba(255,255,255,1)");
+    grd.addColorStop(0.35, "rgba(255,255,255,.55)");
+    grd.addColorStop(1, "rgba(255,255,255,0)");
+    g.fillStyle = grd;
+    g.fillRect(0, 0, 64, 64);
+    return new THREE.CanvasTexture(cv);
+  }
+
+  // 花瓣叶形包络（根窄→中宽→尖收）
+  function petalW(u){
+    return Math.pow(Math.sin(Math.PI * u), 0.55) * (0.22 + 0.78 * u);
+  }
+
+  // 建一层粒子 Points，items: {phi,u,v,ph,r,g,b}
+  function makeLayer(THREE, items, size, renderOrder){
+    var count = items.length;
+    var pos = new Float32Array(count * 3);
+    var col = new Float32Array(count * 3);
+    var geo = new THREE.BufferGeometry();
+    geo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+    geo.setAttribute("color", new THREE.BufferAttribute(col, 3));
+    var mat = new THREE.PointsMaterial({
+      size: size,
+      map: makeSpriteTexture(THREE),
+      vertexColors: true,
+      transparent: true,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+      sizeAttenuation: true
+    });
+    var pts = new THREE.Points(geo, mat);
+    pts.frustumCulled = false;
+    pts.renderOrder = renderOrder;
+    return { pts: pts, items: items, pos: pos, col: col, count: count, order: new Array(count) };
+  }
+
+  // 创建指尖花渲染器（移植自 Fingertip Bloom：自定义 shader 光绘 Rose + 花茎 + 流星 + 拖尾 render target）
+  // 尺寸跟随 stage 容器；手势开合度 bloom(0~1) 与掌心坐标由外部 tasks-vision 流程驱动
+  function createFlower3D(THREE, canvas){
+    var renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true, powerPreference: "high-performance", preserveDrawingBuffer: true });
+    renderer.setClearColor(0x000000, 0);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.25;
+
+    var scene = new THREE.Scene();   // 背景保持透明，透出 stage 黑底
+    var camera = new THREE.PerspectiveCamera(48, 1, 0.1, 60);
+    camera.position.set(0, 0, 4.8);
+    camera.lookAt(0, 0, 0);
+
+    // ---- 远景星空 ----
+    {
+      var N = 2000;
+      var g = new THREE.BufferGeometry();
+      var p = new Float32Array(N * 3), c = new Float32Array(N * 3);
+      for(var i = 0; i < N; i++){
+        var r = 4 + Math.random() * 16;
+        var th = Math.random() * Math.PI * 2;
+        var ph = Math.acos(2 * Math.random() - 1);
+        p[i * 3] = r * Math.sin(ph) * Math.cos(th);
+        p[i * 3 + 1] = r * Math.sin(ph) * Math.sin(th);
+        p[i * 3 + 2] = r * Math.cos(ph) - 2;
+        var col = new THREE.Color().setHSL(.58 + Math.random() * .18, .15, .35 + Math.random() * .65);
+        c[i * 3] = col.r; c[i * 3 + 1] = col.g; c[i * 3 + 2] = col.b;
+      }
+      g.setAttribute("position", new THREE.BufferAttribute(p, 3));
+      g.setAttribute("color", new THREE.BufferAttribute(c, 3));
+      scene.add(new THREE.Points(g, new THREE.PointsMaterial({ size: .03, vertexColors: true, transparent: true, opacity: .9, blending: THREE.AdditiveBlending, depthWrite: false })));
+    }
+
+    // ---- 闪烁星 ----
+    var twGeo = new THREE.BufferGeometry();
+    {
+      var n = 500, pp = new Float32Array(n * 3), ss = new Float32Array(n);
+      for(var k = 0; k < n; k++){
+        pp[k * 3] = (Math.random() - .5) * 18;
+        pp[k * 3 + 1] = (Math.random() - .5) * 14;
+        pp[k * 3 + 2] = (Math.random() - .5) * 10 - 2;
+        ss[k] = .02 + Math.random() * .1;
+      }
+      twGeo.setAttribute("position", new THREE.BufferAttribute(pp, 3));
+      twGeo.setAttribute("aSize", new THREE.BufferAttribute(ss, 1));
+    }
+    var twMat = new THREE.ShaderMaterial({
+      uniforms: { uTime: { value: 0 } },
+      vertexShader: "attribute float aSize;varying float vS;void main(){vec4 mv=modelViewMatrix*vec4(position,1.);gl_PointSize=aSize*(260./-mv.z);gl_Position=projectionMatrix*mv;vS=aSize;}",
+      fragmentShader: "varying float vS;uniform float uTime;void main(){float d=length(gl_PointCoord-.5);float tw=.4+.6*sin(gl_FragCoord.x*14.+uTime*1.8+vS*40.);gl_FragColor=vec4(vec3(.85,.9,1.),smoothstep(.5,.1,d)*tw);}",
+      transparent: true, depthWrite: false, blending: THREE.AdditiveBlending
+    });
+    scene.add(new THREE.Points(twGeo, twMat));
+
+    // ---- 流星 ----
+    var meteorGroup = new THREE.Group();
+    scene.add(meteorGroup);
+    var meteors = [];
+    for(var m = 0; m < 8; m++){
+      var trailN = 16;
+      var mpa = new Float32Array(trailN * 3), mca = new Float32Array(trailN * 3), msa = new Float32Array(trailN);
+      for(var j = 0; j < trailN; j++){ mca[j * 3] = 1; mca[j * 3 + 1] = 1; mca[j * 3 + 2] = 1; msa[j] = .018; }
+      var mg = new THREE.BufferGeometry();
+      mg.setAttribute("position", new THREE.BufferAttribute(mpa, 3));
+      mg.setAttribute("color", new THREE.BufferAttribute(mca, 3));
+      mg.setAttribute("aSize", new THREE.BufferAttribute(msa, 1));
+      var mmat = new THREE.ShaderMaterial({
+        uniforms: { uTime: { value: 0 } },
+        vertexShader: "attribute float aSize;attribute vec3 color;varying vec3 vC;void main(){vec4 mv=modelViewMatrix*vec4(position,1.);gl_PointSize=aSize*(220./-mv.z);gl_Position=projectionMatrix*mv;vC=color;}",
+        fragmentShader: "varying vec3 vC;void main(){float a=smoothstep(.5,.0,length(gl_PointCoord-.5));gl_FragColor=vec4(vC,a);}",
+        transparent: true, depthWrite: false, blending: THREE.AdditiveBlending
+      });
+      var mpts = new THREE.Points(mg, mmat);
+      meteorGroup.add(mpts);
+      meteors.push({
+        g: mg, pts: mpts, mat: mmat, trailN: trailN,
+        progress: 0, life: .8 + Math.random() * 2.2,
+        ox: (Math.random() - .5) * 8, oy: 1.5 + Math.random() * 5, oz: (Math.random() - .5) * 5 - 3,
+        dx: (Math.random() - .5) * 5, dy: -.8 - Math.random() * 1.5, dz: (Math.random() - .5) * 3
+      });
+    }
+    function updateMeteors(dt, time, hv, hp){
+      for(var mi = 0; mi < meteors.length; mi++){
+        var mm = meteors[mi];
+        mm.progress += dt * (.7 + .2 * hv);
+        var pr = mm.progress / mm.life;
+        if(pr > 1 || mm.oy + mm.dy * pr < -4.5){
+          mm.progress = 0; mm.life = .8 + Math.random() * 2.2;
+          mm.ox = (Math.random() - .5) * 8; mm.oy = 1.5 + Math.random() * 5; mm.oz = (Math.random() - .5) * 5 - 3;
+          mm.dx = (Math.random() - .5) * 5; mm.dy = -.8 - Math.random() * 1.5; mm.dz = (Math.random() - .5) * 3;
+        }
+        var pa = mm.g.attributes.position.array, ca = mm.g.attributes.color.array;
+        var ox = mm.ox, oy = mm.oy, oz = mm.oz, dx = mm.dx + hp.x * 1.5, dy = mm.dy, dz = mm.dz + hp.y;
+        for(var jj = 0; jj < mm.trailN; jj++){
+          var t = pr - jj * .035;
+          var idx = jj * 3;
+          if(t <= 0){
+            pa[idx] = ox; pa[idx + 1] = oy; pa[idx + 2] = oz;
+            ca[idx] = 0; ca[idx + 1] = 0; ca[idx + 2] = 0;
+          } else {
+            pa[idx] = ox + dx * t; pa[idx + 1] = oy + dy * t; pa[idx + 2] = oz + dz * t;
+            var fade = Math.max(0, Math.min(1, t / .2)) * Math.max(0, Math.min(1, (mm.life - mm.progress) / .4));
+            ca[idx] = .9 * fade; ca[idx + 1] = .9 * fade; ca[idx + 2] = fade;
+          }
+        }
+        mm.g.attributes.position.needsUpdate = true;
+        mm.g.attributes.color.needsUpdate = true;
+        mm.mat.uniforms.uTime.value = time;
+      }
+    }
+
+    // ---- 粒子 shader ----
+    var roseVert = "attribute float aSize;attribute vec3 aColor;attribute float aAlpha;varying vec3 vC;varying float vA;void main(){vec4 mv=modelViewMatrix*vec4(position,1.);gl_PointSize=aSize*(380./-mv.z);gl_Position=projectionMatrix*mv;vC=aColor;vA=aAlpha;}";
+    var roseFrag = "varying vec3 vC;varying float vA;void main(){vec2 uv=gl_PointCoord-.5;float d=length(uv);float core=pow(1.-smoothstep(0.,.45,d)*.92,1.3);float glow=exp(-d*4.)*.35;float a=(core+glow)*vA;if(a<.002)discard;gl_FragColor=vec4(vC,a);}";
+
+    // ---- 花茎 ----
+    function Stem(){
+      var sn = 400, spa = new Float32Array(sn * 3), sca = new Float32Array(sn * 3), ssa = new Float32Array(sn);
+      for(var si = 0; si < sn; si++){
+        var t = Math.random();
+        spa[si * 3] = (Math.random() - .5) * .03 * (1 + t * 1.2);
+        spa[si * 3 + 1] = 0 - t * 3.2;
+        spa[si * 3 + 2] = (Math.random() - .5) * .03 * (1 + t * 1.2);
+        var sg = new THREE.Color().setHSL(.25 + Math.random() * .08, .55, .12 + Math.random() * .22);
+        sca[si * 3] = sg.r; sca[si * 3 + 1] = sg.g; sca[si * 3 + 2] = sg.b;
+        ssa[si] = .012 + Math.random() * .04;
+      }
+      var sge = new THREE.BufferGeometry();
+      sge.setAttribute("position", new THREE.BufferAttribute(spa, 3));
+      sge.setAttribute("color", new THREE.BufferAttribute(sca, 3));
+      sge.setAttribute("aSize", new THREE.BufferAttribute(ssa, 1));
+      this.obj = new THREE.Points(sge, new THREE.ShaderMaterial({
+        vertexShader: "attribute float aSize;attribute vec3 color;varying vec3 vC;void main(){vec4 mv=modelViewMatrix*vec4(position,1.);gl_PointSize=aSize*(340./-mv.z);gl_Position=projectionMatrix*mv;vC=color;}",
+        fragmentShader: "varying vec3 vC;void main(){float a=smoothstep(.5,.1,length(gl_PointCoord-.5));gl_FragColor=vec4(vC,a);}",
+        transparent: true, depthWrite: false, blending: THREE.AdditiveBlending
+      }));
+      this.update = function(gb){ this.obj.scale.setScalar(.85 + gb * .18); };
+    }
+    var stem = new Stem();
+    scene.add(stem.obj);
+
+    // ---- 拖尾 render target（光绘） ----
+    var curW = canvas.clientWidth || 560, curH = canvas.clientHeight || 420;
+    function mkRT(w, h){
+      return new THREE.WebGLRenderTarget(w, h, { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat, type: THREE.HalfFloatType });
+    }
+    var tRA = mkRT(curW, curH), tWB = mkRT(curW, curH);
+    var trG = new THREE.PlaneGeometry(2, 2), trC = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1), trS = new THREE.Scene();
+    var trM = new THREE.ShaderMaterial({
+      uniforms: { tPrev: { value: null }, uRet: { value: .93 } },
+      vertexShader: "varying vec2 vUv;void main(){vUv=uv;gl_Position=vec4(position.xy,0.,1.);}",
+      fragmentShader: "varying vec2 vUv;uniform sampler2D tPrev;uniform float uRet;void main(){vec4 c=texture2D(tPrev,vUv);c.rgb*=uRet*vec3(.97,.93,1.03);gl_FragColor=c;}",
+      depthWrite: false, depthTest: false
+    });
+    trS.add(new THREE.Mesh(trG, trM));
+    var cpMat = new THREE.MeshBasicMaterial({ map: null, depthWrite: false, depthTest: false }), cpS = new THREE.Scene();
+    cpS.add(new THREE.Mesh(trG, cpMat));
+
+    // ---- Rose（水滴花苞 ⇄ 放射莲花，奶白→粉→深红） ----
+    function Rose(){
+      this.budPos = []; this.bloomPos = []; this.colors = []; this.sizes = []; this.alphas = []; this.layerIds = []; this.N = 0;
+      var cream = new THREE.Color("#FFF8F0"), palePink = new THREE.Color("#FADAE0"), rosePink = new THREE.Color("#E890A0"), crimson = new THREE.Color("#CC4040"), deepRed = new THREE.Color("#8B1520");
+      function petalColor(u, vAbs){
+        var c;
+        if(u < .10) c = cream.clone().lerp(palePink, u / .10);
+        else if(u < .35) c = palePink.clone().lerp(rosePink, (u - .10) / .25);
+        else if(u < .65) c = rosePink.clone().lerp(crimson, (u - .35) / .3);
+        else c = crimson.clone().lerp(deepRed, (u - .65) / .35);
+        if(vAbs > .55) c.lerp(new THREE.Color("#3A0A10"), (vAbs - .55) / .45);
+        c.offsetHSL((Math.random() - .5) * .015, 0, (Math.random() - .5) * .025);
+        return c;
+      }
+      var layers = [
+        { n: 4, ro: .04, L: .60, w: .22, zd: .06, budR: .12, bs: 0,   be: .22, ao: 0 },
+        { n: 5, ro: .12, L: .82, w: .32, zd: .09, budR: .14, bs: .06, be: .40, ao: .40 },
+        { n: 6, ro: .22, L: 1.05, w: .42, zd: .12, budR: .17, bs: .18, be: .58, ao: .22 },
+        { n: 7, ro: .34, L: 1.30, w: .52, zd: .15, budR: .20, bs: .36, be: .76, ao: .55 }
+      ];
+      var ppPet = 90;
+      for(var li = 0; li < layers.length; li++){
+        var l = layers[li];
+        for(var p = 0; p < l.n; p++){
+          var baseAngle = (p / l.n) * Math.PI * 2 + l.ao;
+          for(var j = 0; j < ppPet; j++){
+            var u = j / ppPet;
+            var rr = l.ro + l.L * u;
+            var wMul = Math.sin(u * Math.PI) * .9 + .08 * (1 - u);
+            var halfW = l.w * wMul;
+            var vRaw = (Math.random() - .5) * 2;
+            var v = Math.sign(vRaw) * Math.pow(Math.abs(vRaw), .5);
+            var lat = v * halfW;
+            var a = baseAngle + lat / (rr + .03);
+            var x = rr * Math.cos(a), y = rr * Math.sin(a);
+            var zBase = l.zd * (1 - u) * Math.sin(u * Math.PI) * .5 + Math.abs(v) * l.zd * (1 - u * u) * .2;
+            var backTilt = Math.max(0, Math.sin(baseAngle)) * l.zd * 2.5 * u;
+            this.bloomPos.push(new THREE.Vector3(x, y, zBase + backTilt));
+            var phi = Math.random() * Math.PI, th = Math.random() * Math.PI * 2, br = l.budR * Math.pow(Math.random(), .5);
+            this.budPos.push(new THREE.Vector3(br * Math.sin(phi) * Math.cos(th), br * Math.sin(phi) * Math.sin(th), br * Math.cos(phi) * .45));
+            this.colors.push(petalColor(u, Math.abs(v)));
+            this.sizes.push(.008 + Math.random() * .032 + u * .014);
+            this.alphas.push(.25 + Math.random() * .75 + u * .06);
+            this.layerIds.push(li);
+            this.N++;
+          }
+        }
+      }
+      // 花蕊
+      for(var ci = 0; ci < 350; ci++){
+        var a2 = Math.random() * Math.PI * 2, r2 = Math.pow(Math.random(), .7) * .12;
+        this.budPos.push(new THREE.Vector3(0, 0, 0));
+        this.bloomPos.push(new THREE.Vector3(Math.cos(a2) * r2, (Math.random() - .5) * .06, (Math.random() - .5) * .04 + Math.sin(a2) * r2));
+        this.colors.push(new THREE.Color().setHSL(.08 + Math.random() * .05, .4, .45 + Math.random() * .5));
+        this.sizes.push(.008 + Math.random() * .035);
+        this.alphas.push(.45 + Math.random() * .55);
+        this.layerIds.push(-1);
+        this.N++;
+      }
+      // 漂浮粒子
+      for(var fi = 0; fi < 400; fi++){
+        var a3 = Math.random() * Math.PI * 2, r3 = .15 + Math.random() * 1.8;
+        var bv = new THREE.Vector3(Math.cos(a3) * r3, (Math.random() - .5) * 2.5, Math.sin(a3) * r3);
+        this.budPos.push(bv.clone().multiplyScalar(.08));
+        this.bloomPos.push(bv);
+        this.colors.push(new THREE.Color().setHSL(.06 + Math.random() * .06, .25, .3 + Math.random() * .6));
+        this.sizes.push(.003 + Math.random() * .012);
+        this.alphas.push(.03 + Math.random() * .4);
+        this.layerIds.push(-2);
+        this.N++;
+      }
+      var pa2 = new Float32Array(this.N * 3), ca2 = new Float32Array(this.N * 3), sa2 = new Float32Array(this.N), aa2 = new Float32Array(this.N);
+      for(var ii = 0; ii < this.N; ii++){
+        var bb = this.budPos[ii];
+        pa2[ii * 3] = bb.x; pa2[ii * 3 + 1] = bb.y; pa2[ii * 3 + 2] = bb.z;
+        ca2[ii * 3] = this.colors[ii].r; ca2[ii * 3 + 1] = this.colors[ii].g; ca2[ii * 3 + 2] = this.colors[ii].b;
+        sa2[ii] = this.sizes[ii]; aa2[ii] = this.alphas[ii];
+      }
+      this.geo = new THREE.BufferGeometry();
+      this.geo.setAttribute("position", new THREE.BufferAttribute(pa2, 3));
+      this.geo.setAttribute("aColor", new THREE.BufferAttribute(ca2, 3));
+      this.geo.setAttribute("aSize", new THREE.BufferAttribute(sa2, 1));
+      this.geo.setAttribute("aAlpha", new THREE.BufferAttribute(aa2, 1));
+      this.mat = new THREE.ShaderMaterial({ vertexShader: roseVert, fragmentShader: roseFrag, uniforms: { uTime: { value: 0 } }, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending });
+      this.pts = new THREE.Points(this.geo, this.mat);
+      this.wp = new Float32Array(this.N);
+      for(var wi = 0; wi < this.N; wi++) this.wp[wi] = Math.random() * Math.PI * 2;
+
+      this.update = function(gb, hp, hv, dt, time){
+        var pa3 = this.geo.attributes.position.array;
+        var ld = [{ bs: 0, be: .22 }, { bs: .06, be: .40 }, { bs: .18, be: .58 }, { bs: .36, be: .76 }];
+        var gbp = Math.pow(Math.min(gb, 1), 1.5);
+        for(var q = 0; q < this.N; q++){
+          var li2 = this.layerIds[q], bu2 = this.budPos[q], bl2 = this.bloomPos[q], e;
+          if(li2 >= 0 && li2 < ld.length){
+            var pp = Math.max(0, Math.min(1, (gb - ld[li2].bs) / (ld[li2].be - ld[li2].bs + .001)));
+            e = pp * pp * (3 - 2 * pp);
+          } else e = gbp;
+          var bx = bu2.x + (bl2.x - bu2.x) * e, by = bu2.y + (bl2.y - bu2.y) * e, bz = bu2.z + (bl2.z - bu2.z) * e;
+          var wa = .002 + e * .012;
+          bx += Math.sin(time * 1.8 + this.wp[q]) * wa * 3;
+          by += Math.cos(time * 2.1 + this.wp[q]) * wa * 3;
+          bz += Math.cos(time * 1.6 + this.wp[q]) * wa * 1.2;
+          if(li2 === -2 && hv > .01){
+            var d2 = Math.sqrt(bx * bx + by * by + bz * bz) + .3;
+            bx += bx * Math.min(hv * 2 / d2, .5) * .012;
+            by += by * Math.min(hv * 1.5 / d2, .5) * .008;
+          }
+          pa3[q * 3] = bx; pa3[q * 3 + 1] = by; pa3[q * 3 + 2] = bz;
+        }
+        this.geo.attributes.position.needsUpdate = true;
+        var aa3 = this.geo.attributes.aAlpha.array;
+        for(var q2 = 0; q2 < this.N; q2++){
+          if(this.layerIds[q2] === -2) aa3[q2] = this.alphas[q2] * (.08 + gbp * .92);
+          else if(this.layerIds[q2] === -1) aa3[q2] = this.alphas[q2] * (.12 + gbp * .88);
+          else aa3[q2] = this.alphas[q2];
+        }
+        this.geo.attributes.aAlpha.needsUpdate = true;
+        this.pts.position.x += (hp.x * .2 - this.pts.position.x) * .04;
+        this.pts.position.y += (hp.y * .18 - this.pts.position.y) * .04;
+        this.mat.uniforms.uTime.value = time;
+      };
+      this.getObj = function(){ return this.pts; };
+      this.activeLayers = function(gb){
+        var out = [], ld2 = [{ bs: 0 }, { bs: .06 }, { bs: .18 }, { bs: .36 }];
+        for(var al = 0; al < ld2.length; al++) out.push(gb > ld2[al].bs + .01);
+        return out;
+      };
+    }
+    var rose = new Rose();
+    scene.add(rose.getObj());
+
+    // ---- 内部时钟与状态 ----
+    var lastT = performance.now() / 1000, nowT = lastT;
+    var trailRe = .93, prevMX = .5, prevMY = .5, hv = 0;
+
+    function update(bloom, midX, midY, triggerBurst){
+      nowT = performance.now() / 1000;
+      var dt = Math.min(nowT - lastT, .1);
+      lastT = nowT;
+      var s = Math.max(0, Math.min(1, bloom));
+      hv = Math.hypot(midX - prevMX, midY - prevMY);
+      prevMX = midX; prevMY = midY;
+      // #fx 会被 CSS scaleX(-1)，x 用 (midX-0.5) 以抵消镜像，使花与镜像手位置一致
+      var hp = { x: (midX - .5) * 4.5, y: (.5 - midY) * 3.2 };
+      rose.update(s, hp, hv, dt, nowT);
+      stem.update(s);
+      updateMeteors(dt, nowT, hv, hp);
+      twMat.uniforms.uTime.value = nowT;
+    }
+
+    function render(){
+      // 拖尾：上一帧衰减 → 叠加当前场景 → copy 到画布
+      renderer.setRenderTarget(tWB);
+      renderer.autoClear = true;
+      trM.uniforms.tPrev.value = tRA.texture;
+      trM.uniforms.uRet.value = trailRe;
+      renderer.render(trS, trC);
+      renderer.autoClear = false;
+      renderer.clearDepth();
+      renderer.render(scene, camera);
+      renderer.setRenderTarget(null);
+      renderer.autoClear = true;
+      cpMat.map = tWB.texture;
+      renderer.render(cpS, trC);
+      var tmp = tRA; tRA = tWB; tWB = tmp;
+    }
+
+    function resize(w, h){
+      if(w > 0 && h > 0){
+        curW = w; curH = h;
+        renderer.setSize(w, h, false);
+        camera.aspect = w / h;
+        camera.updateProjectionMatrix();
+        tRA.dispose(); tWB.dispose();
+        tRA = mkRT(w, h); tWB = mkRT(w, h);
+      }
+    }
+
+    function dispose(){
+      tRA.dispose(); tWB.dispose();
+      scene.traverse(function(o){
+        if(o.geometry) o.geometry.dispose();
+        if(o.material){
+          if(Array.isArray(o.material)){ o.material.forEach(function(mt){ if(mt.map) mt.map.dispose(); mt.dispose(); }); }
+          else { if(o.material.map) o.material.map.dispose(); o.material.dispose(); }
+        }
+      });
+      renderer.dispose();
+    }
+
+    resize(curW, curH);
+    return { update: update, render: render, resize: resize, dispose: dispose };
+  }
+
+
+
+
+  // ---------- 打卡图合成 ----------
+  function composeCard(){
+    var W = 1200, H = 630, band = 80;
+    var mainH = H - band;
+    var cv = document.createElement("canvas");
+    cv.width = W; cv.height = H;
+    var c = cv.getContext("2d");
+
+    // 主画面底色：深蓝星空渐变
+    var g = c.createLinearGradient(0, 0, 0, H);
+    g.addColorStop(0, "#0b1026");
+    g.addColorStop(0.6, "#0a0f1e");
+    g.addColorStop(1, "#141a38");
+    c.fillStyle = g;
+    c.fillRect(0, 0, W, H);
+
+    // 主画面：fx 粒子花（镜像，与舞台所见一致），contain 保持原始比例完整显示，不裁切不变形
+    try{
+      var fw = fx.width || 1, fh = fx.height || 1;
+      var boxRatio = W / mainH, srcRatio = fw / fh;
+      var dw, dh;
+      if(srcRatio > boxRatio){ dw = W; dh = W / srcRatio; }
+      else { dh = mainH; dw = mainH * srcRatio; }
+      var dx = (W - dw) / 2, dy = (mainH - dh) / 2;
+      c.save();
+      c.translate(dx + dw, 0); c.scale(-1, 1);
+      c.drawImage(fx, 0, 0, fw, fh, 0, dy, dw, dh);
+      c.restore();
+    }catch(e){}
+
+    // 右下角方形摄像头小窗（画中画，镜像）
+    var ss = 128, m = 24;
+    var bx = W - m - ss, by = mainH - m - ss;
+    var vw = cam.videoWidth || 0, vh = cam.videoHeight || 0;
+    var hasFrame = vw > 0 && cam.readyState >= 2;
+    c.save();
+    c.beginPath(); c.roundRect(bx, by, ss, ss, 14); c.clip();
+    if(hasFrame){
+      // 中心方形裁切 + 镜像
+      var side = Math.min(vw, vh);
+      var cx0 = (vw - side) / 2, cy0 = (vh - side) / 2;
+      c.translate(bx + ss, by); c.scale(-1, 1);
+      c.drawImage(cam, cx0, cy0, side, side, 0, 0, ss, ss);
+    } else {
+      c.fillStyle = "#141a38"; c.fillRect(bx, by, ss, ss);
+      c.fillStyle = "rgba(246,220,155,.85)";
+      c.font = 'bold 40px "STZhongsong","Songti SC","SimSun",serif';
+      c.textAlign = "center"; c.textBaseline = "middle";
+      c.fillText("星火", bx + ss / 2, by + ss / 2);
+    }
+    c.restore();
+    c.strokeStyle = "rgba(246,220,155,.7)";
+    c.lineWidth = 2;
+    c.beginPath(); c.roundRect(bx, by, ss, ss, 14); c.stroke();
+
+    // 底部水印带
+    c.fillStyle = "#080d20";
+    c.fillRect(0, mainH, W, band);
+    c.strokeStyle = "rgba(242,198,109,.4)";
+    c.lineWidth = 1;
+    c.beginPath(); c.moveTo(0, mainH); c.lineTo(W, mainH); c.stroke();
+
+    c.textBaseline = "middle";
+    // 左：心栖明月长明
+    c.fillStyle = "rgba(232,217,174,.7)";
+    c.font = '18px "STZhongsong","Songti SC","SimSun",serif';
+    c.textAlign = "left";
+    c.fillText("心栖明月长明", 30, mainH + band / 2);
+    // 中：星火三部曲水印
+    c.fillStyle = "#f6dc9b";
+    c.font = 'bold 32px "STZhongsong","Songti SC","SimSun",serif';
+    c.textAlign = "center";
+    c.fillText("星火三部曲", W / 2, mainH + band / 2);
+    // 右：日期 · 第 N 次打卡
+    var now = new Date();
+    var p2 = function(n){ return (n < 10 ? "0" : "") + n; };
+    var dateStr = now.getFullYear() + "." + p2(now.getMonth() + 1) + "." + p2(now.getDate());
+    c.fillStyle = "rgba(232,217,174,.75)";
+    c.font = '17px "STZhongsong","Songti SC","SimSun",serif';
+    c.textAlign = "right";
+    c.fillText(dateStr + " · 第 " + count + " 次打卡", W - 30, mainH + band / 2);
+
+    return cv.toDataURL("image/png");
+  }
+
+  function showCard(dataUrl){
+    cardImg.src = dataUrl;
+    dlBtn.href = dataUrl;
+    cardWrap.hidden = false;
+    countLine.textContent = "这是你第 " + count + " 次点亮星火";
+    cardWrap.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function fireCheckin(){
+    setHint("✌ 咔嚓", true);
+    setTimeout(function(){
+      count++;
+      localStorage.setItem(KEY, String(count));
+      var dataUrl = composeCard();
+      showCard(dataUrl);
+      running = false;
+      stopCam();
+      hideHint();
+    }, 800);
+  }
+
+  // ---------- 手势检测循环 ----------
+  var lastLandmarks = null, rafId = null, frameSkip = 0;
+  var midX = 0.5, midY = 0.5;
+  function loop(ts){
+    if(!running) return;
+    rafId = requestAnimationFrame(loop);
+    if(frameSkip % 3 !== 0){ frameSkip++; return; }
+    frameSkip++;
+    if(!landmarker || cam.readyState < 2){
+      if(flower3D) flower3D.render();
+      return;
+    }
+    var res;
+    try { res = landmarker.detectForVideo(cam, performance.now()); }
+    catch(e){ return; }
+    var lm = null;
+    if(res && res.landmarks && res.landmarks.length > 0){
+      lastLandmarks = res.landmarks[0];
+      lm = flipLandmarks(lastLandmarks);
+    }
+    if(lm){
+      var gap = fistOpen(lm);
+      FLOWER.spread += (gap - FLOWER.spread) * 0.22;
+      // 花朵落在手掌心（腕+四指掌根的加权中心），轻微跟随
+      var palm = { x: (lm[0].x + lm[5].x + lm[9].x + lm[13].x + lm[17].x) / 5,
+                   y: (lm[0].y + lm[5].y + lm[9].y + lm[13].y + lm[17].y) / 5 };
+      midX += (palm.x - midX) * 0.28;
+      midY += (palm.y - midY) * 0.28;
+      if(gestPhase === 0){
+        // 阶段一：等握拳
+        if(isFist(lm)){ phaseHits++; if(phaseHits >= 4){ gestPhase = 1; phaseHits = 0; } }
+        else phaseHits = 0;
+        setHint("① 握紧拳头");
+      } else if(gestPhase === 1){
+        // 阶段二：握拳后等张开
+        if(isOpen(lm)){ phaseHits++; if(phaseHits >= 3){ gestPhase = 2; phaseHits = 0; } }
+        else phaseHits = 0;
+        setHint("② 张开手掌，花会醒来");
+      } else {
+        // 阶段三：花开后等 ✌
+        if(isVictory(lm)){
+          phaseHits++;
+          if(phaseHits >= 4 && !fired){
+            fired = true;
+            FLOWER.burst = 1;
+            fireCheckin();
+          }
+        } else {
+          phaseHits = 0;
+          setHint("③ 比个 ✌，定格打卡");
+        }
+      }
+    } else {
+      phaseHits = 0;
+      FLOWER.spread *= 0.97;
+      setHint(gestPhase === 0 ? "把手放进画面，先握紧拳头" : "手别离开画面");
+    }
+    if(flower3D){
+      var bf = FLOWER.burst > 0;
+      if(bf) FLOWER.burst = 0;
+      flower3D.update(FLOWER.spread, midX, midY, bf);
+      flower3D.render();
+    }
+  }
+
+  function startCam(){
+    if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+      loadText.textContent = "当前浏览器不支持摄像头";
+      return;
+    }
+    loadText.textContent = "正在请求摄像头，请在弹窗里点「允许」…";
+    var pending = true;
+    var guard = setTimeout(function(){
+      if(pending){
+        pending = false;
+        loadText.textContent = "摄像头没有响应（用 file:// 本地打开时权限常被拦截）——点「直接拍照」也能打卡";
+        snapBtn.disabled = false;
+      }
+    }, 8000);
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: false })
+      .then(function(s){
+        clearTimeout(guard);
+        if(!pending) return s;
+        pending = false;
+        stream = s;
+        cam.srcObject = s;
+        loading.hidden = true;
+        startBtn.disabled = true;
+        snapBtn.disabled = false;
+        setHint("正在加载手势模型…");
+        return s;
+      })
+      .then(loadModel)
+      .catch(function(err){
+        clearTimeout(guard);
+        pending = false;
+        loadText.textContent = "摄像头被拒绝或不可用——点「直接拍照」也能打卡";
+        snapBtn.disabled = false;
+      });
+  }
+
+  // ---------- 手势模型（双源：抖音 CDN 模型脚本为主，GitHub raw 直链兜底；JS 库与 wasm 走 npmmirror） ----------
+  var MP_JS = "https://cdn.npmmirror.com/packages/%40mediapipe%2ftasks-vision/0.10.14/files/vision_bundle.mjs";
+  var MP_WASM = "https://cdn.npmmirror.com/packages/%40mediapipe%2ftasks-vision/0.10.14/files/wasm";
+  var MP_MODEL_JS = "https://aka.doubaocdn.com/s/FVBGBjs3oy";
+  var MP_MODEL_RAW = "https://raw.githubusercontent.com/IoT-gamer/hand_landmarker/main/android/src/main/assets/hand_landmarker.task";
+
+  function modelBytes(){
+    var b64 = window.__STARFIRE_MODEL_B64 || "";
+    var bin = atob(b64);
+    var bytes = new Uint8Array(bin.length);
+    for(var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    return bytes;
+  }
+
+  function loadModel(){
+    loadText.textContent = "正在加载手势模型（首次约 8MB，请稍候）…";
+    var done = false;
+    var guard = setTimeout(function(){
+      if(!done){
+        loadText.textContent = "模型加载超时，请检查网络后刷新（或点「直接拍照」）";
+        snapBtn.disabled = false;
+      }
+    }, 90000);
+
+    var onOk = function(hl){
+      clearTimeout(guard); done = true;
+      landmarker = hl;
+      gestPhase = 0; phaseHits = 0; fired = false;
+      FLOWER.spread = 0; FLOWER.burst = 0; FLOWER.spin = 0;
+      midX = 0.5; midY = 0.5;
+      setHint("正在点亮 3D 渲染引擎…");
+      loadThree().then(function(THREE){
+        if(flower3D){ try { flower3D.dispose(); } catch(e){} flower3D = null; }
+        try {
+          flower3D = createFlower3D(THREE, fx);
+          flower3D.resize(stage.clientWidth, stage.clientHeight);
+        } catch(err){
+          flower3D = null;
+          loadText.textContent = "3D 渲染初始化失败（浏览器可能不支持 WebGL），点「直接拍照」也能打卡";
+          snapBtn.disabled = false;
+          return;
+        }
+        running = true;
+        setHint("① 握紧拳头");
+        requestAnimationFrame(loop);
+      }).catch(function(){
+        loadText.textContent = "3D 渲染库加载失败，请检查网络后刷新（或点「直接拍照」）";
+        snapBtn.disabled = false;
+      });
+    };
+    var onErr = function(e){
+      clearTimeout(guard); done = true;
+      loadText.textContent = "模型加载失败，请检查网络后刷新（或点「直接拍照」）";
+      snapBtn.disabled = false;
+    };
+
+    // 方式 B：npmmirror 库 + raw 直链模型（兜底）
+    var startWithRaw = function(){
+      import(MP_JS)
+        .then(function(mod){
+          return mod.FilesetResolver.forVisionTasks(MP_WASM).then(function(fileset){
+            return mod.HandLandmarker.createFromOptions(fileset, {
+              baseOptions: { modelAssetPath: MP_MODEL_RAW, delegate: "CPU" },
+              runningMode: "VIDEO",
+              numHands: 1
+            });
+          });
+        })
+        .then(onOk)
+        .catch(onErr);
+    };
+
+    // 方式 A：doubaocdn 模型脚本 → base64 解码 → modelAssetBuffer
+    var s = document.createElement("script");
+    s.src = MP_MODEL_JS;   // 注意：不加 crossOrigin（no-cors 请求不带 Origin）
+    s.onload = function(){
+      if(window.__STARFIRE_MODEL_B64 && window.__STARFIRE_MODEL_B64.length > 1000){
+        import(MP_JS)
+          .then(function(mod){
+            return mod.FilesetResolver.forVisionTasks(MP_WASM).then(function(fileset){
+              return mod.HandLandmarker.createFromOptions(fileset, {
+                baseOptions: { modelAssetBuffer: modelBytes(), delegate: "CPU" },
+                runningMode: "VIDEO",
+                numHands: 1
+              });
+            });
+          })
+          .then(onOk)
+          .catch(onErr);
+      } else {
+        startWithRaw();
+      }
+    };
+    s.onerror = function(){ startWithRaw(); };
+    document.head.appendChild(s);
+  }
+
+  function stopCam(){
+    if(stream){ stream.getTracks().forEach(function(t){ t.stop(); }); stream = null; }
+    if(rafId){ cancelAnimationFrame(rafId); rafId = null; }
+    running = false;
+    startBtn.disabled = false;
+    snapBtn.disabled = true;
+  }
+
+  // 手动拍照兜底
+  snapBtn.addEventListener("click", function(){
+    if(cam.readyState >= 2 && running){
+      count++;
+      localStorage.setItem(KEY, String(count));
+      var dataUrl = composeCard();
+      showCard(dataUrl);
+      stopCam();
+    } else {
+      // 摄像头没起来：生成无照片版打卡图
+      count++;
+      localStorage.setItem(KEY, String(count));
+      var dataUrl = composeCard();
+      showCard(dataUrl);
+      stopCam();
+    }
+  });
+
+  againBtn.addEventListener("click", function(){
+    cardWrap.hidden = true;
+    running = false;
+    stopCam();
+    if(flower3D){ try { flower3D.dispose(); } catch(e){} flower3D = null; }
+    loading.hidden = false;
+    loadText.textContent = "点击「开始打卡」，重新开启摄像头";
+    startCam();
+  });
+
+  startBtn.addEventListener("click", startCam);
+  // 返回时清理摄像头
+  window.addEventListener("beforeunload", function(){
+    stopCam();
+    if(flower3D){ try { flower3D.dispose(); } catch(e){} flower3D = null; }
+  });
+})();
+</script>
+</body>
+</html>
