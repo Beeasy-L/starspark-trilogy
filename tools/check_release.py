@@ -556,7 +556,7 @@ def check_version_consistency():
          os.path.join(svc, "星火专注Pro", "_gitrepo", "index.html"),
          r'<div class="logver">\s*(v[0-9][0-9.]*)',
          os.path.join(ROOT, "projects", "focus.html"),
-         r'第二部[^<]*?v([0-9][0-9.]*)'),
+         r'第二部[^<]*?[vV]([0-9][0-9.]*)'),
         ("第三部 星火PPT",
          os.path.join(svc, "星火PPT", "deploy", "网页版", "index.html"),
          r'<div class="logver">\s*(V[0-9][0-9.]*)',
@@ -573,7 +573,7 @@ def check_version_consistency():
         os.path.join(svc, "星火专注Pro", "_gitrepo", "index.html"),
         r'<div class="logver">\s*(v[0-9][0-9.]*)',
         os.path.join(ROOT, "index.html"),
-        r'第二部[^<]*?v([0-9][0-9.]*)'))
+        r'第二部[^<]*?[vV]([0-9][0-9.]*)'))
     rows.append((
         "首页徽章·第三部",
         os.path.join(svc, "星火PPT", "deploy", "网页版", "index.html"),
@@ -585,7 +585,7 @@ def check_version_consistency():
         os.path.join(svc, "星火专注Pro", "_gitrepo", "index.html"),
         r'<div class="logver">\s*(v[0-9][0-9.]*)',
         os.path.join(ROOT, "projects", "focus-start.html"),
-        r'第二部[^<]*?v([0-9][0-9.]*)'))
+        r'第二部[^<]*?[vV]([0-9][0-9.]*)'))
     # ★ 第 3 个覆盖漏洞（2026-10-28 19:00 补，由 @介绍页开发 18:23 的补充暴露）
     #   focus-app/index.html:955 也是版本声明位置，此前完全没被扫到。
     #   它是「零入口但线上 200 可达」的陈旧副本（v1.2.2 vs 真值 v1.3.2）。
